@@ -178,16 +178,16 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
         if (groupData.delivery) {
           console.log('요기요 API 호출 시작');
           try {
-            const response = await fetch(`${BACKEND_URL}/yogiyo/search?x=${groupData.x}&y=${groupData.y}&delivery_time=${groupData.delivery_time}`);
+            const response = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants`);
             const data = await response.json();
             
             if (data.restaurants) {
               const yogiyoRestaurants = data.restaurants.map((restaurant: any) => ({
-                id: restaurant.yogiyo_id.toString(),
-                name: formatRestaurantName(restaurant.name),
-                rating: restaurant.rating,
-                address: restaurant.address,
-                category: restaurant.category,
+                id: (restaurant.id || restaurant.yogiyo_id || restaurant.restaurant_id || '').toString(),
+                name: formatRestaurantName(restaurant.name || restaurant.restaurant_name || ''),
+                rating: restaurant.rating || restaurant.score || 0,
+                address: restaurant.address || restaurant.address_name || '',
+                category: restaurant.category || restaurant.category_name || '',
                 type: 'yogiyo' as const,
                 detail: restaurant
               }));
@@ -200,6 +200,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
         }
 
         console.log('최종 식당 목록:', allRestaurants);
+        console.log('총 식당 수:', allRestaurants.length);
+        console.log('카카오맵 식당 수:', allRestaurants.filter(r => r.type === 'kakao').length);
+        console.log('요기요 식당 수:', allRestaurants.filter(r => r.type === 'yogiyo').length);
         setRestaurants(allRestaurants);
       } catch (error) {
         console.error('식당 정보 가져오기 오류:', error);
