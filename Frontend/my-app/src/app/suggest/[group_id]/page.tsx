@@ -279,7 +279,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           padding: "16px 32px",
           borderRadius: "24px",
           fontSize: "16px",
-          zIndex: 9999,
+          zIndex: 10000,
           boxShadow: "0 4px 16px rgba(0,0,0,0.2)"
         }}>
           {toast}
@@ -433,13 +433,15 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         {showRandomModal && (
           <SlotMachineRoulette
             groupId={groupId}
+            registeredKakaoIds={registeredKakaoIds}
+            registeredYogiyoIds={registeredYogiyoIds}
             onAddCandidate={async (candidate: any) => {
               if (candidate.type === 'kakao') {
                 await addKakaoCandidate(candidate.detail || candidate);
-                setShowRandomModal(false);
+                // 팝업을 닫지 않고 그대로 유지
               } else if (candidate.type === 'yogiyo') {
                 await addYogiyoCandidate(candidate.detail || candidate);
-                setShowRandomModal(false);
+                // 팝업을 닫지 않고 그대로 유지
               } else {
                 showToast('알 수 없는 타입의 후보입니다.');
               }
