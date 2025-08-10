@@ -1,8 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow, Autoplay } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/effect-coverflow';
 import styles from './SlotMachineRoulette.module.css';
 
 // 카카오맵 API 타입 정의
@@ -51,8 +47,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [groupData, setGroupData] = useState<GroupData | null>(null);
-  const [slidePositions, setSlidePositions] = useState<{[key: string]: number}>({});
-  const swiperRef = useRef<any>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const currentIndexRef = useRef(0);
 
@@ -216,102 +211,87 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     fetchRestaurants();
   }, [groupData, BACKEND_URL]);
 
-  // 슬롯머신 돌리기
+    // 슬롯머신 돌리기
   const handleSpin = () => {
     if (restaurants.length === 0 || isSpinning) return;
 
     setIsSpinning(true);
     setShowResult(false);
     setSelectedRestaurant(null);
+    setIsAnimating(true);
 
     // 랜덤한 최종 인덱스 선택
     const finalIndex = Math.floor(Math.random() * restaurants.length);
     const selected = restaurants[finalIndex];
 
-        // 애니메이션 시작
-    const totalDuration = 2000; // 2초로 늘림
-    const totalSteps = 30; // 총 30단계
+    // 애니메이션 시작 - 정확한 회전 횟수 계산
+    const currentPos = currentIndexRef.current;
+    const targetPos = finalIndex;
+    let stepsToTarget = 0;
+    
+    // 시계방향으로 돌면서 targetPos에 도달하는 단계 수 계산
+    let tempPos = currentPos;
+    while (tempPos !== targetPos) {
+      tempPos = (tempPos + 1) % restaurants.length;
+      stepsToTarget++;
+    }
+    
+    // 최소 1.5바퀴 + 정확한 위치까지의 단계 수
+    const minRotations = 1;
+    const totalSteps = Math.floor((minRotations * restaurants.length) + stepsToTarget);
     let currentStep = 0;
 
     const animate = () => {
       if (currentStep < totalSteps) {
-        // 순차적으로 다음 인덱스로 이동 (loop를 활용해서 자연스럽게 연결)
-        if (swiperRef.current && swiperRef.current.swiper) {
-          const swiper = swiperRef.current.swiper;
-          
-          // 현재 슬라이드들의 위치를 저장
-          const currentPositions = {
-            prev: swiper.slides[swiper.previousIndex] ? swiper.previousIndex : 0,
-            active: swiper.activeIndex,
-            next: swiper.slides[swiper.nextIndex] ? swiper.nextIndex : 0
-          };
-          
-          // 다음 슬라이드로 이동
-          swiper.slideNext();
-          
-                     // 새로운 슬라이드 위치 계산 (즉시 처리)
-           const newPositions = {
-             prev: swiper.slides[swiper.previousIndex] ? swiper.previousIndex : 0,
-             active: swiper.activeIndex,
-             next: swiper.slides[swiper.nextIndex] ? swiper.nextIndex : 0
-           };
-           
-           // 중앙아래 슬라이드가 새로 등장하는 경우 아래쪽에서 시작
-           if (newPositions.next !== currentPositions.next) {
-             setSlidePositions(prev => ({
-               ...prev,
-               [`slide-${newPositions.next}`]: 100 // 더 아래쪽에서 시작
-             }));
-             
-             // 애니메이션으로 중앙아래 위치로 이동 (즉시)
-             setSlidePositions(prev => ({
-               ...prev,
-               [`slide-${newPositions.next}`]: 25
-             }));
-           }
-        }
+        // 다음 인덱스로 이동
+        const nextIndex = (currentIndexRef.current + 1) % restaurants.length;
+        currentIndexRef.current = nextIndex;
+        setCurrentIndex(nextIndex);
         
-        // 일정한 속도로 회전
-        const currentStepDuration = 80; // 빠른 일정한 속도
+        // 감속 효과 계산 (마지막 1.5초 정도만)
+        const progress = currentStep / totalSteps; // 0~1 사이의 진행률
+        let currentStepDuration;
+        
+        if (progress > 0.7) {
+          // 마지막 30% 구간에서 감속 (약 1.5초)
+          const decelerationProgress = (progress - 0.7) / 0.3; // 0~1
+          const decelerationFactor = 1 + (decelerationProgress * 3); // 1배 -> 4배
+          currentStepDuration = 80 * decelerationFactor;
+        } else {
+          // 그 외 구간은 일정한 속도 (더 느리게)
+          currentStepDuration = 80;
+        }
         
         currentStep++;
         animationRef.current = setTimeout(animate, currentStepDuration);
       } else {
-        // 최종 결과로 이동 - 당첨된 식당이 중앙에 그대로 유지
-        if (swiperRef.current && swiperRef.current.swiper) {
-          // loop를 고려해서 올바른 슬라이드로 이동
-          const swiper = swiperRef.current.swiper;
-          const realIndex = swiper.realIndex;
-          const targetIndex = finalIndex;
+        // 자연스럽게 마지막 결과로 정착
+        // 현재 위치에서 finalIndex까지 몇 번 더 돌아야 하는지 계산
+        const currentPos = currentIndexRef.current;
+        const targetPos = finalIndex;
+        let stepsToTarget = 0;
+        
+        // 시계방향으로 돌면서 targetPos에 도달하는 단계 수 계산
+        let tempPos = currentPos;
+        while (tempPos !== targetPos) {
+          tempPos = (tempPos + 1) % restaurants.length;
+          stepsToTarget++;
+        }
+        
+        // 추가 단계가 있으면 계속 돌기
+        if (stepsToTarget > 0) {
+          const nextIndex = (currentIndexRef.current + 1) % restaurants.length;
+          currentIndexRef.current = nextIndex;
+          setCurrentIndex(nextIndex);
           
-          // 현재 위치에서 목표 위치까지의 거리 계산
-          const distance = (targetIndex - realIndex + restaurants.length) % restaurants.length;
-          
-          // 단계별로 이동해서 자연스럽게 연결
-          let moveCount = 0;
-          const moveToTarget = () => {
-            if (moveCount < distance) {
-              swiper.slideNext();
-              moveCount++;
-                             setTimeout(moveToTarget, 120);
-            } else {
-              // 최종 이동 완료 후 상태 업데이트
-              const finalRealIndex = swiper.realIndex;
-              currentIndexRef.current = finalRealIndex;
-              setCurrentIndex(finalRealIndex);
-              setSelectedRestaurant(restaurants[finalRealIndex]);
-              setIsSpinning(false);
-              setShowResult(true);
-            }
-          };
-          moveToTarget();
+          // 매우 느린 속도로 마지막 단계들 진행
+          animationRef.current = setTimeout(animate, 150);
         } else {
-          // Swiper가 없는 경우 바로 상태 업데이트
-          currentIndexRef.current = finalIndex;
-          setCurrentIndex(finalIndex);
-          setSelectedRestaurant(selected);
+          // 목표 위치에 도달했으면 결과 표시
+          setSelectedRestaurant(restaurants[finalIndex]);
           setIsSpinning(false);
           setShowResult(true);
+          setIsAnimating(false);
         }
       }
     };
@@ -372,54 +352,44 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
           <button className={styles.closeButton} onClick={onClose}>✕</button>
         </div>
 
-        <div className={styles.body}>
+                <div className={styles.body}>
           <div className={styles.wheelContainer}>
             <div className={styles.wheelWrapper}>
-                             <Swiper
-                 ref={swiperRef}
-                 direction="vertical"
-                 effect="coverflow"
-                 grabCursor={false}
-                 allowTouchMove={false}
-                 modules={[EffectCoverflow]}
-                 coverflowEffect={{
-                   rotate: 0,
-                   stretch: 0,
-                   depth: 100,
-                   modifier: 1,
-                   slideShadows: false,
-                 }}
-                 className={styles.slotMachineSwiper}
-                 initialSlide={0}
-                                   speed={0}
-                  spaceBetween={15}
-                  slidesPerView={3}
-                 centeredSlides={true}
-                 loop={true}
-                                   onSlideChange={(swiper) => {
-                    // 실시간으로 active 상태 업데이트
-                    if (isSpinning) {
-                      setCurrentIndex(swiper.realIndex);
-                      currentIndexRef.current = swiper.realIndex;
-                    }
-                  }}
-               >
-                                 {restaurants.map((restaurant, index) => (
-                   <SwiperSlide 
-                     key={index} 
-                     className={styles.slotMachineSlide}
-                     style={{
-                       transform: slidePositions[`slide-${index}`] 
-                         ? `translateY(${slidePositions[`slide-${index}`]}px)` 
-                         : undefined
-                     }}
-                   >
-                     <div className={`${styles.slotMachineItem} ${index === currentIndex ? styles.active : ''}`}>
-                       {restaurant.name}
-                     </div>
-                   </SwiperSlide>
-                 ))}
-              </Swiper>
+              <div className={styles.slotMachineContainer}>
+                {restaurants.map((restaurant, index) => {
+                  // 현재 인덱스 기준으로 위치 계산
+                  const position = (index - currentIndex + restaurants.length) % restaurants.length;
+                  let className = styles.slotMachineItem;
+                  let style: React.CSSProperties = {};
+                  
+                  if (position === 0) {
+                    // 중앙
+                    className += ` ${styles.active}`;
+                  } else if (position === 1) {
+                    // 중앙위
+                    style.transform = 'translateY(-50px) scale(1)';
+                    style.opacity = '0.5';
+                  } else if (position === restaurants.length - 1) {
+                    // 중앙아래
+                    style.transform = 'translateY(50px) scale(1)';
+                    style.opacity = '0.5';
+                  } else {
+                    // 보이지 않는 요소들
+                    style.transform = 'translateY(100px) scale(0.3)';
+                    style.opacity = '0';
+                  }
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={className}
+                      style={style}
+                    >
+                      {restaurant.name}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <button
