@@ -1,0 +1,485 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  font-weight: 700;
+}
+
+.header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.wheelContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  margin-top: 30px;
+  width: 100%;
+  justify-content: center;
+}
+
+.wheelWrapper {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  margin-bottom: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* react-custom-roulette 내부 스타일 오버라이드 - 고정 크기 강제 */
+.wheelWrapper :global(.wheel-container) {
+  width: 400px !important;
+  height: 400px !important;
+  max-width: 400px !important;
+  max-height: 400px !important;
+  min-width: 400px !important;
+  min-height: 400px !important;
+}
+
+.wheelWrapper :global(.wheel) {
+  width: 400px !important;
+  height: 400px !important;
+  max-width: 400px !important;
+  max-height: 400px !important;
+  min-width: 400px !important;
+  min-height: 400px !important;
+}
+
+.wheelWrapper :global(svg) {
+  width: 400px !important;
+  height: 400px !important;
+  max-width: 400px !important;
+  max-height: 400px !important;
+  min-width: 400px !important;
+  min-height: 400px !important;
+}
+
+/* 얘는 룰렛 계산 기준, 아래는 룰렛핀 이미지 이동 */
+/* 테스트용 ! 수정하려면 얘부터 */
+/* react-custom-roulette 핀 위치 조정 */
+.wheelWrapper :global(.wheel-pointer) {
+  top: -20px !important;
+  left: 48% !important;
+  transform: translateX(-50%) rotate(90deg) !important;
+}
+
+/* gTLZXx 클래스 (룰렛 포인터) 위치 조정 - 살짝 오른쪽으로 */
+.wheelWrapper :global(.gTLZXx) {
+  top: -20px !important;
+  left: 53% !important;
+  transform: translateX(-50%) rotate(-45deg) !important;
+  position: absolute !important;
+}
+
+/* react-custom-roulette 텍스트 정렬 개선 */
+.wheelWrapper :global(.wheel-text) {
+  font-weight: bold !important;
+  text-align: center !important;
+  line-height: 1.1 !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+/* 중복된 가로 텍스트 숨기기 */
+.wheelWrapper :global(.wheel-text:not(:first-child)),
+.wheelWrapper :global(.wheel-text span),
+.wheelWrapper :global(.wheel-text div),
+.wheelWrapper :global([class*="text"]:not(.wheel-text)),
+.wheelWrapper :global([class*="option"]:not(.wheel-text)),
+.wheelWrapper :global([class*="segment"]:not(.wheel-text)),
+.wheelWrapper :global([class*="wheel"] span:not(.wheel-text)),
+.wheelWrapper :global([class*="wheel"] div:not(.wheel-text)),
+.wheelWrapper :global([class*="roulette"] span:not(.wheel-text)),
+.wheelWrapper :global([class*="roulette"] div:not(.wheel-text)),
+.wheelWrapper :global(.wheel-text ~ *) {
+  display: none !important;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.wheelSegment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.segmentText {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  width: 120px;
+  transform-origin: center;
+  line-height: 1.4;
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.wheelCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.wheelPointer {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 30px solid #ff4757;
+  z-index: 3;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.spinButton {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.spinButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+}
+
+.spinButton:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.resetButton {
+  background: linear-gradient(45deg, #74b9ff, #0984e3);
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4);
+}
+
+.resetButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(116, 185, 255, 0.5);
+}
+
+.resultContainer {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 50px;
+  margin-top: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.resultContainer h2 {
+  color: #2d3436;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.resultCard {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin-top: 20px;
+}
+
+.resultCard h3 {
+  color: #2d3436;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.rating {
+  font-size: 1.2rem;
+  color: #e17055;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.category {
+  color: #636e72;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.address {
+  color: #636e72;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.restaurantList {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+}
+
+.restaurantList h3 {
+  color: #2d3436;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.3rem;
+}
+
+.listContainer {
+  display: grid;
+  gap: 15px;
+}
+
+.restaurantItem {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.restaurantItem:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+.itemNumber {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemInfo h4 {
+  color: #2d3436;
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.itemInfo p {
+  color: #636e72;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.loadingMessage {
+  text-align: center;
+  color: white;
+  margin-top: 100px;
+}
+
+.loadingMessage h2 {
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorMessage {
+  text-align: center;
+  color: white;
+  margin-top: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  max-width: 500px;
+  width: 100%;
+}
+
+.errorMessage h2 {
+  margin-bottom: 15px;
+  color: #ff6b6b;
+}
+
+.errorMessage p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.errorMessage ul {
+  list-style: none;
+  padding: 0;
+}
+
+.errorMessage li {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .wheelContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10vw;
+    margin-bottom: 10vw;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wheelWrapper {
+    width: 300px;
+    height: 300px;
+    margin-bottom: 15vw;
+  }
+  
+  .segmentText {
+    font-size: 12px;
+    max-width: 60px;
+  }
+  
+  .wheelCenter {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .wheelPointer {
+    top: -30px;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 25px solid #ff4757;
+  }
+  
+  .resultContainer,
+  .restaurantList {
+    padding: 20px;
+  }
+  
+  .spinButton {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .wheelWrapper {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .segmentText {
+    font-size: 10px;
+    max-width: 50px;
+  }
+  
+  .header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .header p {
+    font-size: 1rem;
+  }
+} 
