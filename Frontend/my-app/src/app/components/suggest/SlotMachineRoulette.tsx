@@ -65,6 +65,188 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+  // 식당 목록을 랜덤으로 선택하는 함수
+  const selectRandomRestaurants = (allRestaurants: Restaurant[], maxCount: number = 30): Restaurant[] => {
+    if (allRestaurants.length <= maxCount) {
+      return allRestaurants;
+    }
+
+    // 요기요의 경우 카테고리별로 그룹화하여 랜덤 선택
+    if (activeTab === 'delivery') {
+      const categoryGroups: { [key: string]: Restaurant[] } = {};
+      
+      // 카테고리별로 그룹화
+      allRestaurants.forEach(restaurant => {
+        const category = restaurant.category || '기타';
+        if (!categoryGroups[category]) {
+          categoryGroups[category] = [];
+        }
+        categoryGroups[category].push(restaurant);
+      });
+
+      const selectedRestaurants: Restaurant[] = [];
+      const categories = Object.keys(categoryGroups);
+      
+      // 각 카테고리에서 최소 1개씩 선택
+      categories.forEach(category => {
+        const restaurantsInCategory = categoryGroups[category];
+        const randomIndex = Math.floor(Math.random() * restaurantsInCategory.length);
+        selectedRestaurants.push(restaurantsInCategory[randomIndex]);
+      });
+
+      // 남은 자리를 랜덤으로 채우기
+      const remainingCount = maxCount - selectedRestaurants.length;
+      if (remainingCount > 0) {
+        const remainingRestaurants = allRestaurants.filter(restaurant => 
+          !selectedRestaurants.some(selected => selected.id === restaurant.id)
+        );
+        
+        // Fisher-Yates 셔플 알고리즘
+        for (let i = remainingRestaurants.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [remainingRestaurants[i], remainingRestaurants[j]] = [remainingRestaurants[j], remainingRestaurants[i]];
+        }
+        
+        selectedRestaurants.push(...remainingRestaurants.slice(0, remainingCount));
+      }
+
+      return selectedRestaurants;
+    } else {
+      // 카카오맵의 경우 단순 랜덤 선택
+      const shuffled = [...allRestaurants];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled.slice(0, maxCount);
+    }
+  };
+
+  // 식당 목록 새로고침 함수
+  const refreshRestaurants = () => {
+    setIsLoading(true);
+    setShowResult(false);
+    setSelectedRestaurant(null);
+    setCurrentIndex(0);
+    currentIndexRef.current = 0;
+    
+    // 식당 정보를 다시 가져오기
+    fetchRestaurants();
+  };
+
+  // 식당 정보를 가져오는 함수
+  const fetchRestaurants = async () => {
+    if (!groupData) return;
+
+    setIsLoading(true);
+    const allRestaurants: Restaurant[] = [];
+
+    try {
+      // 직접가기 탭인 경우 카카오맵 API만 호출
+      if (activeTab === 'direct' && groupData.offline && typeof window !== 'undefined') {
+        console.log('직접가기 탭: 카카오맵 API 호출 시작');
+        try {
+          await waitForKakaoMap();
+          
+          const ps = new window.kakao.maps.services.Places();
+          const allKakaoResults: any[] = [];
+          
+          // categorySearch로 3페이지만 검색
+          for (let page = 1; page <= 3; page++) {
+            await new Promise(res => setTimeout(res, 300));
+            try {
+              const searchOptions = {
+                location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
+                radius: groupData.radius,
+                category_group_code: 'FD6',
+                size: 15,
+                page: page
+              };
+
+              const kakaoResults = await new Promise((resolve) => {
+                ps.categorySearch('FD6', (data: any, status: any) => {
+                  if (status === window.kakao.maps.services.Status.OK) {
+                    resolve(data);
+                  } else {
+                    resolve([]);
+                  }
+                }, searchOptions);
+              });
+              
+              allKakaoResults.push(...(kakaoResults as any[]));
+              
+              if ((kakaoResults as any[]).length < 15) {
+                break;
+              }
+            } catch (err) {
+              console.error(`카카오맵 API 호출 오류 (페이지 ${page}):`, err);
+              break;
+            }
+          }
+
+          // 중복 제거
+          const uniqueKakaoResults = allKakaoResults.filter((restaurant, index, self) => 
+            index === self.findIndex(r => r.id === restaurant.id)
+          );
+
+          const filteredKakao = uniqueKakaoResults
+            .filter((restaurant: any) => restaurant.distance <= groupData.radius)
+            .map((restaurant: any) => ({
+              id: restaurant.id || restaurant.kakao_id,
+              name: formatRestaurantName(restaurant.place_name),
+              rating: restaurant.rating,
+              address: restaurant.address_name,
+              category: restaurant.category_name,
+              type: 'kakao' as const,
+              detail: restaurant
+            }));
+          console.log('직접가기 탭 - 카카오맵 식당 수:', filteredKakao.length);
+          allRestaurants.push(...filteredKakao);
+        } catch (err) {
+          console.error('카카오맵 API 호출 오류:', err);
+        }
+      }
+
+      // 배달 탭인 경우 요기요 API만 호출
+      if (activeTab === 'delivery' && groupData.delivery) {
+        console.log('배달 탭: 요기요 API 호출 시작');
+        try {
+          const response = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants`);
+          const data = await response.json();
+          
+          if (data.restaurants) {
+            const yogiyoRestaurants = data.restaurants.map((restaurant: any) => ({
+              id: (restaurant.id || restaurant.yogiyo_id || restaurant.restaurant_id || '').toString(),
+              name: formatRestaurantName(restaurant.name || restaurant.restaurant_name || ''),
+              rating: restaurant.rating || restaurant.score || 0,
+              address: restaurant.address || restaurant.address_name || '',
+              category: restaurant.category || restaurant.category_name || '',
+              type: 'yogiyo' as const,
+              detail: restaurant
+            }));
+            console.log('배달 탭 - 요기요 식당 수:', yogiyoRestaurants.length);
+            allRestaurants.push(...yogiyoRestaurants);
+          }
+        } catch (err) {
+          console.error('요기요 API 호출 오류:', err);
+        }
+      }
+
+      // 최대 30개로 랜덤 선택
+      const selectedRestaurants = selectRandomRestaurants(allRestaurants, 30);
+
+      console.log(`최종 식당 목록 (${activeTab} 탭):`, selectedRestaurants);
+      console.log('총 식당 수:', selectedRestaurants.length);
+      console.log('카카오맵 식당 수:', selectedRestaurants.filter(r => r.type === 'kakao').length);
+      console.log('요기요 식당 수:', selectedRestaurants.filter(r => r.type === 'yogiyo').length);
+      setRestaurants(selectedRestaurants);
+    } catch (error) {
+      console.error('식당 정보 가져오기 오류:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // 그룹 데이터 가져오기
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -114,115 +296,6 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 식당 정보 가져오기
   useEffect(() => {
-    const fetchRestaurants = async () => {
-      if (!groupData) return;
-
-      setIsLoading(true);
-      const allRestaurants: Restaurant[] = [];
-
-      try {
-        // 직접가기 탭인 경우 카카오맵 API만 호출
-        if (activeTab === 'direct' && groupData.offline && typeof window !== 'undefined') {
-          console.log('직접가기 탭: 카카오맵 API 호출 시작');
-          try {
-            await waitForKakaoMap();
-            
-            const ps = new window.kakao.maps.services.Places();
-            const allKakaoResults: any[] = [];
-            
-            // categorySearch로 3페이지만 검색
-            for (let page = 1; page <= 3; page++) {
-              await new Promise(res => setTimeout(res, 300));
-              try {
-                const searchOptions = {
-                  location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
-                  radius: groupData.radius,
-                  category_group_code: 'FD6',
-                  size: 15,
-                  page: page
-                };
-
-                const kakaoResults = await new Promise((resolve) => {
-                  ps.categorySearch('FD6', (data: any, status: any) => {
-                    if (status === window.kakao.maps.services.Status.OK) {
-                      resolve(data);
-                    } else {
-                      resolve([]);
-                    }
-                  }, searchOptions);
-                });
-                
-                allKakaoResults.push(...(kakaoResults as any[]));
-                
-                if ((kakaoResults as any[]).length < 15) {
-                  break;
-                }
-              } catch (err) {
-                console.error(`카카오맵 API 호출 오류 (페이지 ${page}):`, err);
-                break;
-              }
-            }
-
-            // 중복 제거
-            const uniqueKakaoResults = allKakaoResults.filter((restaurant, index, self) => 
-              index === self.findIndex(r => r.id === restaurant.id)
-            );
-
-            const filteredKakao = uniqueKakaoResults
-              .filter((restaurant: any) => restaurant.distance <= groupData.radius)
-              .map((restaurant: any) => ({
-                id: restaurant.id || restaurant.kakao_id,
-                name: formatRestaurantName(restaurant.place_name),
-                rating: restaurant.rating,
-                address: restaurant.address_name,
-                category: restaurant.category_name,
-                type: 'kakao' as const,
-                detail: restaurant
-              }));
-            console.log('직접가기 탭 - 카카오맵 식당 수:', filteredKakao.length);
-            allRestaurants.push(...filteredKakao);
-          } catch (err) {
-            console.error('카카오맵 API 호출 오류:', err);
-          }
-        }
-
-        // 배달 탭인 경우 요기요 API만 호출
-        if (activeTab === 'delivery' && groupData.delivery) {
-          console.log('배달 탭: 요기요 API 호출 시작');
-          try {
-            const response = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants`);
-            const data = await response.json();
-            
-            if (data.restaurants) {
-              const yogiyoRestaurants = data.restaurants.map((restaurant: any) => ({
-                id: (restaurant.id || restaurant.yogiyo_id || restaurant.restaurant_id || '').toString(),
-                name: formatRestaurantName(restaurant.name || restaurant.restaurant_name || ''),
-                rating: restaurant.rating || restaurant.score || 0,
-                address: restaurant.address || restaurant.address_name || '',
-                category: restaurant.category || restaurant.category_name || '',
-                type: 'yogiyo' as const,
-                detail: restaurant
-              }));
-              console.log('배달 탭 - 요기요 식당 수:', yogiyoRestaurants.length);
-              allRestaurants.push(...yogiyoRestaurants);
-            }
-          } catch (err) {
-            console.error('요기요 API 호출 오류:', err);
-          }
-        }
-
-        console.log(`최종 식당 목록 (${activeTab} 탭):`, allRestaurants);
-        console.log('총 식당 수:', allRestaurants.length);
-        console.log('카카오맵 식당 수:', allRestaurants.filter(r => r.type === 'kakao').length);
-        console.log('요기요 식당 수:', allRestaurants.filter(r => r.type === 'yogiyo').length);
-        setRestaurants(allRestaurants);
-      } catch (error) {
-        console.error('식당 정보 가져오기 오류:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchRestaurants();
   }, [groupData, BACKEND_URL, activeTab]); // activeTab을 의존성 배열에 추가
 
@@ -387,7 +460,17 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       <div className={styles.modal}>
         <div className={styles.container}>
           <div className={styles.header}>
-            <h1>🍽️ 슬롯머신 룰렛 🍽️</h1>
+            <button 
+              className={styles.refreshButton} 
+              onClick={refreshRestaurants}
+              disabled={isLoading}
+              title="후보 새로고침"
+            >
+              🔄
+            </button>
+            <h1>
+              {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
+            </h1>
             <button className={styles.closeButton} onClick={onClose}>✕</button>
           </div>
           <div className={styles.loadingMessage}>
@@ -403,8 +486,16 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     <div className={styles.modal}>
       <div className={styles.container}>
         <div className={styles.header}>
+          <button 
+            className={styles.refreshButton} 
+            onClick={refreshRestaurants}
+            disabled={isLoading}
+            title="후보 새로고침"
+          >
+            🔄
+          </button>
           <h1>
-            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🍕 배달 슬롯머신 룰렛 🍕'}
+            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
           </h1>
           <button className={styles.closeButton} onClick={onClose}>✕</button>
         </div>
