@@ -35,6 +35,7 @@ interface SlotMachineRouletteProps {
   registeredYogiyoIds?: number[];
   onAddCandidate: (candidate: Restaurant) => void;
   onClose: () => void;
+  activeTab: 'direct' | 'delivery'; // 추가된 prop
 }
 
 const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({ 
@@ -42,7 +43,8 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   registeredKakaoIds = [],
   registeredYogiyoIds = [],
   onAddCandidate, 
-  onClose 
+  onClose,
+  activeTab
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -119,9 +121,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       const allRestaurants: Restaurant[] = [];
 
       try {
-        // 카카오맵 API 호출
-        if (groupData.offline && typeof window !== 'undefined') {
-          console.log('카카오맵 API 호출 시작');
+        // 직접가기 탭인 경우 카카오맵 API만 호출
+        if (activeTab === 'direct' && groupData.offline && typeof window !== 'undefined') {
+          console.log('직접가기 탭: 카카오맵 API 호출 시작');
           try {
             await waitForKakaoMap();
             
@@ -177,16 +179,16 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
                 type: 'kakao' as const,
                 detail: restaurant
               }));
-            console.log('카카오맵 식당 수:', filteredKakao.length);
+            console.log('직접가기 탭 - 카카오맵 식당 수:', filteredKakao.length);
             allRestaurants.push(...filteredKakao);
           } catch (err) {
             console.error('카카오맵 API 호출 오류:', err);
           }
         }
 
-        // 요기요 API 호출
-        if (groupData.delivery) {
-          console.log('요기요 API 호출 시작');
+        // 배달 탭인 경우 요기요 API만 호출
+        if (activeTab === 'delivery' && groupData.delivery) {
+          console.log('배달 탭: 요기요 API 호출 시작');
           try {
             const response = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants`);
             const data = await response.json();
@@ -201,7 +203,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
                 type: 'yogiyo' as const,
                 detail: restaurant
               }));
-              console.log('요기요 식당 수:', yogiyoRestaurants.length);
+              console.log('배달 탭 - 요기요 식당 수:', yogiyoRestaurants.length);
               allRestaurants.push(...yogiyoRestaurants);
             }
           } catch (err) {
@@ -209,7 +211,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
           }
         }
 
-        console.log('최종 식당 목록:', allRestaurants);
+        console.log(`최종 식당 목록 (${activeTab} 탭):`, allRestaurants);
         console.log('총 식당 수:', allRestaurants.length);
         console.log('카카오맵 식당 수:', allRestaurants.filter(r => r.type === 'kakao').length);
         console.log('요기요 식당 수:', allRestaurants.filter(r => r.type === 'yogiyo').length);
@@ -222,7 +224,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     };
 
     fetchRestaurants();
-  }, [groupData, BACKEND_URL]);
+  }, [groupData, BACKEND_URL, activeTab]); // activeTab을 의존성 배열에 추가
 
     // 슬롯머신 돌리기
   const handleSpin = () => {
@@ -401,7 +403,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     <div className={styles.modal}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>🍽️ 슬롯머신 룰렛 🍽️</h1>
+          <h1>
+            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🍕 배달 슬롯머신 룰렛 🍕'}
+          </h1>
           <button className={styles.closeButton} onClick={onClose}>✕</button>
         </div>
 

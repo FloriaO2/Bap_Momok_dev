@@ -427,7 +427,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             }}
             onClick={() => setShowRandomModal(true)}
           >
-            슬롯머신 룰렛 돌리기
+            슬롯머신 돌리기
           </button>
         </div>
         {showRandomModal && (
@@ -435,6 +435,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             groupId={groupId}
             registeredKakaoIds={registeredKakaoIds}
             registeredYogiyoIds={registeredYogiyoIds}
+            activeTab={activeTab}
             onAddCandidate={async (candidate: any) => {
               if (candidate.type === 'kakao') {
                 await addKakaoCandidate(candidate.detail || candidate);
