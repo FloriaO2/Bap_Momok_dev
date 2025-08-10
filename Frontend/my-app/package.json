@@ -16,7 +16,8 @@
     "react": "19.1.0",
     "react-custom-roulette": "^1.4.1",
     "react-dom": "19.1.0",
-    "react-tinder-card": "^1.6.4"
+    "react-tinder-card": "^1.6.4",
+    "swiper": "^11.2.10"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

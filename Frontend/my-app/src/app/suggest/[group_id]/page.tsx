@@ -6,7 +6,7 @@ import { database } from "../../../firebase";
 import DirectTab from '../../components/suggest/DirectTab';
 import DeliveryTab from '../../components/suggest/DeliveryTab';
 import SuggestCompleteWaitScreen from '../../components/suggest/SuggestCompleteWaitScreen';
-import RandomRoom from '../../components/random-room/RandomRoom';
+import SlotMachineRoulette from '../../components/suggest/SlotMachineRoulette';
 
 export default function SuggestPage({ params }: { params: Promise<{ group_id: string }> }) {
   const resolvedParams = use(params);
@@ -427,46 +427,25 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             }}
             onClick={() => setShowRandomModal(true)}
           >
-            랜덤 룰렛 돌리기
+            슬롯머신 룰렛 돌리기
           </button>
         </div>
         {showRandomModal && (
-          <div
-            style={{
-              position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-              background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          <SlotMachineRoulette
+            groupId={groupId}
+            onAddCandidate={async (candidate: any) => {
+              if (candidate.type === 'kakao') {
+                await addKakaoCandidate(candidate.detail || candidate);
+                setShowRandomModal(false);
+              } else if (candidate.type === 'yogiyo') {
+                await addYogiyoCandidate(candidate.detail || candidate);
+                setShowRandomModal(false);
+              } else {
+                showToast('알 수 없는 타입의 후보입니다.');
+              }
             }}
-            onClick={() => setShowRandomModal(false)}
-          >
-            <div
-              onClick={e => e.stopPropagation()}
-              style={{
-                background: '#fff', borderRadius: 12, width: '95vw', maxWidth: 600, maxHeight: '90vh', overflowY: 'auto', position: 'relative', padding: 0
-              }}
-            >
-              <button
-                onClick={() => setShowRandomModal(false)}
-                style={{
-                  position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 28, cursor: 'pointer', zIndex: 2
-                }}
-              >✕</button>
-              <RandomRoom
-                groupId={groupId}
-                isModal={true}
-                onAddCandidate={async (candidate) => {
-                  if (candidate.type === 'kakao') {
-                    await addKakaoCandidate(candidate.detail || candidate);
-                    setShowRandomModal(false);
-                  } else if (candidate.type === 'yogiyo') {
-                    await addYogiyoCandidate(candidate.detail || candidate);
-                    setShowRandomModal(false);
-                  } else {
-                    showToast('알 수 없는 타입의 후보입니다.');
-                  }
-                }}
-              />
-            </div>
-          </div>
+            onClose={() => setShowRandomModal(false)}
+          />
         )}
         {/* 하단 버튼 */}
         <div style={{ 
