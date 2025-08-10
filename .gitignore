@@ -6,7 +6,12 @@ node_modules/
 dist/
 build/
 .DS_Store
+# Firebase Service Account Keys (보안 파일)
 Backend/serviceAccountKey.json
+Backend/serviceAccountKey.json.backup
+Backend/*.json
+!Backend/package.json
+!Backend/package-lock.json
 .env
 .env.*
 __pycache__/
