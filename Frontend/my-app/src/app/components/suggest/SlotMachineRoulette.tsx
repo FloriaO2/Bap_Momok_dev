@@ -62,11 +62,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const [menuList, setMenuList] = useState<any[]>([]);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const currentIndexRef = useRef(0);
+  const [previousCandidates, setPreviousCandidates] = useState<Set<string>>(new Set());
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // 식당 목록을 랜덤으로 선택하는 함수
-  const selectRandomRestaurants = (allRestaurants: Restaurant[], maxCount: number = 30): Restaurant[] => {
+  const selectRandomRestaurants = (allRestaurants: Restaurant[], maxCount: number = 20): Restaurant[] => {
     if (allRestaurants.length <= maxCount) {
       return allRestaurants;
     }
@@ -87,38 +88,113 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       const selectedRestaurants: Restaurant[] = [];
       const categories = Object.keys(categoryGroups);
       
-      // 각 카테고리에서 최소 1개씩 선택
+      // 각 카테고리에서 최대 2개씩 선택 (이전 후보 우선 제외)
       categories.forEach(category => {
         const restaurantsInCategory = categoryGroups[category];
-        const randomIndex = Math.floor(Math.random() * restaurantsInCategory.length);
-        selectedRestaurants.push(restaurantsInCategory[randomIndex]);
-      });
-
-      // 남은 자리를 랜덤으로 채우기
-      const remainingCount = maxCount - selectedRestaurants.length;
-      if (remainingCount > 0) {
-        const remainingRestaurants = allRestaurants.filter(restaurant => 
-          !selectedRestaurants.some(selected => selected.id === restaurant.id)
+        
+        // 이전 후보가 아닌 식당들 먼저 선택
+        const newRestaurants = restaurantsInCategory.filter(restaurant => 
+          !previousCandidates.has(restaurant.id)
         );
         
-        // Fisher-Yates 셔플 알고리즘
-        for (let i = remainingRestaurants.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [remainingRestaurants[i], remainingRestaurants[j]] = [remainingRestaurants[j], remainingRestaurants[i]];
+        // 이전 후보였던 식당들
+        const usedRestaurants = restaurantsInCategory.filter(restaurant => 
+          previousCandidates.has(restaurant.id)
+        );
+        
+        let selectedFromCategory = 0;
+        const maxFromCategory = 2;
+        
+        // 새로운 식당들에서 최대 2개 선택
+        for (let i = 0; i < Math.min(newRestaurants.length, maxFromCategory); i++) {
+          const randomIndex = Math.floor(Math.random() * newRestaurants.length);
+          selectedRestaurants.push(newRestaurants[randomIndex]);
+          newRestaurants.splice(randomIndex, 1);
+          selectedFromCategory++;
         }
         
-        selectedRestaurants.push(...remainingRestaurants.slice(0, remainingCount));
+        // 새로운 식당이 부족하면 이전 후보에서 선택
+        if (selectedFromCategory < maxFromCategory && usedRestaurants.length > 0) {
+          for (let i = selectedFromCategory; i < maxFromCategory; i++) {
+            const randomIndex = Math.floor(Math.random() * usedRestaurants.length);
+            selectedRestaurants.push(usedRestaurants[randomIndex]);
+            usedRestaurants.splice(randomIndex, 1);
+          }
+        }
+      });
+
+      // 남은 자리를 랜덤으로 채우기 (이전 후보 우선 제외)
+      const remainingCount = maxCount - selectedRestaurants.length;
+      if (remainingCount > 0) {
+        const remainingNewRestaurants = allRestaurants.filter(restaurant => 
+          !selectedRestaurants.some(selected => selected.id === restaurant.id) &&
+          !previousCandidates.has(restaurant.id)
+        );
+        
+        const remainingUsedRestaurants = allRestaurants.filter(restaurant => 
+          !selectedRestaurants.some(selected => selected.id === restaurant.id) &&
+          previousCandidates.has(restaurant.id)
+        );
+        
+        // 새로운 식당들 먼저 추가
+        const shuffledNew = [...remainingNewRestaurants];
+        for (let i = shuffledNew.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledNew[i], shuffledNew[j]] = [shuffledNew[j], shuffledNew[i]];
+        }
+        
+        const newToAdd = Math.min(remainingCount, shuffledNew.length);
+        selectedRestaurants.push(...shuffledNew.slice(0, newToAdd));
+        
+        // 여전히 부족하면 이전 후보에서 추가
+        const stillNeeded = remainingCount - newToAdd;
+        if (stillNeeded > 0 && remainingUsedRestaurants.length > 0) {
+          const shuffledUsed = [...remainingUsedRestaurants];
+          for (let i = shuffledUsed.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledUsed[i], shuffledUsed[j]] = [shuffledUsed[j], shuffledUsed[i]];
+          }
+          selectedRestaurants.push(...shuffledUsed.slice(0, stillNeeded));
+        }
       }
 
       return selectedRestaurants;
     } else {
-      // 카카오맵의 경우 단순 랜덤 선택
-      const shuffled = [...allRestaurants];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      // 카카오맵의 경우 이전 후보 우선 제외하고 랜덤 선택
+      const newRestaurants = allRestaurants.filter(restaurant => 
+        !previousCandidates.has(restaurant.id)
+      );
+      
+      const usedRestaurants = allRestaurants.filter(restaurant => 
+        previousCandidates.has(restaurant.id)
+      );
+      
+      let selectedRestaurants: Restaurant[] = [];
+      
+      // 새로운 식당들에서 먼저 선택
+      if (newRestaurants.length > 0) {
+        const shuffledNew = [...newRestaurants];
+        for (let i = shuffledNew.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledNew[i], shuffledNew[j]] = [shuffledNew[j], shuffledNew[i]];
+        }
+        
+        const newToAdd = Math.min(maxCount, shuffledNew.length);
+        selectedRestaurants.push(...shuffledNew.slice(0, newToAdd));
       }
-      return shuffled.slice(0, maxCount);
+      
+      // 새로운 식당이 부족하면 이전 후보에서 추가
+      const stillNeeded = maxCount - selectedRestaurants.length;
+      if (stillNeeded > 0 && usedRestaurants.length > 0) {
+        const shuffledUsed = [...usedRestaurants];
+        for (let i = shuffledUsed.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledUsed[i], shuffledUsed[j]] = [shuffledUsed[j], shuffledUsed[i]];
+        }
+        selectedRestaurants.push(...shuffledUsed.slice(0, stillNeeded));
+      }
+      
+      return selectedRestaurants;
     }
   };
 
@@ -130,7 +206,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     setCurrentIndex(0);
     currentIndexRef.current = 0;
     
-    // 식당 정보를 다시 가져오기
+    // 식당 정보를 다시 가져오기 (이전 후보 목록은 유지)
     fetchRestaurants();
   };
 
@@ -232,8 +308,15 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
         }
       }
 
-      // 최대 30개로 랜덤 선택
-      const selectedRestaurants = selectRandomRestaurants(allRestaurants, 30);
+      // 최대 20개로 랜덤 선택
+      const selectedRestaurants = selectRandomRestaurants(allRestaurants, 20);
+
+      // 선택된 후보들을 이전 후보 목록에 추가
+      const newPreviousCandidates = new Set(previousCandidates);
+      selectedRestaurants.forEach(restaurant => {
+        newPreviousCandidates.add(restaurant.id);
+      });
+      setPreviousCandidates(newPreviousCandidates);
 
       console.log(`최종 식당 목록 (${activeTab} 탭):`, selectedRestaurants);
       console.log('총 식당 수:', selectedRestaurants.length);
@@ -495,7 +578,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             🔄
           </button>
           <h1>
-            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
+            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 ��️' : '🛵 배달 슬롯머신 룰렛 🛵'}
           </h1>
           <button className={styles.closeButton} onClick={onClose}>✕</button>
         </div>
