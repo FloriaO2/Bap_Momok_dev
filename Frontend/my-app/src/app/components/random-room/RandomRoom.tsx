@@ -112,7 +112,11 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        // URL 정규화 함수 - 끝에 슬래시 제거
+        const normalizeUrl = (url: string) => {
+          return url.endsWith('/') ? url.slice(0, -1) : url;
+        };
+        const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
         console.log('그룹 데이터 가져오기 시작:', groupId);
         console.log('BACKEND_URL:', BACKEND_URL);
         
@@ -308,7 +312,11 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
     
       setIsLoading(true);
       try {
-      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+              // URL 정규화 함수 - 끝에 슬래시 제거
+        const normalizeUrl = (url: string) => {
+          return url.endsWith('/') ? url.slice(0, -1) : url;
+        };
+        const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
       const allRestaurants: Restaurant[] = [];
 
       // 1. 직접가기 설정된 경우 카카오맵 API 호출
@@ -711,7 +719,12 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
       setMenuError(null);
       setMenuList([]);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/yogiyo-menu/${restaurant.detail.id}`);
+        // URL 정규화 함수 - 끝에 슬래시 제거
+        const normalizeUrl = (url: string) => {
+          return url.endsWith('/') ? url.slice(0, -1) : url;
+        };
+        const backendUrl = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
+        const res = await fetch(`${backendUrl}/yogiyo-menu/${restaurant.detail.id}`);
         if (!res.ok) throw new Error("메뉴 정보를 불러올 수 없습니다");
         const data = await res.json();
         setMenuList(data.menus || []);

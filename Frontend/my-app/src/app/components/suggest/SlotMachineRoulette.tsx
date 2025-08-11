@@ -64,7 +64,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const currentIndexRef = useRef(0);
   const [previousCandidates, setPreviousCandidates] = useState<Set<string>>(new Set());
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // URL 정규화 함수 - 끝에 슬래시 제거
+  const normalizeUrl = (url: string) => {
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  };
+
+  const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
   // 식당 목록을 랜덤으로 선택하는 함수
   const selectRandomRestaurants = (allRestaurants: Restaurant[], maxCount: number = 20): Restaurant[] => {

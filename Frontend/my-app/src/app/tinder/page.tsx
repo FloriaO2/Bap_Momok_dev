@@ -40,7 +40,12 @@ function TinderPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const groupId = searchParams.get('group_id');
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') as string;
+  // URL 정규화 함수 - 끝에 슬래시 제거
+  const normalizeUrl = (url: string) => {
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  };
+
+  const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
   const [touchStart, setTouchStart] = useState<{x: number, y: number, time: number} | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [votePromises, setVotePromises] = useState<Promise<any>[]>([]);

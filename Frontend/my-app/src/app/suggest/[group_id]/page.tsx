@@ -29,7 +29,12 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   const [registeredYogiyoIds, setRegisteredYogiyoIds] = useState<number[]>([]);
   const [registeredKakaoIds, setRegisteredKakaoIds] = useState<number[]>([]);
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') as string;
+  // URL 정규화 함수 - 끝에 슬래시 제거
+  const normalizeUrl = (url: string) => {
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  };
+
+  const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
   // 실시간으로 후보 목록 감지
   useEffect(() => {

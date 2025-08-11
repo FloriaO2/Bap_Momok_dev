@@ -17,7 +17,12 @@ export default function HomePage() {
     console.log('========================');
   }
 
-  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') as string;
+  // URL 정규화 함수 - 끝에 슬래시 제거
+  const normalizeUrl = (url: string) => {
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  };
+
+  const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRandomModal, setShowRandomModal] = useState(false);

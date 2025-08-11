@@ -26,7 +26,12 @@ export default function ResultsPage({ params }: { params: Promise<{ group_id: st
     
     const fetchResults = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/groups/${groupId}/results`);
+        // URL 정규화 함수 - 끝에 슬래시 제거
+        const normalizeUrl = (url: string) => {
+          return url.endsWith('/') ? url.slice(0, -1) : url;
+        };
+        const backendUrl = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
+        const response = await fetch(`${backendUrl}/groups/${groupId}/results`);
         const data = await response.json();
         setResults(data);
       } catch (error) {

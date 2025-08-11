@@ -39,7 +39,12 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
   const [menuError, setMenuError] = useState<string|null>(null);
   const [placeholder, setPlaceholder] = useState("음식점 검색 (예: 치킨, 피자)");
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // URL 정규화 함수 - 끝에 슬래시 제거
+  const normalizeUrl = (url: string) => {
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  };
+
+  const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
   const categories = [
     { id: '', name: '전체' },

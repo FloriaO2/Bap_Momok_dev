@@ -91,7 +91,12 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${groupId}`);
+        // URL 정규화 함수 - 끝에 슬래시 제거
+        const normalizeUrl = (url: string) => {
+          return url.endsWith('/') ? url.slice(0, -1) : url;
+        };
+        const backendUrl = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
+        const response = await fetch(`${backendUrl}/groups/${groupId}`);
         if (response.ok) {
           const data = await response.json();
           setGroupData(data);
@@ -117,8 +122,13 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
       sessionStorage.setItem("nickname", nickname.trim());
       try {
         setIsSubmitting(true); // 중복 제출 방지
+        // URL 정규화 함수 - 끝에 슬래시 제거
+        const normalizeUrl = (url: string) => {
+          return url.endsWith('/') ? url.slice(0, -1) : url;
+        };
+        const backendUrl = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${groupId}/participants`,
+          `${backendUrl}/groups/${groupId}/participants`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

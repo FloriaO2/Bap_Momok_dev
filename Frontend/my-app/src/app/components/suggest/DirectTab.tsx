@@ -44,7 +44,12 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollPos, setScrollPos] = useState<number | null>(null);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // URL 정규화 함수 - 끝에 슬래시 제거
+  const normalizeUrl = (url: string) => {
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  };
+
+  const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
   // 지도가 준비되면 인스턴스 저장
   const handleMapReady = (mapInstance: any) => {
