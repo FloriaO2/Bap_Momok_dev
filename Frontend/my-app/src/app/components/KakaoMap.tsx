@@ -22,12 +22,23 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
   useEffect(() => {
     if (typeof window === "undefined") return;
     
-    // API 키 확인
-    const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
-    console.log('KakaoMap - API Key exists:', !!apiKey);
-    console.log('KakaoMap - API Key length:', apiKey?.length);
-    console.log('KakaoMap - API Key (first 10 chars):', apiKey?.substring(0, 10));
-    console.log('KakaoMap - All env vars:', Object.keys(process.env).filter(key => key.includes('KAKAO')));
+    // API 키 확인 (환경변수 또는 하드코딩된 키 사용)
+    let apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
+    
+    console.log('KakaoMap - Environment check:');
+    console.log('KakaoMap - NODE_ENV:', process.env.NODE_ENV);
+    console.log('KakaoMap - Raw env var:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+    console.log('KakaoMap - All NEXT_PUBLIC env vars:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_')));
+    
+    // 환경변수가 없으면 하드코딩된 키 사용 (개발용)
+    if (!apiKey) {
+      apiKey = '45874862ce4eb9af215a1e6f553c9375';
+      console.log('KakaoMap - Using fallback API key');
+    }
+    
+    console.log('KakaoMap - Final API Key exists:', !!apiKey);
+    console.log('KakaoMap - Final API Key length:', apiKey?.length);
+    console.log('KakaoMap - Final API Key (first 10 chars):', apiKey?.substring(0, 10));
     
     // API 키가 없으면 오류 메시지 표시
     if (!apiKey) {
@@ -106,7 +117,7 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     
     const script = document.createElement("script");
     script.id = "kakao-map-script";
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
     script.async = true;
     
     // 디버깅: 스크립트 URL 확인
@@ -128,25 +139,35 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     
     script.onerror = (error) => {
       const currentDomain = window.location.hostname;
+      const currentUrl = window.location.href;
+      const protocol = window.location.protocol;
+      
+      console.error('KakaoMap - Detailed error analysis:');
+      console.error('KakaoMap - Current domain:', currentDomain);
+      console.error('KakaoMap - Current URL:', currentUrl);
+      console.error('KakaoMap - Protocol:', protocol);
+      console.error('KakaoMap - Script URL:', script.src);
+      console.error('KakaoMap - API Key length:', apiKey?.length);
+      console.error('KakaoMap - API Key (first 10 chars):', apiKey?.substring(0, 10));
+      console.error('KakaoMap - Error object:', error);
+      
       const errorMsg = `카카오맵 스크립트 로드에 실패했습니다. (403 Forbidden)
 
 현재 도메인: ${currentDomain}
+현재 URL: ${currentUrl}
+프로토콜: ${protocol}
 
 🔧 해결 방법:
 1. 카카오 개발자 콘솔(https://developers.kakao.com)에 로그인
 2. 해당 애플리케이션 선택
 3. 플랫폼 → Web → 사이트 도메인에 추가:
-   • https://${currentDomain}
-   • https://www.${currentDomain}
+   • ${protocol}//${currentDomain}
+   • ${protocol}//www.${currentDomain}
 
 ⚠️ 403 오류는 대부분 도메인 미등록이 원인입니다.
 
 자세한 설정 방법은 KAKAO_MAP_SETUP.md 파일을 참조하세요.`;
       
-      console.error('KakaoMap - Script load error:', error);
-      console.error('KakaoMap - Script URL:', script.src);
-      console.error('KakaoMap - Current domain:', currentDomain);
-      console.error('KakaoMap - API Key length:', apiKey?.length);
       console.error('KakaoMap - Error type: 403 Forbidden (Domain not registered)');
       console.error('KakaoMap - Please check:');
       console.error('1. API key is valid');
