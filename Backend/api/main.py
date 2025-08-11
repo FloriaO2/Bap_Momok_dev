@@ -199,9 +199,14 @@ def get_group_by_id(group_id: str):
 
 @app.post("/groups")
 def create_new_group(group_create: GroupCreate):
+    print(f"🚀 그룹 생성 요청 시작")
+    print(f"🔍 받은 데이터: {group_create}")
+    print(f"🔍 데이터 타입: {type(group_create)}")
+    print(f"🔍 데이터 내용: {group_create.dict() if hasattr(group_create, 'dict') else group_create}")
+    
     with global_lock:
         try:
-            print(f"🔍 받은 데이터: {group_create}")
+            print(f"🔒 락 획득 완료")
             group_id, created_group = create_group(group_create)
             print(f"✅ 그룹 생성 성공: {group_id}")
             return {
@@ -215,6 +220,8 @@ def create_new_group(group_create: GroupCreate):
             import traceback
             print(f"❌ 상세 오류: {traceback.format_exc()}")
             raise HTTPException(status_code=400, detail=f"그룹 생성 중 오류가 발생했습니다: {str(e)}")
+        finally:
+            print(f"🔓 락 해제")
 
 @app.put("/groups/{group_id}")
 def update_existing_group(group_id: str, group_update: GroupUpdate):

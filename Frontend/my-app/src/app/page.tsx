@@ -260,6 +260,7 @@ export default function HomePage() {
     };
 
     console.log('📤 백엔드로 보내는 데이터:', body);
+    console.log('🔗 요청 URL:', `${BACKEND_URL}/groups`);
 
     try {
       const response = await fetch(`${BACKEND_URL}/groups`, {
@@ -267,13 +268,20 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
+      
+      console.log('📥 응답 상태:', response.status);
+      console.log('📥 응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
       const result = await response.json();
+      console.log('📥 응답 데이터:', result);
       if (result.group_id) {
         router.push(`/participate/${result.group_id}`);
       } else {
+        console.error('❌ 그룹 생성 실패:', result);
         alert('방 생성 실패');
       }
     } catch (e) {
+      console.error('❌ 네트워크 오류:', e);
       alert('에러 발생');
     }
     closeCreateModal();
