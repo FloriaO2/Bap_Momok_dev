@@ -39,7 +39,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://bap-momok.vercel.app"
+        "https://bap-momok-dev.vercel.app/",
+        "https://babmomok-backend.vercel.app",
+        "https://babmomok-backend-*.vercel.app"
     ],  # 실제 프로덕션에서는 특정 도메인만 허용
     allow_credentials=True,
     allow_methods=["*"],
@@ -574,3 +576,8 @@ def get_best_couple(group_id: str):
     nickname1 = get_nickname(best_pair[0])
     nickname2 = get_nickname(best_pair[1])
     return {"best_couple": [nickname1, nickname2], "best_couple_ids": list(best_pair), "max_inner_product": max_score}
+
+# Vercel 배포를 위한 실행 코드
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
