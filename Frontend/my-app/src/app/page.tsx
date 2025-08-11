@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import KakaoMap from './components/KakaoMap';
+import GuideModal from './components/GuideModal';
 
 export default function HomePage() {
   const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') as string;
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRandomModal, setShowRandomModal] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
   const [joinRoomInput, setJoinRoomInput] = useState('');
   const router = useRouter();
 
@@ -336,6 +338,15 @@ export default function HomePage() {
       >
         {/* 오버레이 그라데이션 */}
         <div className={styles.overlay}>
+          {/* 가이드 버튼 */}
+          <button 
+            className={styles.guideButton}
+            onClick={() => setShowGuideModal(true)}
+            title="사용 가이드"
+          >
+            💡 GUIDE
+          </button>
+          
           {/* 메인 콘텐츠 */}
           <div className={styles.content}>
             {/* 타이틀 */}
@@ -693,6 +704,12 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* 가이드 모달 */}
+      <GuideModal 
+        isOpen={showGuideModal}
+        onClose={() => setShowGuideModal(false)}
+      />
     </div>
   );
 }

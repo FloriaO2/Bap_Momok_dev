@@ -1,0 +1,275 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 20px;
+  width: 90vw;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.modalContent::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid #f0f0f0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px 20px 0 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: bold;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.tabContainer {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 15px 20px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.tabButton:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.tabButton.active {
+  color: #667eea;
+  background: white;
+  border-bottom: 3px solid #667eea;
+}
+
+.content {
+  padding: 30px;
+}
+
+.guideSection h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.stepContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  border-left: 4px solid #667eea;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.step:hover {
+  transform: translateX(5px);
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepNumber {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.detailText {
+  margin-top: 15px;
+  margin-right: 60px;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detailText h5 {
+  color: #667eea;
+  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.detailText p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.stepContent h4 {
+  color: #333;
+  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.stepContent p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.stepContent ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.stepContent li {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 5px;
+  list-style-type: disc;
+  margin-left: 10px;
+}
+
+.stepContent strong {
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .header {
+    padding: 15px 20px;
+  }
+  
+  .title {
+    font-size: 1.3rem;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .step {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .stepNumber {
+    align-self: center;
+  }
+  
+  .tabButton {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    width: 98vw;
+    max-height: 98vh;
+  }
+  
+  .header {
+    padding: 12px 15px;
+  }
+  
+  .title {
+    font-size: 1.2rem;
+  }
+  
+  .content {
+    padding: 15px;
+  }
+  
+  .guideSection h3 {
+    font-size: 1.5rem;
+  }
+  
+  .stepContent h4 {
+    font-size: 1.1rem;
+  }
+} 
