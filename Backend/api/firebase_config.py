@@ -16,27 +16,23 @@ def initialize_firebase():
         except ValueError:
             print("🔄 Firebase 초기화가 필요합니다.")
         
-        # serviceAccountKey.json 파일 경로
-        cred_path = "serviceAccountKey.json"
-
-        # 환경변수에서 JSON 문자열 읽기
-        if not os.path.exists(cred_path):
-            print("📁 serviceAccountKey.json 파일이 없습니다. 환경변수에서 읽어옵니다...")
-            service_account_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
-            print(f"🔑 FIREBASE_SERVICE_ACCOUNT 환경변수 존재: {service_account_json is not None}")
-            if service_account_json:
-                print(f"🔑 환경변수 길이: {len(service_account_json)}")
-            if not service_account_json:
-                raise FileNotFoundError(f"Firebase 설정 파일을 찾을 수 없습니다: {cred_path} (환경변수도 없음)")
-            # 임시 파일로 저장
-            with open(cred_path, "w") as f:
-                f.write(service_account_json)
-            print("✅ 환경변수에서 Firebase 설정을 파일로 저장했습니다.")
-        else:
-            print("✅ serviceAccountKey.json 파일이 이미 존재합니다.")
-
-        # Firebase 초기화
-        cred = credentials.Certificate(cred_path)
+        # 환경변수에서 직접 JSON 파싱
+        service_account_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
+        print(f"🔑 FIREBASE_SERVICE_ACCOUNT 환경변수 존재: {service_account_json is not None}")
+        
+        if not service_account_json:
+            raise FileNotFoundError("FIREBASE_SERVICE_ACCOUNT 환경변수가 설정되지 않았습니다.")
+        
+        # JSON 파싱
+        try:
+            service_account_info = json.loads(service_account_json)
+            print("✅ JSON 파싱 성공")
+        except json.JSONDecodeError as e:
+            print(f"❌ JSON 파싱 실패: {e}")
+            raise
+        
+        # Firebase 초기화 (파일 없이 직접)
+        cred = credentials.Certificate(service_account_info)
         firebase_admin.initialize_app(cred, {
             'databaseURL': 'https://bap-momok-dev-default-rtdb.firebaseio.com'
         })
