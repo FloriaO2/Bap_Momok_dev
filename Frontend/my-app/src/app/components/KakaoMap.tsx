@@ -127,6 +127,9 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     script.onerror = (error) => {
       const errorMsg = '카카오맵 스크립트 로드에 실패했습니다. API 키와 도메인 설정을 확인해주세요.';
       console.error('KakaoMap - Script load error:', error);
+      console.error('KakaoMap - Script URL:', script.src);
+      console.error('KakaoMap - Current domain:', window.location.hostname);
+      console.error('KakaoMap - API Key length:', apiKey?.length);
       console.error('KakaoMap - Please check:');
       console.error('1. API key is valid');
       console.error('2. Domain is registered in Kakao Developer Console');

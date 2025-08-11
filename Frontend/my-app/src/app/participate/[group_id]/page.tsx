@@ -174,12 +174,12 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
       script.async = true;
       script.onload = () => {
         if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
-          (window as any).Kakao.init('45874862ce4eb9af215a1e6f553c9375');
+          (window as any).Kakao.init(process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
         }
       };
       document.body.appendChild(script);
     } else if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
-      (window as any).Kakao.init('45874862ce4eb9af215a1e6f553c9375');
+      (window as any).Kakao.init(process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
     }
   }, []);
 
