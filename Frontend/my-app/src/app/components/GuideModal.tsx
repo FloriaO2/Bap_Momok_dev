@@ -65,7 +65,6 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
                       <div className={styles.detailText}>
                         <h5>상세 설명</h5>
                         <p>홈화면의 "Vote Room" 버튼을 클릭하면 방 생성 모달이 열립니다. 여기서 방의 기본 설정을 할 수 있습니다.</p>
-                        {/* 추후 이미지 추가 예정 */}
                       </div>
                     )}
                   </div>
@@ -82,9 +81,20 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
                     </ul>
                     {expandedStep === 2 && (
                       <div className={styles.detailText}>
-                        <h5>상세 설명</h5>
-                        <p>지도에서 만날 위치를 클릭하여 선택하고, 직접가기와 배달 옵션을 체크박스로 설정할 수 있습니다.</p>
-                        {/* 추후 이미지 추가 예정 */}
+                        <div className={styles.detailContent}>
+                          <div className={styles.detailMedia}>
+                            <div className={styles.mediaItem}>
+                              <img src="/guide-data/vote_step2_before.jpg" alt="위치 설정 전" />
+                            </div>
+                            <div className={styles.mediaItem}>
+                              <img src="/guide-data/vote_step2_after.jpg" alt="위치 설정 후" />
+                            </div>
+                          </div>
+                          <div className={styles.detailTextContent}>
+                            <h5>상세 설명</h5>
+                            <p>지도에서 만날 위치를 클릭하여 선택하고, 직접가기와 배달 옵션을 체크박스로 설정할 수 있습니다.</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -97,9 +107,17 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
                     <p>생성된 방 ID를 친구들에게 공유하여 함께 참여할 수 있습니다.</p>
                     {expandedStep === 3 && (
                       <div className={styles.detailText}>
-                        <h5>상세 설명</h5>
-                        <p>방이 생성되면 고유한 방 ID가 생성됩니다. 이 ID를 친구들에게 공유하여 함께 참여할 수 있습니다.</p>
-                        {/* 추후 이미지 추가 예정 */}
+                        <div className={styles.detailContent}>
+                          <div className={styles.detailMedia}>
+                            <div className={styles.mediaItem}>
+                              <img src="/guide-data/vote_step3.jpg" alt="방 ID 공유 화면" />
+                            </div>
+                          </div>
+                          <div className={styles.detailTextContent}>
+                            <h5>상세 설명</h5>
+                            <p>방이 생성되면 고유한 방 ID가 생성됩니다. 이 ID를 친구들에게 공유하여 함께 참여할 수 있습니다.</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -116,9 +134,12 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
                     </ul>
                     {expandedStep === 4 && (
                       <div className={styles.detailText}>
-                        <h5>상세 설명</h5>
-                        <p>참여자들이 직접가기와 배달 탭을 통해 원하는 식당을 검색하고 후보로 추가할 수 있습니다. 슬롯머신 룰렛을 통해 랜덤 추천도 가능합니다.</p>
-                        {/* 추후 이미지 추가 예정 */}
+                        <div className={styles.detailContent}>
+                          <div className={styles.detailTextContent}>
+                            <h5>상세 설명</h5>
+                            <p>참여자들이 직접가기와 배달 탭을 통해 원하는 식당을 검색하고 후보로 추가할 수 있습니다. 슬롯머신 룰렛을 통해 랜덤 추천도 가능합니다.</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -137,7 +158,6 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
                       <div className={styles.detailText}>
                         <h5>상세 설명</h5>
                         <p>제안된 후보들에 대해 모든 참여자가 투표를 진행합니다. 투표 결과를 집계하여 각 식당의 선호도를 계산합니다.</p>
-                        {/* 추후 이미지 추가 예정 */}
                       </div>
                     )}
                   </div>
@@ -152,7 +172,6 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
                       <div className={styles.detailText}>
                         <h5>상세 설명</h5>
                         <p>투표가 완료되면 최종 선택된 식당의 상세 정보를 확인할 수 있습니다.</p>
-                        {/* 추후 이미지 추가 예정 */}
                       </div>
                     )}
                   </div>

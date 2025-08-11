@@ -157,6 +157,36 @@
   animation: fadeIn 0.3s ease-out;
 }
 
+.detailContent {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.detailMedia {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detailTextContent {
+  flex: 1;
+}
+
+.detailTextContent h5 {
+  color: #667eea;
+  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.detailTextContent p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -212,6 +242,50 @@
   font-weight: bold;
 }
 
+/* 미디어 파일 스타일 */
+.mediaContainer {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mediaItem {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.mediaItem img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
+.mediaCaption {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+}
+
+.mediaGrid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.mediaGrid .mediaItem {
+  margin: 0;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .modalContent {
@@ -244,6 +318,23 @@
   .tabButton {
     padding: 12px 15px;
     font-size: 14px;
+  }
+  
+  .mediaGrid {
+    flex-direction: column;
+  }
+  
+  .detailContent {
+    flex-direction: column;
+  }
+  
+  .detailMedia {
+    flex: none;
+    width: 100%;
+  }
+  
+  .mediaItem {
+    width: 100%;
   }
 }
 
