@@ -29,7 +29,7 @@ global_lock = threading.Lock()
 # FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 # BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
-app = FastAPI(title="Babmomok API", description="밥모임 API 서버")
+app = FastAPI(title="Babmomok API", description="밥머먹 API 서버")
 
 # Firebase 초기화
 firebase_initialized = initialize_firebase()
@@ -39,9 +39,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://bap-momok-dev.vercel.app/",
-        "https://babmomok-backend.vercel.app",
-        "https://babmomok-backend-*.vercel.app"
+        "https://bap-momok-dev.vercel.app",
+        "https://bap-momok-dev-back.vercel.app"
     ],  # 실제 프로덕션에서는 특정 도메인만 허용
     allow_credentials=True,
     allow_methods=["*"],

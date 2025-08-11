@@ -4,6 +4,7 @@ import { getDatabase } from 'firebase/database';
 const firebaseConfig = {
   apiKey: "AIzaSyArSVqlMe8DhlUVX1RvJQGEbmkzYzkY9FY",
   authDomain: "bap-momok-dev.firebaseapp.com",
+  databaseURL: "https://bap-momok-dev-default-rtdb.firebaseio.com",
   projectId: "bap-momok-dev",
   storageBucket: "bap-momok-dev.firebasestorage.app",
   messagingSenderId: "775253348914",

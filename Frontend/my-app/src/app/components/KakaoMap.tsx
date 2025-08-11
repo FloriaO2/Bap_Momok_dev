@@ -151,6 +151,13 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
       console.error('KakaoMap - API Key (first 10 chars):', apiKey?.substring(0, 10));
       console.error('KakaoMap - Error object:', error);
       
+      // 카카오 개발자 콘솔에서 확인해야 할 정확한 도메인들
+      console.error('KakaoMap - Required domains in Kakao Console:');
+      console.error('KakaoMap - 1. https://' + currentDomain);
+      console.error('KakaoMap - 2. https://www.' + currentDomain);
+      console.error('KakaoMap - 3. http://' + currentDomain);
+      console.error('KakaoMap - 4. http://www.' + currentDomain);
+      
       const errorMsg = `카카오맵 스크립트 로드에 실패했습니다. (403 Forbidden)
 
 현재 도메인: ${currentDomain}
@@ -160,9 +167,11 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
 🔧 해결 방법:
 1. 카카오 개발자 콘솔(https://developers.kakao.com)에 로그인
 2. 해당 애플리케이션 선택
-3. 플랫폼 → Web → 사이트 도메인에 추가:
-   • ${protocol}//${currentDomain}
-   • ${protocol}//www.${currentDomain}
+3. 플랫폼 → Web → 사이트 도메인에 다음을 정확히 추가:
+   • https://${currentDomain}
+   • https://www.${currentDomain}
+   • http://${currentDomain}
+   • http://www.${currentDomain}
 
 ⚠️ 403 오류는 대부분 도메인 미등록이 원인입니다.
 
