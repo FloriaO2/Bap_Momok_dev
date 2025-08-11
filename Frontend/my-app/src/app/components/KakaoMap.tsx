@@ -20,16 +20,28 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
   // 지도/마커 생성 및 중심 이동 시 콜백
   useEffect(() => {
     if (typeof window === "undefined") return;
+    
+    // 디버깅: 환경변수 확인
+    console.log('KakaoMap - API Key:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+    console.log('KakaoMap - API Key length:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY?.length);
+    
     function createMapAndMarker() {
       // @ts-ignore
       const kakao = window.kakao;
       if (mapRef.current && !mapInstance.current) {
+        console.log('KakaoMap - Creating map instance');
+        console.log('KakaoMap - mapRef.current:', mapRef.current);
+        console.log('KakaoMap - centerLat:', centerLat, 'centerLng:', centerLng);
+        
         mapInstance.current = new kakao.maps.Map(mapRef.current, {
           center: (centerLat !== undefined && centerLat !== null && centerLng !== undefined && centerLng !== null)
             ? new kakao.maps.LatLng(centerLat, centerLng)
             : new kakao.maps.LatLng(37.5665, 126.9780),
           level: 3,
         });
+        
+        console.log('KakaoMap - Map instance created:', mapInstance.current);
+        
         // 지도가 준비되면 부모 컴포넌트에 알림
         if (onMapReady) {
           onMapReady(mapInstance.current);
@@ -63,12 +75,23 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     script.id = "kakao-map-script";
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&autoload=false&libraries=services`;
     script.async = true;
+    
+    // 디버깅: 스크립트 URL 확인
+    console.log('KakaoMap - Script URL:', script.src);
+    
     script.onload = () => {
+      console.log('KakaoMap - Script loaded successfully');
       // @ts-ignore
       window.kakao.maps.load(() => {
+        console.log('KakaoMap - Maps loaded successfully');
         createMapAndMarker();
       });
     };
+    
+    script.onerror = (error) => {
+      console.error('KakaoMap - Script load error:', error);
+    };
+    
     document.head.appendChild(script);
     // eslint-disable-next-line
   }, []);
