@@ -29,8 +29,12 @@ NEXT_PUBLIC_KAKAO_MAP_API_KEY=your_javascript_key_here
 - `http://127.0.0.1:3000`
 
 ### 프로덕션 환경
-- `https://your-domain.com`
-- `https://www.your-domain.com`
+- `https://bap-momok-dev.vercel.app`
+- `https://www.bap-momok-dev.vercel.app`
+- `https://your-domain.com` (기타 도메인)
+- `https://www.your-domain.com` (기타 도메인)
+
+**중요**: 도메인 등록 후 몇 분 정도 기다려야 변경사항이 적용됩니다.
 
 ## 4. 플랫폼 설정
 
@@ -72,7 +76,11 @@ yarn dev
 - 카카오 개발자 콘솔에서 도메인 등록 확인
 - `localhost`와 `127.0.0.1` 모두 등록
 
-### "Script load error"
+### "Script load error" / "403 Forbidden"
+- **가장 일반적인 원인**: 도메인이 카카오 개발자 콘솔에 등록되지 않음
+- 카카오 개발자 콘솔에서 사이트 도메인 확인
+- 도메인 등록 후 몇 분 기다린 후 다시 시도
+- JavaScript 키가 올바른지 확인 (REST API 키가 아님)
 - 네트워크 연결 확인
 - 브라우저 콘솔에서 구체적인 오류 메시지 확인
 

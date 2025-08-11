@@ -91,7 +91,7 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/groups/${groupId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${groupId}`);
         if (response.ok) {
           const data = await response.json();
           setGroupData(data);
@@ -118,7 +118,7 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
       try {
         setIsSubmitting(true); // 중복 제출 방지
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/groups/${groupId}/participants`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${groupId}/participants`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -174,12 +174,12 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
       script.async = true;
       script.onload = () => {
         if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
-          (window as any).Kakao.init(process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+          (window as any).Kakao.init('45874862ce4eb9af215a1e6f553c9375');
         }
       };
       document.body.appendChild(script);
     } else if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
-      (window as any).Kakao.init(process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+      (window as any).Kakao.init('45874862ce4eb9af215a1e6f553c9375');
     }
   }, []);
 

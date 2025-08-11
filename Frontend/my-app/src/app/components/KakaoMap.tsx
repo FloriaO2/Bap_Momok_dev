@@ -26,6 +26,8 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
     console.log('KakaoMap - API Key exists:', !!apiKey);
     console.log('KakaoMap - API Key length:', apiKey?.length);
+    console.log('KakaoMap - API Key (first 10 chars):', apiKey?.substring(0, 10));
+    console.log('KakaoMap - All env vars:', Object.keys(process.env).filter(key => key.includes('KAKAO')));
     
     // API 키가 없으면 오류 메시지 표시
     if (!apiKey) {
@@ -126,14 +128,18 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     
     script.onerror = (error) => {
       const currentDomain = window.location.hostname;
-      const errorMsg = `카카오맵 스크립트 로드에 실패했습니다.
+      const errorMsg = `카카오맵 스크립트 로드에 실패했습니다. (403 Forbidden)
 
 현재 도메인: ${currentDomain}
 
-해결 방법:
-1. 카카오 개발자 콘솔에서 도메인 등록 확인
-2. ${currentDomain} 도메인이 사이트 도메인에 등록되어 있는지 확인
-3. JavaScript 키가 올바른지 확인
+🔧 해결 방법:
+1. 카카오 개발자 콘솔(https://developers.kakao.com)에 로그인
+2. 해당 애플리케이션 선택
+3. 플랫폼 → Web → 사이트 도메인에 추가:
+   • https://${currentDomain}
+   • https://www.${currentDomain}
+
+⚠️ 403 오류는 대부분 도메인 미등록이 원인입니다.
 
 자세한 설정 방법은 KAKAO_MAP_SETUP.md 파일을 참조하세요.`;
       
@@ -141,11 +147,14 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
       console.error('KakaoMap - Script URL:', script.src);
       console.error('KakaoMap - Current domain:', currentDomain);
       console.error('KakaoMap - API Key length:', apiKey?.length);
+      console.error('KakaoMap - Error type: 403 Forbidden (Domain not registered)');
       console.error('KakaoMap - Please check:');
       console.error('1. API key is valid');
       console.error('2. Domain is registered in Kakao Developer Console');
       console.error('3. Network connection is stable');
       console.error('4. Add domain to Kakao Developer Console:', currentDomain);
+      console.error('5. Wait a few minutes after adding domain (propagation delay)');
+      console.error('6. Check if using correct JavaScript key (not REST API key)');
       setError(errorMsg);
     };
     
