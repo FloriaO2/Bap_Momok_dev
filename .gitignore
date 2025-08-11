@@ -8,6 +8,7 @@ build/
 .DS_Store
 # Firebase Service Account Keys (보안 파일)
 Backend/serviceAccountKey.json
+Backend/api/serviceAccountKey.json
 Backend/serviceAccountKey.json.backup
 Backend/*.json
 !Backend/package.json
