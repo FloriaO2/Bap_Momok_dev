@@ -224,8 +224,17 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
 
   // 카카오맵 스크립트 로드 확인
   const waitForKakaoMap = (): Promise<void> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       console.log('waitForKakaoMap 시작');
+      
+      // API 키 확인
+      const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
+      if (!apiKey) {
+        console.error('KakaoMap - API Key is not set. Please set NEXT_PUBLIC_KAKAO_MAP_API_KEY in .env.local');
+        reject(new Error('카카오맵 API 키가 설정되지 않았습니다.'));
+        return;
+      }
+      
       if (typeof window === 'undefined') {
         console.log('서버 사이드에서 실행 중, 바로 resolve');
         resolve();
@@ -244,23 +253,32 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
         console.log('카카오맵 스크립트 로드 시작');
         const script = document.createElement("script");
         script.id = "kakao-map-script";
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&autoload=false&libraries=services`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
         script.async = true;
+        
         script.onload = () => {
           console.log('카카오맵 스크립트 로드 완료, maps.load 시작');
-          window.kakao.maps.load(() => {
-            console.log('카카오맵 maps.load 완료');
-            resolve();
-          });
+          if (window.kakao && window.kakao.maps) {
+            window.kakao.maps.load(() => {
+              console.log('카카오맵 maps.load 완료');
+              resolve();
+            });
+          } else {
+            console.error('카카오맵 - kakao 객체를 찾을 수 없습니다.');
+            reject(new Error('카카오맵 스크립트 로드에 실패했습니다.'));
+          }
         };
+        
+        script.onerror = (error) => {
+          console.error('카카오맵 스크립트 로드 오류:', error);
+          reject(new Error('카카오맵 스크립트 로드에 실패했습니다.'));
+        };
+        
         document.head.appendChild(script);
       } else {
         // 스크립트는 있지만 아직 로드 중인 경우
         const checkKakao = () => {
           console.log('카카오맵 스크립트 확인 중...');
-          console.log('window.kakao:', !!window.kakao);
-          console.log('window.kakao.maps:', !!(window.kakao && window.kakao.maps));
-          console.log('window.kakao.maps.services:', !!(window.kakao && window.kakao.maps && window.kakao.maps.services));
           
           if (typeof window !== 'undefined' && window.kakao && window.kakao.maps && window.kakao.maps.services) {
             console.log('카카오맵 스크립트 로드 완료');
@@ -365,6 +383,10 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               });
               return withinRadius;
             })
+        } catch (error) {
+          console.error('카카오맵 API 초기화 실패:', error);
+          // 카카오맵 API 실패 시에도 계속 진행 (요기요 API만 사용)
+        }
             .map((restaurant: any) => ({
               id: restaurant.id || restaurant.kakao_id,
               name: restaurant.place_name,

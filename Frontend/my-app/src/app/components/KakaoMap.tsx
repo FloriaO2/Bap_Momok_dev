@@ -16,80 +16,122 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
   const mapInstance = useRef<any>(null);
   const markerInstance = useRef<any>(null);
   const [searching, setSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 지도/마커 생성 및 중심 이동 시 콜백
   useEffect(() => {
     if (typeof window === "undefined") return;
     
-    // 디버깅: 환경변수 확인
-    console.log('KakaoMap - API Key:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
-    console.log('KakaoMap - API Key length:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY?.length);
+    // API 키 확인
+    const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
+    console.log('KakaoMap - API Key exists:', !!apiKey);
+    console.log('KakaoMap - API Key length:', apiKey?.length);
+    
+    // API 키가 없으면 오류 메시지 표시
+    if (!apiKey) {
+      const errorMsg = '카카오맵 API 키가 설정되지 않았습니다. .env.local 파일에 NEXT_PUBLIC_KAKAO_MAP_API_KEY를 설정해주세요.';
+      console.error('KakaoMap - API Key is not set. Please set NEXT_PUBLIC_KAKAO_MAP_API_KEY in .env.local');
+      setError(errorMsg);
+      return;
+    }
     
     function createMapAndMarker() {
       // @ts-ignore
       const kakao = window.kakao;
       if (mapRef.current && !mapInstance.current) {
         console.log('KakaoMap - Creating map instance');
-        console.log('KakaoMap - mapRef.current:', mapRef.current);
         console.log('KakaoMap - centerLat:', centerLat, 'centerLng:', centerLng);
         
-        mapInstance.current = new kakao.maps.Map(mapRef.current, {
-          center: (centerLat !== undefined && centerLat !== null && centerLng !== undefined && centerLng !== null)
-            ? new kakao.maps.LatLng(centerLat, centerLng)
-            : new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 3,
-        });
-        
-        console.log('KakaoMap - Map instance created:', mapInstance.current);
-        
-        // 지도가 준비되면 부모 컴포넌트에 알림
-        if (onMapReady) {
-          onMapReady(mapInstance.current);
+        try {
+          mapInstance.current = new kakao.maps.Map(mapRef.current, {
+            center: (centerLat !== undefined && centerLat !== null && centerLng !== undefined && centerLng !== null)
+              ? new kakao.maps.LatLng(centerLat, centerLng)
+              : new kakao.maps.LatLng(37.5665, 126.9780),
+            level: 3,
+          });
+          
+          console.log('KakaoMap - Map instance created:', mapInstance.current);
+          
+          // 지도가 준비되면 부모 컴포넌트에 알림
+          if (onMapReady) {
+            onMapReady(mapInstance.current);
+          }
+        } catch (error) {
+          console.error('KakaoMap - Error creating map instance:', error);
         }
       }
       if (mapInstance.current && !markerInstance.current) {
-        markerInstance.current = new kakao.maps.Marker({
-          position: mapInstance.current.getCenter(),
-          map: mapInstance.current,
-        });
+        try {
+          markerInstance.current = new kakao.maps.Marker({
+            position: mapInstance.current.getCenter(),
+            map: mapInstance.current,
+          });
+        } catch (error) {
+          console.error('KakaoMap - Error creating marker:', error);
+        }
       }
       // 지도 이동 시 마커도 중심으로 이동, 콜백 호출
       if (mapInstance.current && markerInstance.current) {
-        kakao.maps.event.addListener(mapInstance.current, 'center_changed', function() {
-          const center = mapInstance.current.getCenter();
-          markerInstance.current.setPosition(center);
-          if (onLocationChange) onLocationChange(center.getLat(), center.getLng());
-        });
+        try {
+          kakao.maps.event.addListener(mapInstance.current, 'center_changed', function() {
+            const center = mapInstance.current.getCenter();
+            markerInstance.current.setPosition(center);
+            if (onLocationChange) onLocationChange(center.getLat(), center.getLng());
+          });
+        } catch (error) {
+          console.error('KakaoMap - Error adding event listener:', error);
+        }
       }
     }
 
+    // 이미 스크립트가 로드되어 있는지 확인
     if (document.getElementById("kakao-map-script")) {
       // 이미 스크립트가 있으면 바로 지도/마커 로드
       // @ts-ignore
       if (window.kakao && window.kakao.maps) {
         createMapAndMarker();
+      } else {
+        // 스크립트는 있지만 kakao 객체가 없는 경우, 잠시 후 다시 시도
+        setTimeout(() => {
+          // @ts-ignore
+          if (window.kakao && window.kakao.maps) {
+            createMapAndMarker();
+          }
+        }, 1000);
       }
       return;
     }
+    
     const script = document.createElement("script");
     script.id = "kakao-map-script";
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&autoload=false&libraries=services`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
     script.async = true;
     
     // 디버깅: 스크립트 URL 확인
-    console.log('KakaoMap - Script URL:', script.src);
+    console.log('KakaoMap - Loading script from:', script.src);
     
     script.onload = () => {
       console.log('KakaoMap - Script loaded successfully');
       // @ts-ignore
-      window.kakao.maps.load(() => {
-        console.log('KakaoMap - Maps loaded successfully');
-        createMapAndMarker();
-      });
+      if (window.kakao && window.kakao.maps) {
+        // @ts-ignore
+        window.kakao.maps.load(() => {
+          console.log('KakaoMap - Maps loaded successfully');
+          createMapAndMarker();
+        });
+      } else {
+        console.error('KakaoMap - kakao object not available after script load');
+      }
     };
     
     script.onerror = (error) => {
+      const errorMsg = '카카오맵 스크립트 로드에 실패했습니다. API 키와 도메인 설정을 확인해주세요.';
       console.error('KakaoMap - Script load error:', error);
+      console.error('KakaoMap - Please check:');
+      console.error('1. API key is valid');
+      console.error('2. Domain is registered in Kakao Developer Console');
+      console.error('3. Network connection is stable');
+      setError(errorMsg);
     };
     
     document.head.appendChild(script);
@@ -172,39 +214,65 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
 
   return (
     <div style={{ position: "relative", width: "100%", height: "250px", margin: "16px 0" }}>
-      <div
-        ref={mapRef}
-        style={{ width: "100%", height: "100%", borderRadius: "10px" }}
-      />
-      {/* 핀 버튼 */}
-      {pinButtonType !== 'none' && (
-        <button
-          onClick={handlePinClick}
-          style={{
-            position: "absolute",
-            right: 16,
-            bottom: 16,
-            zIndex: 10,
-            background: pinButtonType === 'group' ? "#994d52" : "#fff",
-            border: pinButtonType === 'group' ? "none" : "1px solid #994d52",
-            borderRadius: "50%",
-            width: 48,
-            height: 48,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: pinButtonType === 'group' ? "#fff" : "#000",
-          }}
-          title={pinButtonType === 'gps' ? "현재 위치로 이동" : "그룹 위치로 이동"}
-        >
-          <span role="img" aria-label="pin">📍</span>
-        </button>
-      )}
-      {/* 검색중 표시 */}
-      {searching && (
-        <div style={{position:'absolute',top:8,right:8,zIndex:30,background:'#fff',padding:'4px 12px',borderRadius:8,fontSize:14,border:'1px solid #ccc'}}>검색중...</div>
+      {error ? (
+        <div style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: "10px",
+          border: "2px dashed #ccc",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f9f9f9",
+          color: "#666",
+          fontSize: "14px",
+          textAlign: "center",
+          padding: "20px"
+        }}>
+          <div>
+            <div style={{ marginBottom: "8px", fontSize: "16px", fontWeight: "bold", color: "#333" }}>
+              🗺️ 지도를 불러올 수 없습니다
+            </div>
+            <div>{error}</div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div
+            ref={mapRef}
+            style={{ width: "100%", height: "100%", borderRadius: "10px" }}
+          />
+          {/* 핀 버튼 */}
+          {pinButtonType !== 'none' && (
+            <button
+              onClick={handlePinClick}
+              style={{
+                position: "absolute",
+                right: 16,
+                bottom: 16,
+                zIndex: 10,
+                background: pinButtonType === 'group' ? "#994d52" : "#fff",
+                border: pinButtonType === 'group' ? "none" : "1px solid #994d52",
+                borderRadius: "50%",
+                width: 48,
+                height: 48,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: pinButtonType === 'group' ? "#fff" : "#000",
+              }}
+              title={pinButtonType === 'gps' ? "현재 위치로 이동" : "그룹 위치로 이동"}
+            >
+              <span role="img" aria-label="pin">📍</span>
+            </button>
+          )}
+          {/* 검색중 표시 */}
+          {searching && (
+            <div style={{position:'absolute',top:8,right:8,zIndex:30,background:'#fff',padding:'4px 12px',borderRadius:8,fontSize:14,border:'1px solid #ccc'}}>검색중...</div>
+          )}
+        </>
       )}
     </div>
   );
