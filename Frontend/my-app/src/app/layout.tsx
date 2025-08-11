@@ -14,10 +14,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Bap! Momok? - 함께 맛있는 음식을 선택하세요",
-  description: "밥모임 투표 앱으로 함께 맛있는 음식을 선택해보세요!",
+  description: "Bap! Momok? 투표 앱으로 함께 맛있는 음식을 선택해보세요!",
   openGraph: {
     title: "Bap! Momok? - 함께 맛있는 음식을 선택하세요",
-    description: "밥모임 투표 앱으로 함께 맛있는 음식을 선택해보세요!",
+    description: "Bap! Momok? 투표 앱으로 함께 맛있는 음식을 선택해보세요!",
     type: "website",
     images: [
       {

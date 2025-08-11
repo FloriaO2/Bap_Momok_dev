@@ -190,8 +190,8 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
       (window as any).Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-          title: '밥모임에 초대합니다!',
-          description: '밥모임 투표에 참여해주세요!',
+          title: 'Bap! Momok?에 초대합니다!',
+          description: 'Bap! Momok? 투표에 참여해주세요!',
           imageUrl: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/logo.png`,
           link: {
             mobileWebUrl: inviteUrl,
