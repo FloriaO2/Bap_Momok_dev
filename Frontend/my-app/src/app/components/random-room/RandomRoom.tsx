@@ -383,10 +383,6 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               });
               return withinRadius;
             })
-        } catch (error) {
-          console.error('카카오맵 API 초기화 실패:', error);
-          // 카카오맵 API 실패 시에도 계속 진행 (요기요 API만 사용)
-        }
             .map((restaurant: any) => ({
               id: restaurant.id || restaurant.kakao_id,
               name: restaurant.place_name,
@@ -397,8 +393,9 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               detail: restaurant
             }));
           allRestaurants.push(...filteredKakao);
-        } catch (err) {
-          console.error('카카오맵 API 호출 오류:', err);
+        } catch (error) {
+          console.error('카카오맵 API 초기화 실패:', error);
+          // 카카오맵 API 실패 시에도 계속 진행 (요기요 API만 사용)
         }
       }
 
