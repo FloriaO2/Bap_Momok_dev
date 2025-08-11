@@ -272,6 +272,12 @@ export default function HomePage() {
       console.log('📥 응답 상태:', response.status);
       console.log('📥 응답 헤더:', Object.fromEntries(response.headers.entries()));
       
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ 서버 오류 응답:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
       const result = await response.json();
       console.log('📥 응답 데이터:', result);
       if (result.group_id) {

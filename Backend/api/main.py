@@ -32,18 +32,18 @@ global_lock = threading.Lock()
 app = FastAPI(title="Babmomok API", description="밥머먹 API 서버")
 
 # Firebase 초기화
+print("🚀 Firebase 초기화 시작...")
 firebase_initialized = initialize_firebase()
+print(f"🔥 Firebase 초기화 결과: {firebase_initialized}")
+if not firebase_initialized:
+    print("❌ Firebase 초기화 실패! 서버가 정상 작동하지 않을 수 있습니다.")
 
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://bap-momok-dev.vercel.app",
-        "https://bap-momok-dev-back.vercel.app"
-    ],  # 실제 프로덕션에서는 특정 도메인만 허용
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # 모든 origin 허용
+    allow_credentials=False,  # credentials 비활성화
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
