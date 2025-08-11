@@ -125,15 +125,27 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     };
     
     script.onerror = (error) => {
-      const errorMsg = '카카오맵 스크립트 로드에 실패했습니다. API 키와 도메인 설정을 확인해주세요.';
+      const currentDomain = window.location.hostname;
+      const errorMsg = `카카오맵 스크립트 로드에 실패했습니다.
+
+현재 도메인: ${currentDomain}
+
+해결 방법:
+1. 카카오 개발자 콘솔에서 도메인 등록 확인
+2. ${currentDomain} 도메인이 사이트 도메인에 등록되어 있는지 확인
+3. JavaScript 키가 올바른지 확인
+
+자세한 설정 방법은 KAKAO_MAP_SETUP.md 파일을 참조하세요.`;
+      
       console.error('KakaoMap - Script load error:', error);
       console.error('KakaoMap - Script URL:', script.src);
-      console.error('KakaoMap - Current domain:', window.location.hostname);
+      console.error('KakaoMap - Current domain:', currentDomain);
       console.error('KakaoMap - API Key length:', apiKey?.length);
       console.error('KakaoMap - Please check:');
       console.error('1. API key is valid');
       console.error('2. Domain is registered in Kakao Developer Console');
       console.error('3. Network connection is stable');
+      console.error('4. Add domain to Kakao Developer Console:', currentDomain);
       setError(errorMsg);
     };
     
@@ -233,10 +245,25 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
           padding: "20px"
         }}>
           <div>
-            <div style={{ marginBottom: "8px", fontSize: "16px", fontWeight: "bold", color: "#333" }}>
+            <div style={{ marginBottom: "12px", fontSize: "18px", fontWeight: "bold", color: "#333" }}>
               🗺️ 지도를 불러올 수 없습니다
             </div>
-            <div>{error}</div>
+            <div style={{ 
+              whiteSpace: "pre-line", 
+              lineHeight: "1.5",
+              maxWidth: "300px"
+            }}>
+              {error}
+            </div>
+            <div style={{ 
+              marginTop: "16px", 
+              fontSize: "12px", 
+              color: "#999",
+              borderTop: "1px solid #ddd",
+              paddingTop: "12px"
+            }}>
+              💡 팁: 카카오 개발자 콘솔에서 도메인 설정을 확인해주세요
+            </div>
           </div>
         </div>
       ) : (
