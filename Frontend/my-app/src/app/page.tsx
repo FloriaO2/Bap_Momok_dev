@@ -7,6 +7,16 @@ import KakaoMap from './components/KakaoMap';
 import GuideModal from './components/GuideModal';
 
 export default function HomePage() {
+  // 환경 변수 디버깅
+  if (typeof window !== 'undefined') {
+    console.log('=== 환경 변수 디버깅 ===');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('NEXT_PUBLIC_KAKAO_MAP_API_KEY exists:', !!process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+    console.log('NEXT_PUBLIC_KAKAO_MAP_API_KEY length:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY?.length);
+    console.log('All NEXT_PUBLIC env vars:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_')));
+    console.log('========================');
+  }
+
   const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') as string;
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);

@@ -22,19 +22,13 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
   useEffect(() => {
     if (typeof window === "undefined") return;
     
-    // API 키 확인 (환경변수 또는 하드코딩된 키 사용)
-    let apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
+    // API 키 확인
+    const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
     
     console.log('KakaoMap - Environment check:');
     console.log('KakaoMap - NODE_ENV:', process.env.NODE_ENV);
-    console.log('KakaoMap - Raw env var:', process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+    console.log('KakaoMap - Raw env var:', apiKey);
     console.log('KakaoMap - All NEXT_PUBLIC env vars:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_')));
-    
-    // 환경변수가 없으면 하드코딩된 키 사용 (개발용)
-    if (!apiKey) {
-      apiKey = '45874862ce4eb9af215a1e6f553c9375';
-      console.log('KakaoMap - Using fallback API key');
-    }
     
     console.log('KakaoMap - Final API Key exists:', !!apiKey);
     console.log('KakaoMap - Final API Key length:', apiKey?.length);
