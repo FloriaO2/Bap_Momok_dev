@@ -143,7 +143,7 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
 
   // id 중복 제거
   const uniqueRestaurants = Array.from(
-    new Map(restaurants.map(r => [r.id, r])).values()
+    new Map(restaurants.map(r => [Number(r.id), r])).values()
   );
   
   // 카테고리 탭 드래그 스크롤 구현
@@ -320,7 +320,7 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
           <>
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
               {uniqueRestaurants.map((r) => {
-                const isRegistered = registeredCandidateIds.includes(r.id);
+                const isRegistered = registeredCandidateIds.includes(Number(r.id));
                 return (
                 <div
                   key={r.id}
@@ -347,36 +347,36 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
                   {typeof onAddCandidate === 'function' && (
                     <button
                       onClick={e => { e.stopPropagation(); onAddCandidate(r); }}
-                      disabled={registeredCandidateIds.includes(r.id)}
+                      disabled={registeredCandidateIds.includes(Number(r.id))}
                       style={{
                         width: "40px",
                         height: "40px",
-                        background: registeredCandidateIds.includes(r.id) ? "#ccc" : "#994d52",
+                        background: registeredCandidateIds.includes(Number(r.id)) ? "#ccc" : "#994d52",
                         color: "#fff",
                         border: "none",
                         borderRadius: "50%",
                         fontSize: "20px",
                         fontWeight: "bold",
-                        cursor: registeredCandidateIds.includes(r.id) ? "not-allowed" : "pointer",
+                        cursor: registeredCandidateIds.includes(Number(r.id)) ? "not-allowed" : "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         transition: "all 0.2s"
                       }}
                       onMouseOver={e => {
-                        if (!registeredCandidateIds.includes(r.id)) {
+                        if (!registeredCandidateIds.includes(Number(r.id))) {
                           e.currentTarget.style.background = "#8a4449";
                           e.currentTarget.style.transform = "scale(1.1)";
                         }
                       }}
                       onMouseOut={e => {
-                        if (!registeredCandidateIds.includes(r.id)) {
+                        if (!registeredCandidateIds.includes(Number(r.id))) {
                           e.currentTarget.style.background = "#994d52";
                           e.currentTarget.style.transform = "scale(1)";
                         }
                       }}
                     >
-                      {registeredCandidateIds.includes(r.id) ? '✔' : '+'}
+                      {registeredCandidateIds.includes(Number(r.id)) ? '✔' : '+'}
                     </button>
                   )}
                 </div>

@@ -9,7 +9,7 @@ declare global {
 }
 
 interface Restaurant {
-  id: string;
+  id: number;
   name: string;
   rating: number;
   address: string;
@@ -62,7 +62,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const [menuList, setMenuList] = useState<any[]>([]);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const currentIndexRef = useRef(0);
-  const [previousCandidates, setPreviousCandidates] = useState<Set<string>>(new Set());
+  const [previousCandidates, setPreviousCandidates] = useState<Set<number>>(new Set());
   
   // 전체 식당 데이터를 저장할 새로운 state 추가
   const [allRestaurantsData, setAllRestaurantsData] = useState<Restaurant[]>([]);
@@ -84,7 +84,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     // 모든 식당이 이전 후보에 들어가있는지 확인
     const allRestaurantIds = new Set(allRestaurants.map(r => r.id));
     const allUsed = allRestaurantIds.size > 0 && 
-                   [...allRestaurantIds].every(id => previousCandidates.has(id));
+                   [...allRestaurantIds].every(id => previousCandidates.has(Number(id)));
     
     // 모든 식당이 이전 후보라면 previousCandidates 리셋
     if (allUsed) {
@@ -114,12 +114,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
         
         // 이전 후보가 아닌 식당들 먼저 선택
         const newRestaurants = restaurantsInCategory.filter(restaurant => 
-          !previousCandidates.has(restaurant.id)
+          !previousCandidates.has(Number(restaurant.id))
         );
         
         // 이전 후보였던 식당들
         const usedRestaurants = restaurantsInCategory.filter(restaurant => 
-          previousCandidates.has(restaurant.id)
+          previousCandidates.has(Number(restaurant.id))
         );
         
         let selectedFromCategory = 0;
@@ -148,12 +148,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       if (remainingCount > 0) {
         const remainingNewRestaurants = allRestaurants.filter(restaurant => 
           !selectedRestaurants.some(selected => selected.id === restaurant.id) &&
-          !previousCandidates.has(restaurant.id)
+          !previousCandidates.has(Number(restaurant.id))
         );
         
         const remainingUsedRestaurants = allRestaurants.filter(restaurant => 
           !selectedRestaurants.some(selected => selected.id === restaurant.id) &&
-          previousCandidates.has(restaurant.id)
+          previousCandidates.has(Number(restaurant.id))
         );
         
         // 새로운 식당들 먼저 추가
@@ -182,11 +182,11 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     } else {
       // 카카오맵의 경우 이전 후보 우선 제외하고 랜덤 선택
       const newRestaurants = allRestaurants.filter(restaurant => 
-        !previousCandidates.has(restaurant.id)
+        !previousCandidates.has(Number(restaurant.id))
       );
       
       const usedRestaurants = allRestaurants.filter(restaurant => 
-        previousCandidates.has(restaurant.id)
+        previousCandidates.has(Number(restaurant.id))
       );
       
       let selectedRestaurants: Restaurant[] = [];
@@ -239,7 +239,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     // 선택된 후보들을 이전 후보 목록에 추가
     const newPreviousCandidates = new Set(previousCandidates);
     selectedRestaurants.forEach(restaurant => {
-      newPreviousCandidates.add(restaurant.id);
+      newPreviousCandidates.add(Number(restaurant.id));
     });
     setPreviousCandidates(newPreviousCandidates);
 
@@ -311,7 +311,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
           const filteredKakao = uniqueKakaoResults
             .filter((restaurant: any) => restaurant.distance <= groupData.radius)
             .map((restaurant: any) => ({
-              id: restaurant.id || restaurant.kakao_id,
+              id: Number(restaurant.id || restaurant.kakao_id),
               name: formatRestaurantName(restaurant.place_name),
               rating: restaurant.rating,
               address: restaurant.address_name,
@@ -335,7 +335,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
           
           if (data.restaurants) {
             const yogiyoRestaurants = data.restaurants.map((restaurant: any) => ({
-              id: (restaurant.id || restaurant.yogiyo_id || restaurant.restaurant_id || '').toString(),
+              id: Number(restaurant.id || restaurant.yogiyo_id || restaurant.restaurant_id || 0),
               name: formatRestaurantName(restaurant.name || restaurant.restaurant_name || ''),
               rating: restaurant.rating || restaurant.score || 0,
               address: restaurant.address || restaurant.address_name || '',
@@ -361,7 +361,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       // 선택된 후보들을 이전 후보 목록에 추가
       const newPreviousCandidates = new Set(previousCandidates);
       selectedRestaurants.forEach(restaurant => {
-        newPreviousCandidates.add(restaurant.id);
+        newPreviousCandidates.add(Number(restaurant.id));
       });
       setPreviousCandidates(newPreviousCandidates);
 

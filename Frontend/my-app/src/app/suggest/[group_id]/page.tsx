@@ -549,10 +549,22 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             activeTab={activeTab}
             onAddCandidate={async (candidate: any) => {
               if (candidate.type === 'kakao') {
-                await addKakaoCandidate(candidate.detail || candidate);
+                await addKakaoCandidate(candidate);
                 // 팝업을 닫지 않고 그대로 유지
               } else if (candidate.type === 'yogiyo') {
-                await addYogiyoCandidate(candidate.detail || candidate);
+                // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 yogiyo_data 형태로 변환
+                const yogiyoData = {
+                  id: candidate.id,
+                  name: candidate.name,
+                  categories: candidate.detail?.categories || [],
+                  estimated_delivery_time: candidate.detail?.estimated_delivery_time || '',
+                  thumbnail_url: candidate.detail?.thumbnail_url || '',
+                  review_avg: candidate.detail?.review_avg || 0,
+                  review_count: candidate.detail?.review_count || 0,
+                  address: candidate.detail?.address || candidate.address,
+                  ...candidate.detail  // 원본 데이터도 포함
+                };
+                await addYogiyoCandidate(yogiyoData);
                 // 팝업을 닫지 않고 그대로 유지
               } else {
                 showToast('알 수 없는 타입의 후보입니다.');
