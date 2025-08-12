@@ -309,33 +309,6 @@ def add_yogiyo_candidate(
         update_group(group_id, GroupUpdate(data=group))
         return {"message": "요기요 후보가 성공적으로 추가되었습니다", "candidate_id": candidate_id, "data": group}
 
-@app.post("/groups/{group_id}/candidates/custom")
-def add_custom_candidate(
-    group_id: str,
-    added_by: str = Body(...),
-    name: str = Body(...),
-    URL: str = Body(...),
-    detail_text: str = Body(...)
-):
-    with global_lock:
-        group = get_group(group_id)
-        if group is None:
-            raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
-        candidate_id = get_next_candidate_id(group)
-        detail = {
-            "URL": URL,
-            "detail": detail_text
-        }
-        candidate = Candidate(
-            added_by=added_by,
-            name=name,
-            type="custom",
-            detail=detail
-        )
-        group.candidates[candidate_id] = candidate
-        update_group(group_id, GroupUpdate(data=group))
-        return {"message": "커스텀 후보가 성공적으로 추가되었습니다", "candidate_id": candidate_id, "data": group}
-
 @app.post("/groups/{group_id}/votes/{user_id}")
 def add_or_update_vote(group_id: str, user_id: str, vote: dict = Body(...)):
     vote_queue.put((group_id, user_id, vote))

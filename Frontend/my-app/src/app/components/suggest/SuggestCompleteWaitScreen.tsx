@@ -27,10 +27,6 @@ interface Candidate {
 }
 
 const getEmojiForCandidate = (candidate: Candidate): string => {
-  if (candidate.type === 'custom') {
-    return '🍽️';
-  }
-
   const category = candidate.detail?.category || '';
 
   if (category.includes('피자') || category.includes('이탈리안')) return '🍕';

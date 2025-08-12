@@ -25,6 +25,7 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     // API 키 확인
     const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
     
+    /*
     console.log('KakaoMap - Environment check:');
     console.log('KakaoMap - NODE_ENV:', process.env.NODE_ENV);
     console.log('KakaoMap - Raw env var:', apiKey);
@@ -33,7 +34,8 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     console.log('KakaoMap - Final API Key exists:', !!apiKey);
     console.log('KakaoMap - Final API Key length:', apiKey?.length);
     console.log('KakaoMap - Final API Key (first 10 chars):', apiKey?.substring(0, 10));
-    
+    */
+   
     // API 키가 없으면 오류 메시지 표시
     if (!apiKey) {
       const errorMsg = '카카오맵 API 키가 설정되지 않았습니다. .env.local 파일에 NEXT_PUBLIC_KAKAO_MAP_API_KEY를 설정해주세요.';

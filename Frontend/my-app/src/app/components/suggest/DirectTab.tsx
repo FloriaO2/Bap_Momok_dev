@@ -36,7 +36,6 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
   const [modalOpen, setModalOpen] = useState(false);
   const [modalUrl, setModalUrl] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [searchMode, setSearchMode] = useState<'default' | 'custom'>('default');
   const [isEnd, setIsEnd] = useState(false);
   const [placeholder, setPlaceholder] = useState("음식점 검색 (예: 이태원 맛집)");
 
@@ -131,7 +130,7 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
 
   // 자동 추천(맛집) 검색: 최초 groupData 변경 시 1회만 실행
   useEffect(() => {
-    if (searchMode === 'default' && groupData && typeof window !== 'undefined' && window.kakao && window.kakao.maps && window.kakao.maps.services) {
+    if (groupData && typeof window !== 'undefined' && window.kakao && window.kakao.maps && window.kakao.maps.services) {
       const options: any = {
         location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
         radius: groupData.radius,
@@ -154,32 +153,26 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
         }
       }, options);
     }
-  }, [groupData, searchMode]);
+  }, [groupData]);
 
   // 검색 실행 (페이지네이션 적용)
-  const handleSearch = (resetPage = true, mode: 'default' | 'custom' = searchMode) => {
+  const handleSearch = (resetPage = true) => {
     // 더보기(페이지네이션)일 때 스크롤 위치 저장
     if (!resetPage && listRef.current) {
       setScrollPos(listRef.current.scrollTop);
     }
     let keyword = searchTerm.trim();
-    if (mode === 'default') keyword = '맛집';
+    if (keyword === '') keyword = '맛집';
     const nextPage = resetPage ? 1 : page + 1;
     let searchOptions: any = { category_group_code: 'FD6', size: 15, page: nextPage };
 
-    if (mode === 'default') {
-      // groupData 위치/반경
-      if (groupData && groupData.x && groupData.y && groupData.radius) {
-        searchOptions.location = new window.kakao.maps.LatLng(groupData.x, groupData.y);
-        searchOptions.radius = groupData.radius;
-      }
+    // 모든 검색에서 그룹 위치와 radius 사용
+    if (groupData && groupData.x && groupData.y && groupData.radius) {
+      searchOptions.location = new window.kakao.maps.LatLng(groupData.x, groupData.y);
+      searchOptions.radius = groupData.radius;
+      console.log(`🔍 검색 옵션: 위치(${groupData.x}, ${groupData.y}), 반경 ${groupData.radius}m, 키워드: "${keyword}"`);
     } else {
-      // custom: 지도 중심, 반경 없음
-      if (mapRef.current && window.kakao && window.kakao.maps) {
-        const center = mapRef.current.getCenter();
-        searchOptions.location = center;
-        // radius는 넣지 않음
-      }
+      console.warn('⚠️ 그룹 위치 정보가 없어서 전체 지역에서 검색됩니다.');
     }
 
     setLoading(true);
@@ -214,8 +207,7 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
   // 검색어 입력 시 엔터키 처리
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      setSearchMode('custom');
-      handleSearch(true, 'custom');
+      handleSearch(true);
     }
   };
 
@@ -354,8 +346,7 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
             )}
         <button
           onClick={() => {
-            setSearchMode('custom');
-            handleSearch(true, 'custom');
+            handleSearch(true);
           }}
           disabled={loading}
           style={{
@@ -526,7 +517,7 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
               {!isEnd && searchResults.length >= 15 && (
                 <button
                   type="button"
-                  onClick={e => { e.preventDefault(); handleSearch(false, searchMode); }}
+                  onClick={e => { e.preventDefault(); handleSearch(false); }}
                   style={{
                     width: "100%",
                     padding: "12px",
