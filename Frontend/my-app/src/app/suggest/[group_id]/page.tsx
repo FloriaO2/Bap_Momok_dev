@@ -17,6 +17,14 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   const [activeTab, setActiveTab] = useState<'direct' | 'delivery'>('direct');
   const [timeLeft, setTimeLeft] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  
+  // 부채꼴 검색 결과를 상위 컴포넌트에서 관리
+  const [sectorSearchResults, setSectorSearchResults] = useState<any[]>([]);
+  const [hasSectorSearchCompleted, setHasSectorSearchCompleted] = useState(false);
+  
+  // 탭별 로딩 상태 관리
+  const [directTabLoading, setDirectTabLoading] = useState(false);
+  const [deliveryTabLoading, setDeliveryTabLoading] = useState(false);
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2000);
@@ -85,14 +93,22 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         console.log('🔍 Firebase 후보 데이터 상세:', candidatesData);
         
         const yogiyoIds = allCandidates
-          .filter((c: any) => c.type === 'yogiyo' && c.detail?.yogiyo_id)
-          .map((c: any) => c.detail.yogiyo_id);
+          .filter((c: any) => c.type === 'yogiyo')
+          .map((c: any) => {
+            // 백엔드에서 yogiyo_id로 저장하므로 이를 사용
+            return c.detail?.yogiyo_id;
+          })
+          .filter(id => id !== undefined); // undefined 값 제거
         
         const kakaoIds = allCandidates
           .filter((c: any) => c.type === 'kakao' && c.detail?.kakao_id)
           .map((c: any) => Number(c.detail.kakao_id));
           
-        console.log('📊 업데이트된 후보 목록:', { yogiyoIds, kakaoIds });
+        console.log('📊 업데이트된 후보 목록:', { 
+          yogiyoIds, 
+          kakaoIds,
+          yogiyoIdsTypes: yogiyoIds.map(id => typeof id)
+        });
         console.log('📊 전체 후보 데이터:', candidatesData);
         
         // 요기요 후보들의 상세 정보 로그
@@ -100,6 +116,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         console.log('🍕 요기요 후보 상세 정보:', yogiyoCandidates.map((c: any) => ({
           name: c.name,
           yogiyo_id: c.detail?.yogiyo_id,
+          yogiyo_id_type: typeof c.detail?.yogiyo_id,
           detail: c.detail
         })));
         
@@ -308,6 +325,11 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
     console.log('📤 요청 데이터:', {
       added_by: participantId || 'web_user',
       yogiyo_data: restaurant
+    });
+    console.log('🔍 식당 ID 상세 정보:', {
+      id: restaurant.id,
+      type: typeof restaurant.id,
+      name: restaurant.name
     });
     
     try {
@@ -526,6 +548,11 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             groupId={groupId}
             onAddCandidate={addKakaoCandidate}
             registeredCandidateIds={registeredKakaoIds}
+            sectorSearchResults={sectorSearchResults}
+            setSectorSearchResults={setSectorSearchResults}
+            hasSectorSearchCompleted={hasSectorSearchCompleted}
+            setHasSectorSearchCompleted={setHasSectorSearchCompleted}
+            setLoading={setDirectTabLoading}
           />
         )}
         
@@ -535,32 +562,37 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             groupId={groupId}
             onAddCandidate={addYogiyoCandidate}
             registeredCandidateIds={registeredYogiyoIds}
+            setLoading={setDeliveryTabLoading}
           />
         )}
 
         {/* 하단 버튼 위에 랜덤 룰렛 돌리기 버튼/모달 추가 */}
-        <div style={{ marginTop: 16, textAlign: 'center' }}>
-          <button
-            style={{
-              background: '#994d52',
-              color: '#fff',
-              fontSize: '18px',
-              padding: '10px 28px',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}
-            onClick={() => setShowRandomModal(true)}
-          >
-            슬롯머신 돌리기
-          </button>
-        </div>
+        {!directTabLoading && !deliveryTabLoading && (
+          <div style={{ marginTop: 16, textAlign: 'center' }}>
+            <button
+              style={{
+                background: '#994d52',
+                color: '#fff',
+                fontSize: '18px',
+                padding: '10px 28px',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+              onClick={() => setShowRandomModal(true)}
+            >
+              슬롯머신 돌리기
+            </button>
+          </div>
+        )}
         {showRandomModal && (
           <SlotMachineRoulette
             groupId={groupId}
             registeredKakaoIds={registeredKakaoIds}
             registeredYogiyoIds={registeredYogiyoIds}
             activeTab={activeTab}
+            sectorSearchResults={sectorSearchResults}
+            hasSectorSearchCompleted={hasSectorSearchCompleted}
             onAddCandidate={async (candidate: any) => {
               if (candidate.type === 'kakao') {
                 // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 kakao_data 형태로 변환

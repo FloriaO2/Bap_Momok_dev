@@ -412,7 +412,7 @@ def get_yogiyo_restaurants(
     }
 
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=30)  # 30초 타임아웃 설정
         response.raise_for_status()  # 200 OK가 아닐 경우 예외 발생
         data = response.json()
 
@@ -448,6 +448,9 @@ def get_yogiyo_restaurants(
         # 검색 API는 영업중 필터, 배달시간 필터 생략(필요시 추가)
 
         return {"restaurants": restaurants}
+    except requests.exceptions.Timeout:
+        # 타임아웃 발생 시
+        raise HTTPException(status_code=504, detail="요기요 API 응답 시간 초과 (30초)")
     except requests.exceptions.HTTPError as err:
         # 요기요 API에서 4xx 또는 5xx 응답이 올 경우
         raise HTTPException(status_code=err.response.status_code, detail=f"요기요 API 오류: {err.response.text}")
@@ -470,7 +473,7 @@ def get_yogiyo_menu_summary(
         "User-Agent": "Mozilla/5.0"
     }
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=15)  # 15초 타임아웃 설정
         response.raise_for_status()
         data = response.json()
         # 상위 메뉴만 추출 (items의 name, original_image)
@@ -482,6 +485,9 @@ def get_yogiyo_menu_summary(
                     "image": item.get("original_image")
                 })
         return {"menus": menu_list}
+    except requests.exceptions.Timeout:
+        # 타임아웃 발생 시
+        raise HTTPException(status_code=504, detail="요기요 메뉴 API 응답 시간 초과 (15초)")
     except requests.exceptions.HTTPError as err:
         raise HTTPException(status_code=err.response.status_code, detail=f"요기요 API 오류: {err.response.text}")
     except requests.exceptions.RequestException as err:

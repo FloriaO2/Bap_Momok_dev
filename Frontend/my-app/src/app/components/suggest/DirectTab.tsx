@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import KakaoMap from '../../components/KakaoMap';
 
 interface Restaurant {
@@ -17,6 +17,11 @@ interface DirectTabProps {
   groupId: string;
   onAddCandidate: (restaurant: any) => void; // 타입을 any로 변경하여 유연성 확보
   registeredCandidateIds?: number[];
+  sectorSearchResults: any[];
+  setSectorSearchResults: React.Dispatch<React.SetStateAction<any[]>>;
+  hasSectorSearchCompleted: boolean;
+  setHasSectorSearchCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 declare global {
@@ -25,9 +30,19 @@ declare global {
   }
 }
 
-export default function DirectTab({ groupData, groupId, onAddCandidate, registeredCandidateIds = [] }: DirectTabProps) {
+export default function DirectTab({ 
+  groupData, 
+  groupId, 
+  onAddCandidate, 
+  registeredCandidateIds = [],
+  sectorSearchResults,
+  setSectorSearchResults,
+  hasSectorSearchCompleted,
+  setHasSectorSearchCompleted,
+  setLoading
+}: DirectTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLocalLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -38,6 +53,11 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isEnd, setIsEnd] = useState(false);
   const [placeholder, setPlaceholder] = useState("음식점 검색 (예: 이태원 맛집)");
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [displayedResults, setDisplayedResults] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreResults, setHasMoreResults] = useState(true);
+  const ITEMS_PER_PAGE = 25;
 
   // 스크롤 위치 저장용 ref와 state
   const listRef = useRef<HTMLDivElement>(null);
@@ -72,29 +92,6 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
           if (!psRef.current) {
             psRef.current = new window.kakao.maps.services.Places();
             console.log('카카오맵 Places 서비스 초기화 성공');
-            
-            // Places 서비스가 준비되면 자동 "맛집" 검색 실행
-            if (groupData && typeof groupData.x === 'number' && typeof groupData.y === 'number' && typeof groupData.radius === 'number' && groupData.radius > 0) {
-              const options: any = {
-                location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
-                radius: groupData.radius,
-                category_group_code: 'FD6'
-              };
-              setLoading(true);
-              setShowSearchResults(true);
-              psRef.current.keywordSearch('맛집', (data: any, status: any, pagination: any) => {
-                setLoading(false);
-                if (status === window.kakao.maps.services.Status.OK) {
-                  setSearchResults(data); // place 원본 객체 그대로 저장
-                  setPage(1); // 페이지 초기화
-                  setIsEnd(pagination && pagination.hasNextPage === false);
-                  console.log(`[자동 맛집 검색] x: ${groupData.x}, y: ${groupData.y}, radius: ${groupData.radius}m, keyword: "맛집"`);
-                } else {
-                  setSearchResults([]);
-                  setIsEnd(true);
-                }
-              }, options);
-            }
           }
         } catch (error) {
           console.error('Places 서비스 초기화 실패:', error);
@@ -128,32 +125,210 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
     }
   }, [groupData]);
 
-  // 자동 추천(맛집) 검색: 최초 groupData 변경 시 1회만 실행
-  useEffect(() => {
-    if (groupData && typeof window !== 'undefined' && window.kakao && window.kakao.maps && window.kakao.maps.services) {
-      const options: any = {
-        location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
-        radius: groupData.radius,
-        category_group_code: 'FD6',
-        size: 15,
-        page: 1
-      };
-      setLoading(true);
-      setShowSearchResults(true);
-      psRef.current = new window.kakao.maps.services.Places();
-      psRef.current.keywordSearch('맛집', (data: any, status: any, pagination: any) => {
-        setLoading(false);
-        if (status === window.kakao.maps.services.Status.OK) {
-          setSearchResults(data);
-          setPage(1);
-          setIsEnd(pagination && pagination.hasNextPage === false);
-        } else {
-          setSearchResults([]);
-          setIsEnd(true);
-        }
-      }, options);
+  // 부채꼴 검색 함수
+  const loadAllRestaurantsBySectors = async () => {
+    console.log('🔍 loadAllRestaurantsBySectors 함수 시작');
+    console.log('🔍 groupData:', groupData);
+    
+    if (!groupData) {
+      console.log('🔍 groupData가 없어서 부채꼴 검색을 건너뜁니다.');
+      return;
     }
+    
+    // 카카오맵 API가 로드될 때까지 기다리기
+    console.log('🔍 카카오맵 API 로드 대기 중...');
+    let attempts = 0;
+    const maxAttempts = 50; // 5초 대기 (100ms * 50)
+    
+    while (attempts < maxAttempts) {
+      if (typeof window !== 'undefined' && window.kakao && window.kakao.maps && window.kakao.maps.services) {
+        console.log('🔍 카카오맵 API 로드 완료!');
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+    
+    if (attempts >= maxAttempts) {
+      console.error('🔍 카카오맵 API 로드 타임아웃');
+      return;
+    }
+    
+    console.log('🔍 window.kakao:', !!window.kakao);
+    console.log('🔍 window.kakao.maps:', !!window.kakao.maps);
+    console.log('🔍 window.kakao.maps.services:', !!window.kakao.maps.services);
+    
+    if (groupData && typeof window !== 'undefined' && window.kakao && window.kakao.maps && window.kakao.maps.services) {
+      // Places 서비스가 준비될 때까지 대기
+      let attempts = 0;
+      const maxAttempts = 20;
+      
+      while (!psRef.current && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!psRef.current) {
+        psRef.current = new window.kakao.maps.services.Places();
+      }
+      
+      setInitialLoading(true);
+      setShowSearchResults(true);
+      setLoading?.(true); // 상위 컴포넌트에 로딩 시작 알림
+      
+      let allRestaurants: any[] = [];
+      const centerLat = groupData.x;
+      const centerLng = groupData.y;
+      const radius = groupData.radius;
+      
+      // 원을 부채꼴과 고리로 나누기
+      const numSectors = 8;  // 부채꼴 개수 (8개 = 45도씩)
+      const numRings = 2;    // 고리 개수 (2개 = 반지름을 2등분)
+      
+      console.log(`🔍 원형 분할 설정: 반경 ${radius}m, ${numSectors}개 부채꼴, ${numRings}개 고리`);
+      
+      // 각 부채꼴과 고리 조합으로 검색 (안쪽 고리부터 먼저 검색)
+      for (let ring = 0; ring < numRings; ring++) {
+        for (let sector = 0; sector < numSectors; sector++) {
+          // 부채꼴의 각도 계산 (0도부터 시작, 45도씩)
+          const startAngle = sector * (360 / numSectors);
+          const endAngle = (sector + 1) * (360 / numSectors);
+          
+          // 고리의 반지름 계산 (안쪽부터 바깥쪽까지)
+          const innerRadius = (ring * radius) / numRings;
+          const outerRadius = ((ring + 1) * radius) / numRings;
+          
+          // 부채꼴의 중심점 계산
+          const centerAngle = (startAngle + endAngle) / 2;
+          const centerRadius = (innerRadius + outerRadius) / 2;
+          
+          // 중심점의 위도/경도 계산 (대략적인 계산)
+          const latOffset = (centerRadius * Math.cos(centerAngle * Math.PI / 180)) / 111000; // 111000m = 1도
+          const lngOffset = (centerRadius * Math.sin(centerAngle * Math.PI / 180)) / (111000 * Math.cos(centerLat * Math.PI / 180));
+          
+          const sectorCenterLat = centerLat + latOffset;
+          const sectorCenterLng = centerLng + lngOffset;
+          
+          // 부채꼴 영역의 바운딩 박스 계산 (대략적인 사각형)
+          const sectorRadius = (outerRadius - innerRadius) / 2;
+          
+          // 최소 바운딩 박스 크기 보장 (너무 작으면 검색이 실패할 수 있음)
+          const minLatOffset = Math.max(sectorRadius/111000, 0.001); // 최소 0.001도
+          const minLngOffset = Math.max(sectorRadius/111000, 0.001); // 최소 0.001도
+          
+          const bounds = new window.kakao.maps.LatLngBounds(
+            new window.kakao.maps.LatLng(sectorCenterLat - minLatOffset, sectorCenterLng - minLngOffset),
+            new window.kakao.maps.LatLng(sectorCenterLat + minLatOffset, sectorCenterLng + minLngOffset)
+          );
+          
+          try {
+            let sectorRestaurants: any[] = [];
+            let page = 1;
+            const maxPages = 2; // 최대 2페이지까지 검색 (15개 × 2 = 30개)
+            
+            while (page <= maxPages) {
+              const result = await new Promise((resolve, reject) => {
+                const timeoutId = setTimeout(() => {
+                  reject(new Error(`부채꼴 (${sector},${ring}) 페이지 ${page} 검색 타임아웃`));
+                }, 10000); // 10초 타임아웃
+                
+                psRef.current.categorySearch('FD6', (data: any, status: any, pagination: any) => {
+                  clearTimeout(timeoutId);
+                  if (status === window.kakao.maps.services.Status.OK) {
+                    resolve({ data, pagination });
+                  } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+                    // 검색 결과가 없는 경우 (오류가 아님)
+                    resolve({ data: [], pagination: null });
+                  } else {
+                    console.warn(`부채꼴 (${sector},${ring}) 페이지 ${page} 검색 상태:`, status);
+                    reject(new Error(`부채꼴 (${sector},${ring}) 페이지 ${page} 검색 실패 - 상태: ${status}`));
+                  }
+                }, { bounds, page });
+              });
+              
+              const { data, pagination } = result as any;
+              
+              // 중복 제거하면서 추가
+              const existingIds = new Set(sectorRestaurants.map(item => item.id || item.kakao_id));
+              const newRestaurants = data.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+              sectorRestaurants = [...sectorRestaurants, ...newRestaurants];
+              
+              console.log(`🔍 부채꼴 (${sector},${ring}) 페이지 ${page} 완료: ${data.length}개 식당, 누적 ${sectorRestaurants.length}개`);
+              
+              // 더 이상 페이지가 없으면 중단
+              if (!pagination || !pagination.hasNextPage) {
+                break;
+              }
+              
+              page++;
+            }
+            
+            // 전체 결과에 추가
+            const existingIds = new Set(allRestaurants.map(item => item.id || item.kakao_id));
+            const newRestaurants = sectorRestaurants.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+            allRestaurants = [...allRestaurants, ...newRestaurants];
+            
+            console.log(`🔍 부채꼴 (${sector},${ring}) 전체 완료: ${sectorRestaurants.length}개 식당, 중복 제거 후 ${newRestaurants.length}개 추가`);
+            
+            // 최대 500개까지만 수집
+            if (allRestaurants.length >= 500) {
+              console.log('🔍 최대 식당 수(500개)에 도달하여 검색 중단');
+              break;
+            }
+            
+          } catch (error) {
+            console.error(`부채꼴 (${sector},${ring}) 검색 오류:`, error);
+            // 에러 발생 시 해당 부채꼴 건너뛰고 계속 진행
+            continue;
+          }
+        }
+        
+        // 최대 500개까지만 수집 (이중 루프 탈출)
+        if (allRestaurants.length >= 500) {
+          break;
+        }
+      }
+      
+      setInitialLoading(false);
+      setSearchResults(allRestaurants);
+      setSectorSearchResults(allRestaurants); // 부채꼴 검색 결과 저장
+      setHasSectorSearchCompleted(true); // 부채꼴 검색 완료 표시
+      setLoading?.(false); // 상위 컴포넌트에 로딩 완료 알림
+      
+      // 페이지네이션 초기화
+      const initialDisplay = allRestaurants.slice(0, ITEMS_PER_PAGE);
+      setDisplayedResults(initialDisplay);
+      setCurrentPage(1);
+      setHasMoreResults(allRestaurants.length > ITEMS_PER_PAGE);
+      setIsEnd(false); // 더보기 버튼 표시
+      
+      console.log(`🔍 전체 식당 로드 완료: 총 ${allRestaurants.length}개 식당`);
+    }
+  };
+
+  // 부채꼴 검색 실행: 최초 groupData 변경 시 1회만 실행
+  useEffect(() => {
+    // 저장된 결과가 있으면 재활용
+    if (hasSectorSearchCompleted && sectorSearchResults.length > 0) {
+      console.log('🔍 탭 전환 - 저장된 부채꼴 검색 결과 재활용:', sectorSearchResults.length, '개 식당');
+      setSearchResults(sectorSearchResults);
+      
+      // 페이지네이션 초기화
+      const initialDisplay = sectorSearchResults.slice(0, ITEMS_PER_PAGE);
+      setDisplayedResults(initialDisplay);
+      setCurrentPage(1);
+      setHasMoreResults(sectorSearchResults.length > ITEMS_PER_PAGE);
+      setShowSearchResults(true);
+      setIsEnd(false); // 더보기 버튼 표시
+      return; // 저장된 결과가 있으면 함수 종료
+    }
+    
+    // 저장된 결과가 없으면 부채꼴 검색 실행
+    console.log('🔍 최초 부채꼴 검색 실행');
+    loadAllRestaurantsBySectors();
   }, [groupData]);
+
+
 
   // 검색 실행 (페이지네이션 적용)
   const handleSearch = (resetPage = true) => {
@@ -162,7 +337,6 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
       setScrollPos(listRef.current.scrollTop);
     }
     let keyword = searchTerm.trim();
-    if (keyword === '') keyword = '맛집';
     const nextPage = resetPage ? 1 : page + 1;
     let searchOptions: any = { category_group_code: 'FD6', size: 15, page: nextPage };
 
@@ -175,41 +349,206 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
       console.warn('⚠️ 그룹 위치 정보가 없어서 전체 지역에서 검색됩니다.');
     }
 
-    setLoading(true);
+    setLocalLoading(true);
     setShowSearchResults(true);
-    psRef.current.keywordSearch(keyword, (data: any, status: any, pagination: any) => {
-      setLoading(false);
-      if (status === window.kakao.maps.services.Status.OK) {
-        // 카테고리 정보 디버깅을 위한 로그
-        console.log('🔍 카카오맵 검색 결과:', data.map((item: any) => ({
-          name: item.place_name,
-          category_name: item.category_name,
-          category_group_code: item.category_group_code,
-          id: item.id
-        })));
+    
+    // 검색어가 있으면 키워드 검색, 없으면 카테고리 검색
+    if (keyword !== '') {
+      psRef.current.keywordSearch(keyword, (data: any, status: any, pagination: any) => {
+        setLocalLoading(false);
+        if (status === window.kakao.maps.services.Status.OK) {
+          // 카테고리 정보 디버깅을 위한 로그
+          console.log('🔍 카카오맵 키워드 검색 결과:', data.map((item: any) => ({
+            name: item.place_name,
+            category_name: item.category_name,
+            category_group_code: item.category_group_code,
+            id: item.id
+          })));
+          
+          if (resetPage) {
+            setSearchResults(data);
+            setDisplayedResults(data);
+            setPage(1);
+            setCurrentPage(1);
+            setHasMoreResults(false); // 키워드 검색은 더보기 없음
+          } else {
+            setSearchResults(prev => {
+              const existingIds = new Set(prev.map((item: any) => item.id || item.kakao_id));
+              const newData = data.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+              return [...prev, ...newData];
+            });
+            setDisplayedResults(prev => {
+              const existingIds = new Set(prev.map((item: any) => item.id || item.kakao_id));
+              const newData = data.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+              return [...prev, ...newData];
+            });
+            setPage(nextPage);
+          }
+          // pagination이 없거나, data가 15개 미만이면 isEnd를 true로
+          if (!pagination) {
+            setIsEnd(true);
+            console.log('🔍 페이지네이션 정보 없음 - 더보기 종료');
+          } else {
+            const hasNextPage = pagination.hasNextPage === false;
+            setIsEnd(hasNextPage);
+            console.log('🔍 페이지네이션 정보:', {
+              currentPage: pagination.current,
+              hasNextPage: !hasNextPage,
+              totalCount: pagination.totalCount,
+              dataLength: data.length
+            });
+          }
+        } else {
+          if (resetPage) setSearchResults([]);
+          setIsEnd(true);
+        }
+      }, searchOptions);
+    } else {
+      // 검색어가 없으면 저장된 부채꼴 검색 결과 사용
+      if (hasSectorSearchCompleted && sectorSearchResults.length > 0) {
+        setLocalLoading(false);
+        setSearchResults(sectorSearchResults);
+        
+        // 페이지네이션 초기화
+        const initialDisplay = sectorSearchResults.slice(0, ITEMS_PER_PAGE);
+        setDisplayedResults(initialDisplay);
+        setCurrentPage(1);
+        setHasMoreResults(sectorSearchResults.length > ITEMS_PER_PAGE);
+        setShowSearchResults(true);
+        setIsEnd(false); // 더보기 버튼 표시
+        console.log('🔍 저장된 부채꼴 검색 결과 사용:', sectorSearchResults.length, '개 식당');
+      } else {
+        // 저장된 결과가 없으면 부채꼴 검색 실행
+        const loadAllRestaurantsByCircularDivision = async () => {
+        const centerLat = groupData.x;
+        const centerLng = groupData.y;
+        const radius = groupData.radius;
+        
+        // 원을 부채꼴과 고리로 나누기
+        const numSectors = 8;  // 부채꼴 개수 (8개 = 45도씩)
+        const numRings = 3;    // 고리 개수 (3개 = 반지름을 3등분)
+        
+        let allRestaurants: any[] = [];
+        
+        // 각 부채꼴과 고리 조합으로 검색 (안쪽 고리부터 먼저 검색)
+        for (let ring = 0; ring < numRings; ring++) {
+          for (let sector = 0; sector < numSectors; sector++) {
+            // 부채꼴의 각도 계산 (0도부터 시작, 45도씩)
+            const startAngle = sector * (360 / numSectors);
+            const endAngle = (sector + 1) * (360 / numSectors);
+            
+            // 고리의 반지름 계산 (안쪽부터 바깥쪽까지)
+            const innerRadius = (ring * radius) / numRings;
+            const outerRadius = ((ring + 1) * radius) / numRings;
+            
+            // 부채꼴의 중심점 계산
+            const centerAngle = (startAngle + endAngle) / 2;
+            const centerRadius = (innerRadius + outerRadius) / 2;
+            
+            // 중심점의 위도/경도 계산 (대략적인 계산)
+            const latOffset = (centerRadius * Math.cos(centerAngle * Math.PI / 180)) / 111000; // 111000m = 1도
+            const lngOffset = (centerRadius * Math.sin(centerAngle * Math.PI / 180)) / (111000 * Math.cos(centerLat * Math.PI / 180));
+            
+            const sectorCenterLat = centerLat + latOffset;
+            const sectorCenterLng = centerLng + lngOffset;
+            
+            // 부채꼴 영역의 바운딩 박스 계산 (대략적인 사각형)
+            const sectorRadius = (outerRadius - innerRadius) / 2;
+            
+            // 최소 바운딩 박스 크기 보장 (너무 작으면 검색이 실패할 수 있음)
+            const minLatOffset = Math.max(sectorRadius/111000, 0.001); // 최소 0.001도
+            const minLngOffset = Math.max(sectorRadius/111000, 0.001); // 최소 0.001도
+            
+            const bounds = new window.kakao.maps.LatLngBounds(
+              new window.kakao.maps.LatLng(sectorCenterLat - minLatOffset, sectorCenterLng - minLngOffset),
+              new window.kakao.maps.LatLng(sectorCenterLat + minLatOffset, sectorCenterLng + minLngOffset)
+            );
+            
+            try {
+              let sectorRestaurants: any[] = [];
+              let page = 1;
+              const maxPages = 2; // 최대 2페이지까지 검색 (15개 × 2 = 30개)
+              
+              while (page <= maxPages) {
+                const result = await new Promise((resolve, reject) => {
+                  const timeoutId = setTimeout(() => {
+                    reject(new Error(`부채꼴 (${sector},${ring}) 페이지 ${page} 검색 타임아웃`));
+                  }, 10000); // 10초 타임아웃
+                  
+                  psRef.current.categorySearch('FD6', (data: any, status: any, pagination: any) => {
+                    clearTimeout(timeoutId);
+                    if (status === window.kakao.maps.services.Status.OK) {
+                      resolve({ data, pagination });
+                    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+                      // 검색 결과가 없는 경우 (오류가 아님)
+                      resolve({ data: [], pagination: null });
+                    } else {
+                      console.warn(`부채꼴 (${sector},${ring}) 검색 상태:`, status);
+                      reject(new Error(`부채꼴 (${sector},${ring}) 검색 실패 - 상태: ${status}`));
+                    }
+                  }, { bounds, page });
+                });
+                
+                const { data, pagination } = result as any;
+                
+                // 중복 제거하면서 추가
+                const existingIds = new Set(sectorRestaurants.map(item => item.id || item.kakao_id));
+                const newRestaurants = data.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+                sectorRestaurants = [...sectorRestaurants, ...newRestaurants];
+                
+                // 더 이상 페이지가 없으면 중단
+                if (!pagination || !pagination.hasNextPage) {
+                  break;
+                }
+                
+                page++;
+              }
+              
+              // 전체 결과에 추가
+              const existingIds = new Set(allRestaurants.map(item => item.id || item.kakao_id));
+              const newRestaurants = sectorRestaurants.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+              allRestaurants = [...allRestaurants, ...newRestaurants];
+              
+              // 최대 500개까지만 수집
+              if (allRestaurants.length >= 500) {
+                break;
+              }
+              
+            } catch (error) {
+              console.error(`부채꼴 (${sector},${ring}) 검색 오류:`, error);
+              // 에러 발생 시 해당 부채꼴 건너뛰고 계속 진행
+              continue;
+            }
+          }
+          
+          // 최대 500개까지만 수집 (이중 루프 탈출)
+          if (allRestaurants.length >= 500) {
+            break;
+          }
+        }
+        
+        setLocalLoading(false);
         
         if (resetPage) {
-          setSearchResults(data);
+          setSearchResults(allRestaurants);
           setPage(1);
         } else {
           setSearchResults(prev => {
             const existingIds = new Set(prev.map((item: any) => item.id || item.kakao_id));
-            const newData = data.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
+            const newData = allRestaurants.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
             return [...prev, ...newData];
           });
           setPage(nextPage);
         }
-        // pagination이 없거나, data가 15개 미만이면 isEnd를 true로
-        if (!pagination || data.length < 15) {
-          setIsEnd(true);
-        } else {
-          setIsEnd(pagination.hasNextPage === false);
-        }
-      } else {
-        if (resetPage) setSearchResults([]);
-        setIsEnd(true);
+        
+        setIsEnd(true); // 모든 부채꼴을 검색했으므로 더보기 버튼 숨김
+        
+        console.log('🔍 원형 분할 검색 완료:', allRestaurants.length, '개 식당');
+      };
+      
+        loadAllRestaurantsByCircularDivision();
       }
-    }, searchOptions);
+    }
   };
 
   // 검색어 입력 시 엔터키 처리
@@ -221,7 +560,22 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
 
   // 더보기 버튼 클릭 핸들러
   const handleLoadMore = () => {
-    handleSearch(false);
+    // 키워드 검색 중이면 기존 로직 사용
+    if (searchTerm.trim() !== '') {
+      handleSearch(false);
+    } else {
+      // 부채꼴 검색 결과인 경우 페이지네이션 적용
+      const nextPage = currentPage + 1;
+      const startIndex = (nextPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      
+      const newItems = searchResults.slice(startIndex, endIndex);
+      setDisplayedResults(prev => [...prev, ...newItems]);
+      setCurrentPage(nextPage);
+      setHasMoreResults(endIndex < searchResults.length);
+      
+      console.log(`🔍 더보기: ${newItems.length}개 추가, 총 ${displayedResults.length + newItems.length}개 표시`);
+    }
   };
 
 
@@ -334,8 +688,21 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
               <button
                 onClick={() => {
                   setSearchTerm('');
-                  setShowSearchResults(false);
-                  setSearchResults([]);
+                  console.log('🔍 X 버튼 클릭 - 저장된 결과 확인:', {
+                    hasSectorSearchCompleted,
+                    sectorSearchResultsLength: sectorSearchResults.length
+                  });
+                  // 저장된 부채꼴 검색 결과로 돌아가기
+                  if (hasSectorSearchCompleted && sectorSearchResults.length > 0) {
+                    console.log('🔍 저장된 부채꼴 검색 결과 사용');
+                    setSearchResults(sectorSearchResults);
+                    setShowSearchResults(true);
+                    setIsEnd(true);
+                  } else {
+                    console.log('🔍 저장된 결과 없음 - 부채꼴 검색 실행');
+                    // 저장된 결과가 없으면 부채꼴 검색 실행
+                    loadAllRestaurantsBySectors();
+                  }
                 }}
                 style={{
                   position: "absolute",
@@ -399,17 +766,21 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
             음식점 목록
           </h3>
           
-          {loading ? (
+          {initialLoading ? (
+            <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+              식당 정보 받아오는 중...
+            </div>
+          ) : loading ? (
             <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
               검색
             </div>
-          ) : searchResults.length === 0 ? (
+          ) : displayedResults.length === 0 ? (
             <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
               검색 결과가 없습니다
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-              {searchResults.map((restaurant) => {
+              {displayedResults.map((restaurant) => {
                 const cardId = restaurant.id || restaurant.kakao_id;
                 const isRegistered = registeredCandidateIds.includes(Number(cardId));
 
@@ -536,26 +907,26 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
                   </div>
                 );
               })}
-              {!isEnd && searchResults.length >= 15 && (
-                <button
-                  type="button"
-                  onClick={e => { e.preventDefault(); handleSearch(false); }}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    marginTop: "10px",
-                    background: "#994d52",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    cursor: "pointer"
-                  }}
-                  disabled={loading}
-                >
-                  {loading ? "로딩 중..." : "더보기"}
-                </button>
+              {!isEnd && hasMoreResults && (
+                <div style={{ textAlign: "center", margin: "20px 0" }}>
+                  <button
+                    type="button"
+                    onClick={e => { e.preventDefault(); handleLoadMore(); }}
+                    style={{
+                      background: "#994d52",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "20px",
+                      padding: "10px 30px",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer"
+                    }}
+                    disabled={loading}
+                  >
+                    {loading ? "로딩 중..." : "더보기"}
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -567,7 +938,7 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
         <div style={{ 
           height: "calc(100vh - 800px)",
           minHeight: "200px",
-          maxHeight: "50vh",
+          maxHeight: "400px",
           overflowY: "auto"
         }}>
           <h3 style={{ 
@@ -580,7 +951,7 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
           </h3>
           
           <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
-            검색어를 입력하여 음식점을 찾아보세요
+            식당 정보를 불러오고 있습니다...
           </div>
         </div>
       )}

@@ -36,6 +36,8 @@ interface SlotMachineRouletteProps {
   onAddCandidate: (candidate: Restaurant) => void;
   onClose: () => void;
   activeTab: 'direct' | 'delivery'; // 추가된 prop
+  sectorSearchResults?: any[]; // 부채꼴 검색 결과
+  hasSectorSearchCompleted?: boolean; // 부채꼴 검색 완료 여부
 }
 
 const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({ 
@@ -44,7 +46,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   registeredYogiyoIds = [],
   onAddCandidate, 
   onClose,
-  activeTab
+  activeTab,
+  sectorSearchResults = [],
+  hasSectorSearchCompleted = false
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -63,6 +67,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const currentIndexRef = useRef(0);
   const [previousCandidates, setPreviousCandidates] = useState<Set<number>>(new Set());
+  const previousCandidatesRef = useRef<Set<number>>(new Set());
   
   // 전체 식당 데이터를 저장할 새로운 state 추가
   const [allRestaurantsData, setAllRestaurantsData] = useState<Restaurant[]>([]);
@@ -84,12 +89,17 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     // 모든 식당이 이전 후보에 들어가있는지 확인
     const allRestaurantIds = new Set(allRestaurants.map(r => r.id));
     const allUsed = allRestaurantIds.size > 0 && 
-                   [...allRestaurantIds].every(id => previousCandidates.has(Number(id)));
+                   [...allRestaurantIds].every(id => previousCandidatesRef.current.has(Number(id)));
     
     // 모든 식당이 이전 후보라면 previousCandidates 리셋
     if (allUsed) {
       console.log('모든 식당이 이전 후보에 포함되어 있습니다. previousCandidates를 리셋합니다.');
-      setPreviousCandidates(new Set());
+      console.log('리셋 전 previousCandidatesRef.current 크기:', previousCandidatesRef.current.size);
+      const newSet = new Set<number>();
+      setPreviousCandidates(newSet);
+      previousCandidatesRef.current = newSet;
+      console.log('리셋 후 previousCandidatesRef.current 크기:', previousCandidatesRef.current.size);
+      // 리셋 후에는 모든 식당을 사용 가능하도록 빈 Set으로 처리
     }
 
     // 요기요의 경우 카테고리별로 그룹화하여 랜덤 선택
@@ -114,12 +124,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
         
         // 이전 후보가 아닌 식당들 먼저 선택
         const newRestaurants = restaurantsInCategory.filter(restaurant => 
-          !previousCandidates.has(Number(restaurant.id))
+          !previousCandidatesRef.current.has(Number(restaurant.id))
         );
         
         // 이전 후보였던 식당들
         const usedRestaurants = restaurantsInCategory.filter(restaurant => 
-          previousCandidates.has(Number(restaurant.id))
+          previousCandidatesRef.current.has(Number(restaurant.id))
         );
         
         let selectedFromCategory = 0;
@@ -148,12 +158,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       if (remainingCount > 0) {
         const remainingNewRestaurants = allRestaurants.filter(restaurant => 
           !selectedRestaurants.some(selected => selected.id === restaurant.id) &&
-          !previousCandidates.has(Number(restaurant.id))
+          !previousCandidatesRef.current.has(Number(restaurant.id))
         );
         
         const remainingUsedRestaurants = allRestaurants.filter(restaurant => 
           !selectedRestaurants.some(selected => selected.id === restaurant.id) &&
-          previousCandidates.has(Number(restaurant.id))
+          previousCandidatesRef.current.has(Number(restaurant.id))
         );
         
         // 새로운 식당들 먼저 추가
@@ -237,11 +247,14 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     const selectedRestaurants = selectRandomRestaurants(allRestaurantsData, 20);
 
     // 선택된 후보들을 이전 후보 목록에 추가
-    const newPreviousCandidates = new Set(previousCandidates);
+    console.log('새로고침 전 previousCandidatesRef.current 크기:', previousCandidatesRef.current.size);
+    const newPreviousCandidates = new Set(previousCandidatesRef.current);
     selectedRestaurants.forEach(restaurant => {
       newPreviousCandidates.add(Number(restaurant.id));
     });
     setPreviousCandidates(newPreviousCandidates);
+    previousCandidatesRef.current = newPreviousCandidates; // ref도 동기화
+    console.log('새로고침 후 previousCandidatesRef.current 크기:', newPreviousCandidates.size);
 
     console.log(`새로운 후보 목록 (${activeTab} 탭):`, selectedRestaurants);
     console.log('총 식당 수:', selectedRestaurants.length);
@@ -259,70 +272,88 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     const allRestaurants: Restaurant[] = [];
 
     try {
-      // 직접가기 탭인 경우 카카오맵 API로 전체 데이터 가져오기
-      if (activeTab === 'direct' && groupData.offline && typeof window !== 'undefined') {
-        console.log('직접가기 탭: 카카오맵 API 전체 데이터 가져오기 시작');
-        try {
-          await waitForKakaoMap();
-          
-          const ps = new window.kakao.maps.services.Places();
-          const allKakaoResults: any[] = [];
-          
-          // 더 많은 페이지를 가져와서 충분한 데이터 확보 (최대 10페이지)
-          for (let page = 1; page <= 10; page++) {
-            await new Promise(res => setTimeout(res, 300));
-            try {
-              const searchOptions = {
-                location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
-                radius: groupData.radius,
-                category_group_code: 'FD6',
-                size: 15,
-                page: page
-              };
+      // 직접가기 탭인 경우 부채꼴 검색 결과 사용
+      if (activeTab === 'direct' && groupData.offline) {
+        console.log('직접가기 탭: 부채꼴 검색 결과 사용');
+        
+        if (hasSectorSearchCompleted && sectorSearchResults.length > 0) {
+          // 부채꼴 검색 결과가 있으면 사용
+          const filteredKakao = sectorSearchResults.map((restaurant: any) => ({
+            id: Number(restaurant.id || restaurant.kakao_id),
+            name: formatRestaurantName(restaurant.place_name),
+            rating: restaurant.rating,
+            address: restaurant.address_name,
+            category: restaurant.category_name,
+            type: 'kakao' as const,
+            detail: restaurant
+          }));
+          console.log('직접가기 탭 - 부채꼴 검색 결과 사용:', filteredKakao.length, '개 식당');
+          allRestaurants.push(...filteredKakao);
+        } else {
+          // 부채꼴 검색 결과가 없으면 기존 방식 사용
+          console.log('직접가기 탭: 부채꼴 검색 결과 없음 - 카카오맵 API 사용');
+          try {
+            await waitForKakaoMap();
+            
+            const ps = new window.kakao.maps.services.Places();
+            const allKakaoResults: any[] = [];
+            
+            // 더 많은 페이지를 가져와서 충분한 데이터 확보 (최대 10페이지)
+            for (let page = 1; page <= 10; page++) {
+              await new Promise(res => setTimeout(res, 300));
+              try {
+                const searchOptions = {
+                  location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
+                  radius: groupData.radius,
+                  category_group_code: 'FD6',
+                  size: 15,
+                  page: page
+                };
 
-              const kakaoResults = await new Promise((resolve) => {
-                ps.categorySearch('FD6', (data: any, status: any) => {
-                  if (status === window.kakao.maps.services.Status.OK) {
-                    resolve(data);
-                  } else {
-                    resolve([]);
-                  }
-                }, searchOptions);
-              });
-              
-              allKakaoResults.push(...(kakaoResults as any[]));
-              
-              // 검색 결과가 적으면 더 이상 요청하지 않음
-              if ((kakaoResults as any[]).length < 15) {
-                console.log(`페이지 ${page}에서 검색 결과가 부족하여 검색 중단`);
+                const kakaoResults = await new Promise((resolve) => {
+                  ps.categorySearch('FD6', (data: any, status: any) => {
+                    if (status === window.kakao.maps.services.Status.OK) {
+                      resolve(data);
+                    } else {
+                      resolve([]);
+                    }
+                  }, searchOptions);
+                });
+                
+                allKakaoResults.push(...(kakaoResults as any[]));
+                
+                // 검색 결과가 적으면 더 이상 요청하지 않음
+                if ((kakaoResults as any[]).length < 15) {
+                  console.log(`페이지 ${page}에서 검색 결과가 부족하여 검색 중단`);
+                  break;
+                }
+              } catch (err) {
+                console.error(`카카오맵 API 호출 오류 (페이지 ${page}):`, err);
                 break;
               }
-            } catch (err) {
-              console.error(`카카오맵 API 호출 오류 (페이지 ${page}):`, err);
-              break;
             }
+
+            // 중복 제거
+            const uniqueKakaoResults = allKakaoResults.filter((restaurant, index, self) => 
+              index === self.findIndex(r => r.id === restaurant.id)
+            );
+
+            const filteredKakao = uniqueKakaoResults
+              .filter((restaurant: any) => restaurant.distance <= groupData.radius)
+              .map((restaurant: any) => ({
+                id: Number(restaurant.id || restaurant.kakao_id),
+                name: formatRestaurantName(restaurant.place_name),
+                rating: restaurant.rating,
+                address: restaurant.address_name,
+                category: restaurant.category_name,
+                type: 'kakao' as const,
+                detail: restaurant
+              }));
+            console.log('직접가기 탭 - 카카오맵 전체 식당 수:', filteredKakao.length);
+            allRestaurants.push(...filteredKakao);
+          } catch (err) {
+            console.error('카카오맵 API 호출 오류:', err);
           }
-
-          // 중복 제거
-          const uniqueKakaoResults = allKakaoResults.filter((restaurant, index, self) => 
-            index === self.findIndex(r => r.id === restaurant.id)
-          );
-
-          const filteredKakao = uniqueKakaoResults
-            .filter((restaurant: any) => restaurant.distance <= groupData.radius)
-            .map((restaurant: any) => ({
-              id: Number(restaurant.id || restaurant.kakao_id),
-              name: formatRestaurantName(restaurant.place_name),
-              rating: restaurant.rating,
-              address: restaurant.address_name,
-              category: restaurant.category_name,
-              type: 'kakao' as const,
-              detail: restaurant
-            }));
-          console.log('직접가기 탭 - 카카오맵 전체 식당 수:', filteredKakao.length);
-          allRestaurants.push(...filteredKakao);
-        } catch (err) {
-          console.error('카카오맵 API 호출 오류:', err);
         }
       }
 
@@ -359,11 +390,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       const selectedRestaurants = selectRandomRestaurants(allRestaurants, 20);
 
       // 선택된 후보들을 이전 후보 목록에 추가
-      const newPreviousCandidates = new Set(previousCandidates);
+      const newPreviousCandidates = new Set(previousCandidatesRef.current);
       selectedRestaurants.forEach(restaurant => {
         newPreviousCandidates.add(Number(restaurant.id));
       });
       setPreviousCandidates(newPreviousCandidates);
+      previousCandidatesRef.current = newPreviousCandidates; // ref도 동기화
 
       console.log(`최종 식당 목록 (${activeTab} 탭):`, selectedRestaurants);
       console.log('총 식당 수:', selectedRestaurants.length);

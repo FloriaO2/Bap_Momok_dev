@@ -7,6 +7,7 @@ interface DeliveryTabProps {
   groupId: string;
   onAddCandidate?: (restaurant: any) => void;
   registeredCandidateIds?: number[];
+  setLoading?: (loading: boolean) => void;
 }
 
 interface YogiyoRestaurant {
@@ -20,7 +21,7 @@ interface YogiyoRestaurant {
   is_open: boolean;
 }
 
-export default function DeliveryTab({ groupData, groupId, onAddCandidate, registeredCandidateIds = [] }: DeliveryTabProps) {
+export default function DeliveryTab({ groupData, groupId, onAddCandidate, registeredCandidateIds = [], setLoading: setParentLoading }: DeliveryTabProps) {
   // 기존 상태 제거 및 통합
   // const [activeCategory, setActiveCategory] = useState('all');
   // const [searchTerm, setSearchTerm] = useState('');
@@ -63,26 +64,51 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
   // API 요청 함수
   const fetchRestaurants = useCallback(async (params: { category: string; searchTerm: string; page: number }) => {
     setLoading(true);
+    setParentLoading?.(true);
     try {
       const query = [];
       if (params.category) query.push(`category=${encodeURIComponent(params.category)}`);
       if (params.searchTerm) query.push(`search=${encodeURIComponent(params.searchTerm)}`);
       query.push(`page=${params.page}`);
-      const res = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants?${query.join('&')}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35초 타임아웃
+      
+      const res = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants?${query.join('&')}`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (!res.ok) {
-        throw new Error('Failed to fetch restaurants');
+        if (res.status === 504) {
+          throw new Error('요기요 API 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
+        } else if (res.status === 502) {
+          throw new Error('요기요 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해주세요.');
+        } else {
+          throw new Error(`요기요 API 오류 (${res.status}): ${res.statusText}`);
+        }
       }
+      
       const data = await res.json();
       const newRestaurants = data.restaurants || [];
       setRestaurants(prev => params.page === 1 ? newRestaurants : [...prev, ...newRestaurants]);
       setHasMore(newRestaurants.length > 0);
     } catch (error) {
       console.error("Error fetching restaurants:", error);
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.error('요기요 API 요청이 타임아웃되었습니다.');
+        } else {
+          console.error('요기요 API 요청 실패:', error.message);
+        }
+      }
       setHasMore(false);
     } finally {
       setLoading(false);
+      setParentLoading?.(false);
     }
-  }, [groupId, BACKEND_URL]);
+  }, [groupId, BACKEND_URL, setParentLoading]);
 
   // params가 바뀔 때마다 항상 API 요청
   useEffect(() => {
@@ -301,10 +327,14 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
           {loading ? "검색" : "검색"}
         </button>
       </div>
-      {/* 식당 목록 */}
-      <div style={{ height: "calc(100vh - 500px)", minHeight: "200px", maxHeight: "50vh", overflowY: "auto" }}
-        ref={listRef}
-      >
+              {/* 식당 목록 */}
+        <div style={{ 
+            marginBottom: "20px",
+            maxHeight: "400px",
+            overflowY: "auto"
+          }}
+          ref={listRef}
+        >
         <h3 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", marginBottom: "15px" }}>
           배달 음식점 목록
         </h3>
@@ -320,7 +350,15 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
           <>
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
               {uniqueRestaurants.map((r) => {
-                const isRegistered = registeredCandidateIds.includes(Number(r.id));
+                // ID 타입을 통일하여 비교 (문자열과 숫자 모두 처리)
+                const restaurantId = Number(r.id);
+                const isRegistered = registeredCandidateIds.some(registeredId => 
+                  Number(registeredId) === restaurantId
+                );
+                // 검색 상태에서 디버깅 로그 추가
+                if (params.searchTerm) {
+                  console.log(`🔍 검색 결과 - 식당: ${r.name}, ID: ${r.id} (${typeof r.id}), 등록됨: ${isRegistered}, 등록된 ID 목록:`, registeredCandidateIds.map(id => ({ id, type: typeof id })));
+                }
                 return (
                 <div
                   key={r.id}
@@ -347,36 +385,36 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
                   {typeof onAddCandidate === 'function' && (
                     <button
                       onClick={e => { e.stopPropagation(); onAddCandidate(r); }}
-                      disabled={registeredCandidateIds.includes(Number(r.id))}
+                      disabled={isRegistered}
                       style={{
                         width: "40px",
                         height: "40px",
-                        background: registeredCandidateIds.includes(Number(r.id)) ? "#ccc" : "#994d52",
+                        background: isRegistered ? "#ccc" : "#994d52",
                         color: "#fff",
                         border: "none",
                         borderRadius: "50%",
                         fontSize: "20px",
                         fontWeight: "bold",
-                        cursor: registeredCandidateIds.includes(Number(r.id)) ? "not-allowed" : "pointer",
+                        cursor: isRegistered ? "not-allowed" : "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         transition: "all 0.2s"
                       }}
                       onMouseOver={e => {
-                        if (!registeredCandidateIds.includes(Number(r.id))) {
+                        if (!isRegistered) {
                           e.currentTarget.style.background = "#8a4449";
                           e.currentTarget.style.transform = "scale(1.1)";
                         }
                       }}
                       onMouseOut={e => {
-                        if (!registeredCandidateIds.includes(Number(r.id))) {
+                        if (!isRegistered) {
                           e.currentTarget.style.background = "#994d52";
                           e.currentTarget.style.transform = "scale(1)";
                         }
                       }}
                     >
-                      {registeredCandidateIds.includes(Number(r.id)) ? '✔' : '+'}
+                      {isRegistered ? '✔' : '+'}
                     </button>
                   )}
                 </div>
