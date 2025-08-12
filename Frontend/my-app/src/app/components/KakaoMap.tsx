@@ -111,7 +111,7 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
     
     const script = document.createElement("script");
     script.id = "kakao-map-script";
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services&autoload=false`;
     script.async = true;
     
     // 디버깅: 스크립트 URL 확인

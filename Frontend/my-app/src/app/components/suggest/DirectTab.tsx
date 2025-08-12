@@ -413,7 +413,6 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
               {searchResults.map((restaurant) => {
                 const cardId = restaurant.id || restaurant.kakao_id;
                 const isRegistered = registeredCandidateIds.includes(Number(cardId));
-                console.log(`🍽️ ${restaurant.place_name || restaurant.name}: cardId=${cardId}, isRegistered=${isRegistered}, registeredIds=${registeredCandidateIds}`);
 
                 return (
                   <div
