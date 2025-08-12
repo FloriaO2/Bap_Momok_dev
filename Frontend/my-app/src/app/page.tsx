@@ -28,9 +28,12 @@ export default function HomePage() {
   const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
   
   // BACKEND_URL 디버깅
+  /*
   if (typeof window !== 'undefined') {
     console.log('BACKEND_URL:', BACKEND_URL);
   }
+  */
+
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRandomModal, setShowRandomModal] = useState(false);
