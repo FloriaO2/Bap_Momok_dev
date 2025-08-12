@@ -321,12 +321,6 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
               {uniqueRestaurants.map((r) => {
                 const isRegistered = registeredCandidateIds.includes(r.id);
-                console.log(`🍕 요기요 식당 ID 매칭:`, {
-                  restaurantId: r.id,
-                  restaurantName: r.name,
-                  registeredIds: registeredCandidateIds,
-                  isRegistered: isRegistered
-                });
                 return (
                 <div
                   key={r.id}

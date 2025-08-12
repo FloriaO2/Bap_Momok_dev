@@ -63,6 +63,10 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const currentIndexRef = useRef(0);
   const [previousCandidates, setPreviousCandidates] = useState<Set<string>>(new Set());
+  
+  // 전체 식당 데이터를 저장할 새로운 state 추가
+  const [allRestaurantsData, setAllRestaurantsData] = useState<Restaurant[]>([]);
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
 
   // URL 정규화 함수 - 끝에 슬래시 제거
   const normalizeUrl = (url: string) => {
@@ -75,6 +79,17 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const selectRandomRestaurants = (allRestaurants: Restaurant[], maxCount: number = 20): Restaurant[] => {
     if (allRestaurants.length <= maxCount) {
       return allRestaurants;
+    }
+
+    // 모든 식당이 이전 후보에 들어가있는지 확인
+    const allRestaurantIds = new Set(allRestaurants.map(r => r.id));
+    const allUsed = allRestaurantIds.size > 0 && 
+                   [...allRestaurantIds].every(id => previousCandidates.has(id));
+    
+    // 모든 식당이 이전 후보라면 previousCandidates 리셋
+    if (allUsed) {
+      console.log('모든 식당이 이전 후보에 포함되어 있습니다. previousCandidates를 리셋합니다.');
+      setPreviousCandidates(new Set());
     }
 
     // 요기요의 경우 카테고리별로 그룹화하여 랜덤 선택
@@ -203,37 +218,58 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     }
   };
 
-  // 식당 목록 새로고침 함수
+  // 식당 목록 새로고침 함수 (API 호출 없이 기존 데이터에서만 랜덤 선택)
   const refreshRestaurants = () => {
+    if (!isInitialDataLoaded || allRestaurantsData.length === 0) {
+      console.log('초기 데이터가 로드되지 않았거나 데이터가 없습니다. API 호출을 진행합니다.');
+      fetchAllRestaurants();
+      return;
+    }
+
+    console.log('기존 데이터에서 새로운 후보를 선택합니다.');
     setIsLoading(true);
     setShowResult(false);
     setSelectedRestaurant(null);
     setCurrentIndex(0);
     currentIndexRef.current = 0;
     
-    // 식당 정보를 다시 가져오기 (이전 후보 목록은 유지)
-    fetchRestaurants();
+    // 기존 전체 데이터에서 20개 랜덤 선택
+    const selectedRestaurants = selectRandomRestaurants(allRestaurantsData, 20);
+
+    // 선택된 후보들을 이전 후보 목록에 추가
+    const newPreviousCandidates = new Set(previousCandidates);
+    selectedRestaurants.forEach(restaurant => {
+      newPreviousCandidates.add(restaurant.id);
+    });
+    setPreviousCandidates(newPreviousCandidates);
+
+    console.log(`새로운 후보 목록 (${activeTab} 탭):`, selectedRestaurants);
+    console.log('총 식당 수:', selectedRestaurants.length);
+    console.log('카카오맵 식당 수:', selectedRestaurants.filter(r => r.type === 'kakao').length);
+    console.log('요기요 식당 수:', selectedRestaurants.filter(r => r.type === 'yogiyo').length);
+    setRestaurants(selectedRestaurants);
+    setIsLoading(false);
   };
 
-  // 식당 정보를 가져오는 함수
-  const fetchRestaurants = async () => {
+  // 전체 식당 데이터를 가져오는 함수 (초기 로드용)
+  const fetchAllRestaurants = async () => {
     if (!groupData) return;
 
     setIsLoading(true);
     const allRestaurants: Restaurant[] = [];
 
     try {
-      // 직접가기 탭인 경우 카카오맵 API만 호출
+      // 직접가기 탭인 경우 카카오맵 API로 전체 데이터 가져오기
       if (activeTab === 'direct' && groupData.offline && typeof window !== 'undefined') {
-        console.log('직접가기 탭: 카카오맵 API 호출 시작');
+        console.log('직접가기 탭: 카카오맵 API 전체 데이터 가져오기 시작');
         try {
           await waitForKakaoMap();
           
           const ps = new window.kakao.maps.services.Places();
           const allKakaoResults: any[] = [];
           
-          // categorySearch로 3페이지만 검색
-          for (let page = 1; page <= 3; page++) {
+          // 더 많은 페이지를 가져와서 충분한 데이터 확보 (최대 10페이지)
+          for (let page = 1; page <= 10; page++) {
             await new Promise(res => setTimeout(res, 300));
             try {
               const searchOptions = {
@@ -256,7 +292,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
               
               allKakaoResults.push(...(kakaoResults as any[]));
               
+              // 검색 결과가 적으면 더 이상 요청하지 않음
               if ((kakaoResults as any[]).length < 15) {
+                console.log(`페이지 ${page}에서 검색 결과가 부족하여 검색 중단`);
                 break;
               }
             } catch (err) {
@@ -281,16 +319,16 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
               type: 'kakao' as const,
               detail: restaurant
             }));
-          console.log('직접가기 탭 - 카카오맵 식당 수:', filteredKakao.length);
+          console.log('직접가기 탭 - 카카오맵 전체 식당 수:', filteredKakao.length);
           allRestaurants.push(...filteredKakao);
         } catch (err) {
           console.error('카카오맵 API 호출 오류:', err);
         }
       }
 
-      // 배달 탭인 경우 요기요 API만 호출
+      // 배달 탭인 경우 요기요 API로 전체 데이터 가져오기
       if (activeTab === 'delivery' && groupData.delivery) {
-        console.log('배달 탭: 요기요 API 호출 시작');
+        console.log('배달 탭: 요기요 API 전체 데이터 가져오기 시작');
         try {
           const response = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants`);
           const data = await response.json();
@@ -305,13 +343,17 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
               type: 'yogiyo' as const,
               detail: restaurant
             }));
-            console.log('배달 탭 - 요기요 식당 수:', yogiyoRestaurants.length);
+            console.log('배달 탭 - 요기요 전체 식당 수:', yogiyoRestaurants.length);
             allRestaurants.push(...yogiyoRestaurants);
           }
         } catch (err) {
           console.error('요기요 API 호출 오류:', err);
         }
       }
+
+      // 전체 데이터 저장
+      setAllRestaurantsData(allRestaurants);
+      setIsInitialDataLoaded(true);
 
       // 최대 20개로 랜덤 선택
       const selectedRestaurants = selectRandomRestaurants(allRestaurants, 20);
@@ -382,9 +424,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     return name.replace(/[^\w\s가-힣]/g, '').trim();
   };
 
-  // 식당 정보 가져오기
+  // 식당 정보 가져오기 (초기 로드)
   useEffect(() => {
-    fetchRestaurants();
+    fetchAllRestaurants();
   }, [groupData, BACKEND_URL, activeTab]); // activeTab을 의존성 배열에 추가
 
     // 슬롯머신 돌리기

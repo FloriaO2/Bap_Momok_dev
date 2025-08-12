@@ -21,6 +21,12 @@
   position: relative;
   padding: 0;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .header {
@@ -284,6 +290,9 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
   margin-top: 10px;
+  display: inline-block;
+  text-align: center;
+  min-width: 140px;
 }
 
 .addCandidateButton:hover {
@@ -292,7 +301,7 @@
 }
 
 .alreadyRegistered {
-  background: #95a5a6;
+  background: linear-gradient(45deg, #95a5a6, #7f8c8d);
   color: white;
   border: none;
   border-radius: 25px;
@@ -301,7 +310,24 @@
   font-weight: bold;
   margin-top: 10px;
   cursor: default;
-  opacity: 0.8;
+  opacity: 0.9;
+  display: inline-block;
+  text-align: center;
+  min-width: 140px;
+  box-shadow: 0 4px 15px rgba(149, 165, 166, 0.4);
+  transition: all 0.3s ease;
+  animation: settleDown 0.5s ease-out;
+}
+
+@keyframes settleDown {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
 }
 
 .loadingMessage {

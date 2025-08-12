@@ -8,6 +8,7 @@ import GuideModal from './components/GuideModal';
 
 export default function HomePage() {
   // 환경 변수 디버깅
+  /*
   if (typeof window !== 'undefined') {
     console.log('=== 환경 변수 디버깅 ===');
     console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -17,6 +18,7 @@ export default function HomePage() {
     console.log('All NEXT_PUBLIC env vars:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_')));
     console.log('========================');
   }
+    */
 
   // URL 정규화 함수 - 끝에 슬래시 제거
   const normalizeUrl = (url: string) => {
