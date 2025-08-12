@@ -180,6 +180,14 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
     psRef.current.keywordSearch(keyword, (data: any, status: any, pagination: any) => {
       setLoading(false);
       if (status === window.kakao.maps.services.Status.OK) {
+        // 카테고리 정보 디버깅을 위한 로그
+        console.log('🔍 카카오맵 검색 결과:', data.map((item: any) => ({
+          name: item.place_name,
+          category_name: item.category_name,
+          category_group_code: item.category_group_code,
+          id: item.id
+        })));
+        
         if (resetPage) {
           setSearchResults(data);
           setPage(1);
@@ -435,7 +443,21 @@ export default function DirectTab({ groupData, groupId, onAddCandidate, register
                         color: "#666",
                         marginBottom: "4px"
                       }}>
-                        {restaurant.category_name ? restaurant.category_name.split('>').pop() : ''}
+                        {restaurant.category_name && restaurant.category_name.trim() !== '' 
+                          ? (() => {
+                              const categories = restaurant.category_name.split('>').map((cat: string) => cat.trim());
+                              const lastCategory = categories[categories.length - 1];
+                              const restaurantName = restaurant.place_name || restaurant.name;
+                              
+                              // 마지막 카테고리가 식당 이름에 포함되면 그 앞의 카테고리 사용
+                              if (lastCategory && restaurantName && restaurantName.includes(lastCategory)) {
+                                return categories.length > 1 ? categories[categories.length - 2] : '카테고리 정보 없음';
+                              } else {
+                                return lastCategory || '카테고리 정보 없음';
+                              }
+                            })()
+                          : '카테고리 정보 없음'
+                        }
                       </div>
                       {restaurant.road_address_name && (
                         <div style={{ 
