@@ -363,14 +363,6 @@
   .modalButtonGroup {
     flex-direction: column;
   }
-
-  .guideButton {
-    top: 15px;
-    right: 15px;
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -392,11 +384,4 @@
     font-size: 18px;
   }
 
-  .guideButton {
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
 } 
