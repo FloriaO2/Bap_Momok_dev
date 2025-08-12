@@ -63,7 +63,6 @@ export default function HomePage() {
     visit: false,
     visitTime: ''
   });
-  const [showWarning, setShowWarning] = useState(false);
 
   // Random Room 모달 상태
   const [randomRoomData, setRandomRoomData] = useState({
@@ -73,13 +72,17 @@ export default function HomePage() {
     visit: false,
     visitTime: ''
   });
-  const [showRandomWarning, setShowRandomWarning] = useState(false);
-
   const [searchKeyword, setSearchKeyword] = useState('');
   const [locationLat, setLocationLat] = useState<number | null>(null);
   const [locationLng, setLocationLng] = useState<number | null>(null);
   const [centerLat, setCenterLat] = useState<number | null>(null);
   const [centerLng, setCenterLng] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     if (showCreateModal || showRandomModal) {
@@ -114,7 +117,7 @@ export default function HomePage() {
       setJoinRoomInput('');
     } else {
       console.log('방 ID가 유효하지 않음');
-      alert('방 ID를 입력해주세요.');
+      showToast('방 ID를 입력해주세요.');
     }
   };
 
@@ -146,7 +149,6 @@ export default function HomePage() {
       visit: false,
       visitTime: ''
     });
-    setShowRandomWarning(false);
   };
 
   // Create Room 모달 열기
@@ -166,7 +168,6 @@ export default function HomePage() {
       visit: false,
       visitTime: ''
     });
-    setShowWarning(false);
   };
 
   // Create Room 데이터 업데이트
@@ -180,7 +181,7 @@ export default function HomePage() {
       // delivery나 visit가 선택되면 경고 메시지 숨김
       if (field === 'delivery' || field === 'visit') {
         if (newData.delivery || newData.visit) {
-          setShowWarning(false);
+          // setShowWarning(false); // 이 상태 변수는 더 이상 사용하지 않으므로 제거
         }
       }
       
@@ -199,7 +200,7 @@ export default function HomePage() {
       // delivery나 visit가 선택되면 경고 메시지 숨김
       if (field === 'delivery' || field === 'visit') {
         if (newData.delivery || newData.visit) {
-          setShowRandomWarning(false);
+          // setShowRandomWarning(false); // 이 상태 변수는 더 이상 사용하지 않으므로 제거
         }
       }
       
@@ -212,29 +213,29 @@ export default function HomePage() {
     console.log('방 생성 데이터:', createRoomData);
     
     if (!createRoomData.startTime) {
-      alert('후보 추천 시간을 선택해주세요.');
+      showToast('후보 추천 시간을 선택해주세요.');
       return;
     }
     if (locationLat === null || locationLng === null) {
-      alert('지도의 위치를 지정해주세요.');
+      showToast('지도의 위치를 지정해주세요.');
       return;
     }
     
     // delivery와 visit 중 하나는 반드시 선택해야 함
     if (!createRoomData.delivery && !createRoomData.visit) {
-      setShowWarning(true);
+      showToast('배달 또는 방문 중 하나는 반드시 선택해주세요.');
       return;
     }
     
     // delivery를 선택했다면 배달 시간도 필수
     if (createRoomData.delivery && !createRoomData.deliveryTime) {
-      alert('최대 배달 소요 시간을 선택해주세요.');
+      showToast('최대 배달 소요 시간을 선택해주세요.');
       return;
     }
     
     // visit를 선택했다면 도보 시간도 필수
     if (createRoomData.visit && !createRoomData.visitTime) {
-      alert('최대 도보 소요 시간을 선택해주세요.');
+      showToast('최대 도보 소요 시간을 선택해주세요.');
       return;
     }
 
@@ -286,11 +287,11 @@ export default function HomePage() {
         router.push(`/participate/${result.group_id}`);
       } else {
         console.error('❌ 그룹 생성 실패:', result);
-        alert('방 생성 실패');
+        showToast('방 생성 실패');
       }
     } catch (e) {
       console.error('❌ 네트워크 오류:', e);
-      alert('에러 발생');
+      showToast('에러 발생');
     }
     closeCreateModal();
   };
@@ -300,25 +301,25 @@ export default function HomePage() {
     console.log('Random Room 생성 데이터:', randomRoomData);
     
     if (locationLat === null || locationLng === null) {
-      alert('지도의 위치를 지정해주세요.');
+      showToast('지도의 위치를 지정해주세요.');
       return;
     }
     
     // delivery와 visit 중 하나는 반드시 선택해야 함
     if (!randomRoomData.delivery && !randomRoomData.visit) {
-      setShowRandomWarning(true);
+      showToast('배달 또는 방문 중 하나는 반드시 선택해주세요.');
       return;
     }
     
     // delivery를 선택했다면 배달 시간도 필수
     if (randomRoomData.delivery && !randomRoomData.deliveryTime) {
-      alert('최대 배달 소요 시간을 선택해주세요.');
+      showToast('최대 배달 소요 시간을 선택해주세요.');
       return;
     }
     
     // visit를 선택했다면 도보 시간도 필수
     if (randomRoomData.visit && !randomRoomData.visitTime) {
-      alert('최대 도보 소요 시간을 선택해주세요.');
+      showToast('최대 도보 소요 시간을 선택해주세요.');
       return;
     }
 
@@ -356,16 +357,40 @@ export default function HomePage() {
       if (result.group_id) {
         router.push(`/random-room/${result.group_id}`);
       } else {
-        alert('Random Room 생성 실패');
+        showToast('Random Room 생성 실패');
       }
     } catch (e) {
-      alert('에러 발생');
+      showToast('에러 발생');
     }
     closeRandomModal();
   };
 
   return (
     <div className={styles.container}>
+      {/* 토스트 알림 */}
+      {toast && (
+        <div style={{
+          position: "fixed",
+          bottom: "40px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#333",
+          color: "#fff",
+          padding: "16px 32px",
+          borderRadius: "24px",
+          fontSize: "16px",
+          zIndex: 10000,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+          minWidth: "280px",
+          maxWidth: "90vw",
+          textAlign: "center",
+          wordBreak: "keep-all",
+          whiteSpace: "normal"
+        }}>
+          {toast}
+        </div>
+      )}
+      
       {/* 배경 이미지 */}
       <div 
         className={styles.backgroundImage}
@@ -509,21 +534,6 @@ export default function HomePage() {
               </select>
             </div>
 
-            {/* 필수 선택 안내 */}
-            {showWarning && (
-              <div style={{ 
-                marginBottom: '20px', 
-                padding: '10px', 
-                background: '#fff3cd', 
-                border: '1px solid #ffeaa7', 
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: '#856404'
-              }}>
-                ⚠️ 배달 또는 방문 중 하나는 반드시 선택해주세요.
-              </div>
-            )}
-
             {/* Delivery 옵션 */}
             <div className={styles.optionGroup}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -648,21 +658,6 @@ export default function HomePage() {
               centerLng={centerLng}
               pinButtonType="gps"
             />
-
-            {/* 필수 선택 안내 */}
-            {showRandomWarning && (
-              <div style={{ 
-                marginBottom: '20px', 
-                padding: '10px', 
-                background: '#fff3cd', 
-                border: '1px solid #ffeaa7', 
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: '#856404'
-              }}>
-                ⚠️ 배달 또는 방문 중 하나는 반드시 선택해주세요.
-              </div>
-            )}
 
             {/* Delivery 옵션 */}
             <div className={styles.optionGroup}>

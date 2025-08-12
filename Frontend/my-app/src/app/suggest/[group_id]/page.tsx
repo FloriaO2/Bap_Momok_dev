@@ -400,7 +400,12 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           borderRadius: "24px",
           fontSize: "16px",
           zIndex: 10000,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.2)"
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+          minWidth: "280px",
+          maxWidth: "90vw",
+          textAlign: "center",
+          wordBreak: "keep-all",
+          whiteSpace: "normal"
         }}>
           {toast}
         </div>
