@@ -82,6 +82,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
       if (candidatesData) {
         const allCandidates = Object.values(candidatesData);
         console.log('📊 전체 후보 배열:', allCandidates);
+        console.log('🔍 Firebase 후보 데이터 상세:', candidatesData);
         
         const yogiyoIds = allCandidates
           .filter((c: any) => c.type === 'yogiyo' && c.detail?.yogiyo_id)
@@ -99,6 +100,14 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         console.log('🍕 요기요 후보 상세 정보:', yogiyoCandidates.map((c: any) => ({
           name: c.name,
           yogiyo_id: c.detail?.yogiyo_id,
+          detail: c.detail
+        })));
+        
+        // 카카오 후보들의 상세 정보 로그
+        const kakaoCandidates = allCandidates.filter((c: any) => c.type === 'kakao');
+        console.log('🍽️ 카카오 후보 상세 정보:', kakaoCandidates.map((c: any) => ({
+          name: c.name,
+          kakao_id: c.detail?.kakao_id,
           detail: c.detail
         })));
         
@@ -549,7 +558,21 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             activeTab={activeTab}
             onAddCandidate={async (candidate: any) => {
               if (candidate.type === 'kakao') {
-                await addKakaoCandidate(candidate);
+                // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 kakao_data 형태로 변환
+                const kakaoData = {
+                  id: candidate.id,
+                  place_name: candidate.detail?.place_name || candidate.name,
+                  address_name: candidate.detail?.address_name || candidate.address,
+                  category_name: candidate.detail?.category_name || candidate.category,
+                  rating: candidate.detail?.rating || candidate.rating,
+                  phone: candidate.detail?.phone,
+                  road_address_name: candidate.detail?.road_address_name,
+                  // 원본 카카오맵 데이터의 모든 필드를 포함
+                  ...candidate.detail
+                };
+                console.log('🎯 슬롯머신 카카오 데이터 변환:', kakaoData);
+                console.log('🔍 원본 카카오맵 데이터:', candidate.detail);
+                await addKakaoCandidate(kakaoData);
                 // 팝업을 닫지 않고 그대로 유지
               } else if (candidate.type === 'yogiyo') {
                 // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 yogiyo_data 형태로 변환

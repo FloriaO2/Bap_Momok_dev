@@ -69,6 +69,8 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
     const candidatesCallback = (snapshot: any) => {
       const data = snapshot.val() || {};
       const candidatesArray = Object.values(data);
+      console.log('🔍 SuggestCompleteWaitScreen - Firebase 후보 데이터:', data);
+      console.log('🔍 SuggestCompleteWaitScreen - 후보 배열:', candidatesArray);
       setCandidates(candidatesArray as Candidate[]);
     };
     onValue(candidatesRef, candidatesCallback);
@@ -206,7 +208,7 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
                     paddingBottom: index < candidates.length - 1 ? '10px' : '0',
                     borderBottom: index < candidates.length - 1 ? '1px solid #e9ecef' : 'none'
                   }}>
-                    {`${getEmojiForCandidate(candidate)} ${candidate.name}`}
+                    {`${getEmojiForCandidate(candidate)} ${candidate.name || '이름 없음'}`}
                   </li>
                 ))}
               </ul>
