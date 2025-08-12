@@ -60,8 +60,13 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           .filter((c: any) => c.type === 'kakao' && c.detail?.kakao_id)
           .map((c: any) => Number(c.detail.kakao_id));
           
+        console.log('📊 업데이트된 후보 목록:', { yogiyoIds, kakaoIds });
         setRegisteredYogiyoIds(yogiyoIds);
         setRegisteredKakaoIds(kakaoIds);
+      } else {
+        console.log('📊 후보 데이터가 없음');
+        setRegisteredYogiyoIds([]);
+        setRegisteredKakaoIds([]);
       }
     };
     onValue(candidatesRef, candidatesCallback);
@@ -195,6 +200,11 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
       });
       if (response.ok) {
         showToast(`${restaurant.place_name || restaurant.name}이(가) 후보에 추가되었습니다!`);
+        // 실시간 업데이트를 위해 잠시 대기 후 강제 리프레시
+        setTimeout(() => {
+          console.log('🔄 후보 추가 후 실시간 업데이트 트리거');
+          // Firebase 리스너가 자동으로 업데이트하도록 함
+        }, 500);
       } else {
         const errorData = await response.json();
         showToast(`후보 추가에 실패했습니다: ${errorData.detail}`);
@@ -218,6 +228,11 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
       });
       if (response.ok) {
         showToast(`${restaurant.name}이(가) 후보에 추가되었습니다!`);
+        // 실시간 업데이트를 위해 잠시 대기 후 강제 리프레시
+        setTimeout(() => {
+          console.log('🔄 후보 추가 후 실시간 업데이트 트리거');
+          // Firebase 리스너가 자동으로 업데이트하도록 함
+        }, 500);
       } else {
         const errorData = await response.json();
         showToast(`후보 추가 실패: ${errorData.detail}`);

@@ -16,23 +16,31 @@ def initialize_firebase():
         except ValueError:
             print("🔄 Firebase 초기화가 필요합니다.")
         
-        # 환경변수에서 직접 JSON 파싱
+        # 환경변수에서 서비스 계정 정보 확인
         service_account_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
         print(f"🔑 FIREBASE_SERVICE_ACCOUNT 환경변수 존재: {service_account_json is not None}")
         
-        if not service_account_json:
-            raise FileNotFoundError("FIREBASE_SERVICE_ACCOUNT 환경변수가 설정되지 않았습니다.")
+        if service_account_json:
+            # 환경변수에서 JSON 파싱 (배포 환경용)
+            try:
+                service_account_info = json.loads(service_account_json)
+                print("✅ 환경변수에서 JSON 파싱 성공")
+                cred = credentials.Certificate(service_account_info)
+            except json.JSONDecodeError as e:
+                print(f"❌ 환경변수 JSON 파싱 실패: {e}")
+                raise
+        else:
+            # 파일에서 서비스 계정 정보 읽기 (로컬 개발용)
+            service_account_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
+            print(f"🔑 서비스 계정 파일 경로: {service_account_path}")
+            
+            if not os.path.exists(service_account_path):
+                raise FileNotFoundError(f"서비스 계정 파일을 찾을 수 없습니다: {service_account_path}")
+            
+            print("✅ 파일에서 서비스 계정 정보 읽기 성공")
+            cred = credentials.Certificate(service_account_path)
         
-        # JSON 파싱
-        try:
-            service_account_info = json.loads(service_account_json)
-            print("✅ JSON 파싱 성공")
-        except json.JSONDecodeError as e:
-            print(f"❌ JSON 파싱 실패: {e}")
-            raise
-        
-        # Firebase 초기화 (파일 없이 직접)
-        cred = credentials.Certificate(service_account_info)
+        # Firebase 초기화
         firebase_admin.initialize_app(cred, {
             'databaseURL': 'https://bap-momok-dev-default-rtdb.firebaseio.com'
         })

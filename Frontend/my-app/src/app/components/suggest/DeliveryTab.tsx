@@ -319,7 +319,10 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
         ) : (
           <>
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-              {uniqueRestaurants.map((r) => (
+              {uniqueRestaurants.map((r) => {
+                const isRegistered = registeredCandidateIds.includes(r.id);
+                console.log(`🍕 ${r.name}: id=${r.id}, isRegistered=${isRegistered}, registeredIds=${registeredCandidateIds}`);
+                return (
                 <div
                   key={r.id}
                   style={{ display: "flex", alignItems: "center", padding: "15px", background: "#f8f9fa", borderRadius: "12px", gap: "15px", cursor: 'pointer' }}
@@ -378,7 +381,8 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
                     </button>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
             {loading && (
               <div style={{ textAlign: "center", color: "#999", padding: "20px 0" }}>
