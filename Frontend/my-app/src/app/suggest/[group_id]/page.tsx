@@ -2,7 +2,7 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { ref, onValue, off } from "firebase/database";
-import { database } from "../../../firebase";
+import { database, checkFirebaseConnection } from "../../../firebase";
 import DirectTab from '../../components/suggest/DirectTab';
 import DeliveryTab from '../../components/suggest/DeliveryTab';
 import SuggestCompleteWaitScreen from '../../components/suggest/SuggestCompleteWaitScreen';
@@ -36,9 +36,28 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
 
   const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
+  // Firebase 연결 상태 확인
+  useEffect(() => {
+    const checkConnection = async () => {
+      console.log('🔍 Firebase 연결 상태 확인 시작...');
+      const isConnected = await checkFirebaseConnection();
+      console.log('📊 Firebase 연결 상태:', isConnected);
+      
+      if (!isConnected) {
+        console.warn('⚠️ Firebase 연결이 되지 않았습니다. 실시간 업데이트가 작동하지 않을 수 있습니다.');
+      }
+    };
+    
+    checkConnection();
+  }, []);
+
   // 실시간으로 후보 목록 감지
   useEffect(() => {
     if (!groupId) return;
+
+    console.log('🔍 Firebase 실시간 리스너 시작:', groupId);
+    console.log('🌐 현재 환경:', process.env.NODE_ENV);
+    console.log('🔗 BACKEND_URL:', BACKEND_URL);
 
     const candidatesRef = ref(database, `groups/${groupId}/candidates`);
     const candidatesCallback = (snapshot: any) => {
@@ -48,6 +67,8 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         return;
       }
       console.log('⚡ 후보 리스너 작동함!', groupId);
+      console.log('📊 Firebase 스냅샷:', snapshot.val());
+      
       const candidatesData = snapshot.val();
       if (candidatesData) {
         const allCandidates = Object.values(candidatesData);
@@ -61,6 +82,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           .map((c: any) => Number(c.detail.kakao_id));
           
         console.log('📊 업데이트된 후보 목록:', { yogiyoIds, kakaoIds });
+        console.log('📊 전체 후보 데이터:', candidatesData);
         setRegisteredYogiyoIds(yogiyoIds);
         setRegisteredKakaoIds(kakaoIds);
       } else {
@@ -69,15 +91,25 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         setRegisteredKakaoIds([]);
       }
     };
-    onValue(candidatesRef, candidatesCallback);
-    console.log('✅ 후보 리스너 등록됨!', groupId);
+    
+    // Firebase 연결 상태 확인
+    try {
+      onValue(candidatesRef, candidatesCallback);
+      console.log('✅ 후보 리스너 등록됨!', groupId);
+    } catch (error) {
+      console.error('❌ Firebase 리스너 등록 실패:', error);
+    }
 
     // 컴포넌트가 언마운트될 때 리스너 정리
     return () => {
       console.log('🔥 후보 리스너 해제됨!', groupId);
-      off(candidatesRef, "value", candidatesCallback);
+      try {
+        off(candidatesRef, "value", candidatesCallback);
+      } catch (error) {
+        console.error('❌ Firebase 리스너 해제 실패:', error);
+      }
     };
-  }, [groupId]);
+  }, [groupId, BACKEND_URL]);
 
   // 그룹 데이터에서 선택된 옵션 확인
   const hasDelivery = groupData?.delivery;
@@ -189,6 +221,13 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
 
   // 카카오 후보 추가 함수
   const addKakaoCandidate = async (restaurant: any) => {
+    console.log('🎯 카카오 후보 추가 시작:', restaurant);
+    console.log('🔗 요청 URL:', `${BACKEND_URL}/groups/${groupId}/candidates/kakao`);
+    console.log('📤 요청 데이터:', {
+      added_by: participantId || 'web_user',
+      kakao_data: restaurant
+    });
+    
     try {
       const response = await fetch(`${BACKEND_URL}/groups/${groupId}/candidates/kakao`, {
         method: 'POST',
@@ -198,7 +237,13 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           kakao_data: restaurant
         }),
       });
+      
+      console.log('📥 응답 상태:', response.status);
+      console.log('📥 응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
       if (response.ok) {
+        const responseData = await response.json();
+        console.log('✅ 후보 추가 성공:', responseData);
         showToast(`${restaurant.place_name || restaurant.name}이(가) 후보에 추가되었습니다!`);
         // 실시간 업데이트를 위해 잠시 대기 후 강제 리프레시
         setTimeout(() => {
@@ -207,16 +252,24 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         }, 500);
       } else {
         const errorData = await response.json();
+        console.error('❌ 후보 추가 실패:', errorData);
         showToast(`후보 추가에 실패했습니다: ${errorData.detail}`);
       }
     } catch (error) {
-      console.error('카카오 후보 추가 오류:', error);
+      console.error('❌ 카카오 후보 추가 오류:', error);
       showToast('카카오 후보 추가 중 오류가 발생했습니다.');
     }
   };
 
   // 요기요 후보 추가 함수
   const addYogiyoCandidate = async (restaurant: any) => {
+    console.log('🎯 요기요 후보 추가 시작:', restaurant);
+    console.log('🔗 요청 URL:', `${BACKEND_URL}/groups/${groupId}/candidates/yogiyo`);
+    console.log('📤 요청 데이터:', {
+      added_by: participantId || 'web_user',
+      yogiyo_data: restaurant
+    });
+    
     try {
       const response = await fetch(`${BACKEND_URL}/groups/${groupId}/candidates/yogiyo`, {
         method: 'POST',
@@ -226,8 +279,14 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           yogiyo_data: restaurant
         }),
       });
+      
+      console.log('📥 응답 상태:', response.status);
+      console.log('📥 응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
       if (response.ok) {
-        showToast(`${restaurant.name}이(가) 후보에 추가되었습니다!`);
+        const responseData = await response.json();
+        console.log('✅ 후보 추가 성공:', responseData);
+        showToast(`${restaurant.name || restaurant.restaurant_name}이(가) 후보에 추가되었습니다!`);
         // 실시간 업데이트를 위해 잠시 대기 후 강제 리프레시
         setTimeout(() => {
           console.log('🔄 후보 추가 후 실시간 업데이트 트리거');
@@ -235,10 +294,11 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         }, 500);
       } else {
         const errorData = await response.json();
-        showToast(`후보 추가 실패: ${errorData.detail}`);
+        console.error('❌ 후보 추가 실패:', errorData);
+        showToast(`후보 추가에 실패했습니다: ${errorData.detail}`);
       }
     } catch (error) {
-      console.error('요기요 후보 추가 오류:', error);
+      console.error('❌ 요기요 후보 추가 오류:', error);
       showToast('요기요 후보 추가 중 오류가 발생했습니다.');
     }
   };
