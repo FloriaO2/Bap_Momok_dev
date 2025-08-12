@@ -93,6 +93,15 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           
         console.log('📊 업데이트된 후보 목록:', { yogiyoIds, kakaoIds });
         console.log('📊 전체 후보 데이터:', candidatesData);
+        
+        // 요기요 후보들의 상세 정보 로그
+        const yogiyoCandidates = allCandidates.filter((c: any) => c.type === 'yogiyo');
+        console.log('🍕 요기요 후보 상세 정보:', yogiyoCandidates.map((c: any) => ({
+          name: c.name,
+          yogiyo_id: c.detail?.yogiyo_id,
+          detail: c.detail
+        })));
+        
         setRegisteredYogiyoIds(yogiyoIds);
         setRegisteredKakaoIds(kakaoIds);
       } else {
