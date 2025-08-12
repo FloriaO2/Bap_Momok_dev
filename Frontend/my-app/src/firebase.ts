@@ -32,10 +32,11 @@ console.log('✅ Firebase Database 인스턴스 생성 완료');
 export const checkFirebaseConnection = async () => {
   try {
     console.log('🔍 Firebase 연결 상태 확인 중...');
-    const testRef = ref(database, '.info/connected');
-    const snapshot = await get(testRef);
-    console.log('✅ Firebase 연결 상태:', snapshot.val());
-    return snapshot.val() === true;
+    // 간단한 테스트 경로로 연결 확인
+    const testRef = ref(database, 'test_connection');
+    await get(testRef);
+    console.log('✅ Firebase 연결 성공');
+    return true;
   } catch (error) {
     console.error('❌ Firebase 연결 확인 실패:', error);
     return false;

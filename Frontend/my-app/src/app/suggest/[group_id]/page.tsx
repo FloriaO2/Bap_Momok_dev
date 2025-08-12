@@ -58,20 +58,30 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
     console.log('🔍 Firebase 실시간 리스너 시작:', groupId);
     console.log('🌐 현재 환경:', process.env.NODE_ENV);
     console.log('🔗 BACKEND_URL:', BACKEND_URL);
+    console.log('📍 현재 페이지 경로:', typeof window !== "undefined" ? window.location.pathname : 'unknown');
 
     const candidatesRef = ref(database, `groups/${groupId}/candidates`);
+    console.log('🎯 Firebase 참조 경로:', `groups/${groupId}/candidates`);
+    
+    let listenerRegistered = false;
+    
     const candidatesCallback = (snapshot: any) => {
+      console.log('⚡ 후보 리스너 콜백 실행됨!');
+      console.log('📍 현재 페이지 경로:', typeof window !== "undefined" ? window.location.pathname : 'unknown');
+      
       // 현재 URL이 /suggest/로 시작하지 않으면 콜백 즉시 종료
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/suggest/")) {
         console.log("❌ 현재 페이지가 suggest가 아님. 리스너 콜백 종료");
         return;
       }
+      
       console.log('⚡ 후보 리스너 작동함!', groupId);
       console.log('📊 Firebase 스냅샷:', snapshot.val());
       
       const candidatesData = snapshot.val();
       if (candidatesData) {
         const allCandidates = Object.values(candidatesData);
+        console.log('📊 전체 후보 배열:', allCandidates);
         
         const yogiyoIds = allCandidates
           .filter((c: any) => c.type === 'yogiyo' && c.detail?.yogiyo_id)
@@ -95,7 +105,16 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
     // Firebase 연결 상태 확인
     try {
       onValue(candidatesRef, candidatesCallback);
+      listenerRegistered = true;
       console.log('✅ 후보 리스너 등록됨!', groupId);
+      
+      // 초기 데이터 로드 확인
+      setTimeout(() => {
+        console.log('🔄 초기 데이터 로드 확인 중...');
+        console.log('📊 현재 등록된 요기요 ID:', registeredYogiyoIds);
+        console.log('📊 현재 등록된 카카오 ID:', registeredKakaoIds);
+      }, 1000);
+      
     } catch (error) {
       console.error('❌ Firebase 리스너 등록 실패:', error);
     }
@@ -103,10 +122,13 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
     // 컴포넌트가 언마운트될 때 리스너 정리
     return () => {
       console.log('🔥 후보 리스너 해제됨!', groupId);
-      try {
-        off(candidatesRef, "value", candidatesCallback);
-      } catch (error) {
-        console.error('❌ Firebase 리스너 해제 실패:', error);
+      if (listenerRegistered) {
+        try {
+          off(candidatesRef, "value", candidatesCallback);
+          console.log('✅ 리스너 해제 성공');
+        } catch (error) {
+          console.error('❌ Firebase 리스너 해제 실패:', error);
+        }
       }
     };
   }, [groupId, BACKEND_URL]);

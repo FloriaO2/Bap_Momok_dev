@@ -482,8 +482,16 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 후보에 추가하기
   const handleAddCandidate = () => {
+    console.log('🎰 슬롯머신에서 후보 추가 시작');
+    console.log('📊 선택된 식당:', selectedRestaurant);
+    console.log('🔗 onAddCandidate 함수:', onAddCandidate);
+    
     if (selectedRestaurant) {
+      console.log('✅ 후보 추가 함수 호출');
       onAddCandidate(selectedRestaurant);
+      console.log('✅ 후보 추가 함수 호출 완료');
+    } else {
+      console.log('❌ 선택된 식당이 없음');
     }
   };
 
@@ -583,7 +591,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             🔄
           </button>
           <h1>
-            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 ��️' : '🛵 배달 슬롯머신 룰렛 🛵'}
+            {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
           </h1>
           <button className={styles.closeButton} onClick={onClose}>✕</button>
         </div>
