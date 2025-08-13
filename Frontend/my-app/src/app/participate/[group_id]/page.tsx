@@ -202,18 +202,19 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
   // 카카오톡 공유 SDK 동적 로드 및 초기화
   useEffect(() => {
     // 카카오 SDK 동적 로드
+    // Bap! Momok? 앱 키로 등록, 하드코딩
     if (typeof window !== 'undefined' && !(window as any).Kakao) {
       const script = document.createElement('script');
       script.src = 'https://developers.kakao.com/sdk/js/kakao.min.js';
       script.async = true;
       script.onload = () => {
         if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
-          (window as any).Kakao.init('45874862ce4eb9af215a1e6f553c9375');
+          (window as any).Kakao.init('7597cf1893872edc8f5093c4038c116c');
         }
       };
       document.body.appendChild(script);
     } else if ((window as any).Kakao && !(window as any).Kakao.isInitialized()) {
-      (window as any).Kakao.init('45874862ce4eb9af215a1e6f553c9375');
+      (window as any).Kakao.init('7597cf1893872edc8f5093c4038c116c');
     }
   }, []);
 
