@@ -206,7 +206,7 @@ function TinderPageContent() {
     }
   };
 
-  // 3초 후 자동 이동 (모든 카드 스와이프 시)
+  // 투표 완료 후 최소 5초 대기 후 자동 이동
   useEffect(() => {
     console.log('[자동이동 useEffect] loading:', loading, 'candidates.length:', candidates.length, 'groupId:', groupId);
     if (!loading && candidates.length === 0 && groupId) {
@@ -223,14 +223,30 @@ function TinderPageContent() {
     ) {
       console.log('[자동이동 useEffect] 조건 만족! Promise.all 시작');
       Promise.all(votePromises).then(() => {
-        console.log('[자동이동 useEffect] 모든 POST 요청 완료! router.push 실행');
+        console.log('[자동이동 useEffect] 모든 POST 요청 완료! 5초 대기 후 이동');
         setShowResultButton(true);
-        router.push(`/live-results/${groupId}`);
       }).catch((err) => {
         console.error('[자동이동 useEffect] Promise.all 에러:', err);
+        setShowResultButton(true);
       });
     }
   }, [currentCardIndex, candidates.length, votePromises, groupId, loading, router]);
+
+  // 투표 완료 화면이 렌더링된 후 5초 대기
+  useEffect(() => {
+    if (currentCardIndex >= candidates.length && candidates.length > 0) {
+      console.log('[투표완료 화면] 5초 타이머 시작');
+      const timer = setTimeout(() => {
+        console.log('[투표완료 화면] 5초 경과, 결과 화면으로 이동');
+        router.push(`/live-results/${groupId}`);
+      }, 5000);
+      
+      return () => {
+        console.log('[투표완료 화면] 타이머 정리');
+        clearTimeout(timer);
+      };
+    }
+  }, [currentCardIndex, candidates.length, groupId, router]);
 
   useEffect(() => {
     // 3초마다 투표 완료 여부 확인 후 true면 바로 live-results로 이동
@@ -410,7 +426,7 @@ function TinderPageContent() {
                   marginBottom: '24px'
                 }}>
                   모든 투표가 서버에 반영되면<br/>
-                  결과 화면으로 이동할 수 있습니다.
+                  잠시 후 자동으로 결과 화면으로 이동합니다.
                 </p>
               </div>
             </div>
