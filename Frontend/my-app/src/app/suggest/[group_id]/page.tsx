@@ -576,24 +576,29 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         )}
 
         {/* 하단 버튼 위에 랜덤 룰렛 돌리기 버튼/모달 추가 */}
-        {!directTabLoading && !deliveryTabLoading && (
+        {((activeTab === 'direct' && hasSectorSearchCompleted) || 
+          (activeTab === 'delivery' && hasDeliveryDataLoaded) ||
+          (hasSectorSearchCompleted && hasDeliveryDataLoaded)) && (
           <div style={{ marginTop: 16, textAlign: 'center' }}>
-            <button
-              style={{
-                background: '#994d52',
-                color: '#fff',
-                fontSize: '18px',
-                padding: '10px 28px',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }}
+                          <button
+                style={{
+                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                  color: '#fff',
+                  fontSize: '18px',
+                  padding: '10px 28px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
               onClick={() => setShowRandomModal(true)}
             >
-              슬롯머신 돌리기
+              🎰 슬롯머신 돌리기 🎰
             </button>
           </div>
         )}
+
         {showRandomModal && (
           <SlotMachineRoulette
             groupId={groupId}

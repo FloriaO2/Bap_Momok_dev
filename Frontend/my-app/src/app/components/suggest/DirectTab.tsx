@@ -767,8 +767,15 @@ export default function DirectTab({
           </h3>
           
           {initialLoading ? (
-            <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
-              식당 정보 받아오는 중...
+            <div style={{ 
+              height: "calc(100vh - 800px)",
+              minHeight: "200px",
+              maxHeight: "400px",
+              overflowY: "auto"
+            }}>
+              <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+              식당 정보를 불러오고 있습니다...
+              </div>
             </div>
           ) : loading ? (
             <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>

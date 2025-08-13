@@ -46,7 +46,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   onClose,
   activeTab
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
@@ -255,7 +255,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   const fetchAllRestaurants = async () => {
     if (!groupData) return;
 
-    setIsLoading(true);
+    setIsLoading(false);
     const allRestaurants: Restaurant[] = [];
 
     try {
@@ -379,7 +379,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     } catch (error) {
       console.error('식당 정보 가져오기 오류:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(true);
     }
   };
 
@@ -603,7 +603,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     return false;
   };
 
-  if (isLoading) {
+  if (!isLoading) {
     return (
       <div className={styles.modal}>
         <div className={styles.container}>
@@ -611,7 +611,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             <button 
               className={styles.refreshButton} 
               onClick={refreshRestaurants}
-              disabled={isLoading}
+              disabled={!isLoading}
               title="후보 새로고침"
             >
               🔄
@@ -691,7 +691,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             <button
               className={`${styles.spinButton} ${isSpinning ? styles.spinning : ''}`}
               onClick={showResult ? handleSpinAgain : handleSpin}
-              disabled={isSpinning || restaurants.length === 0}
+              disabled={isSpinning || restaurants.length === 0 || !isLoading}
             >
               {isSpinning ? '돌리는 중...' : showResult ? '다시 돌리기' : 'GO!'}
             </button>
