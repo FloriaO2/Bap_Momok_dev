@@ -239,7 +239,7 @@ function TinderPageContent() {
       const timer = setTimeout(() => {
         console.log('[투표완료 화면] 5초 경과, 결과 화면으로 이동');
         router.push(`/live-results/${groupId}`);
-      }, 5000);
+      }, 3000);
       
       return () => {
         console.log('[투표완료 화면] 타이머 정리');
