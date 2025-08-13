@@ -514,19 +514,19 @@ function TinderPageContent() {
             <div className={styles.directionGrid}>
               {/* 상단 */}
               <div className={styles.directionItem} style={{ gridArea: 'top' }}>
+              <div className={styles.directionText}>쏘쏘</div>
                 <div className={styles.directionText}>⬆️</div>
-                <div className={styles.directionText}>쏘쏘</div>
               </div>
               
               {/* 중앙 */}
               <div className={styles.directionItem} style={{ gridArea: 'center' }}>
-                <div className={styles.directionText}>⬅️ 싫어요&nbsp;&nbsp;&nbsp;&nbsp;좋아요 ➡️</div>
+                <div className={styles.directionText}>싫어요 ⬅️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;➡️ 좋아요</div>
               </div>
               
               {/* 하단 */}
               <div className={styles.directionItem} style={{ gridArea: 'bottom' }}>
+              <div className={styles.directionText}>⬇️</div>
                 <div className={styles.directionText}>안돼</div>
-                <div className={styles.directionText}>⬇️</div>
               </div>
             </div>
           </div>
@@ -564,31 +564,52 @@ function TinderPageContent() {
               background: "#fff", borderRadius: 12, width: "90vw", maxWidth: 600, height: "80vh", position: "relative", padding: 0, textAlign: 'center', overflow: 'hidden'
             }}
           >
-            <button
-              onClick={() => setModalOpen(false)}
-              style={{
-                position: "absolute", top: 10, right: 10, background: "none", border: "none", fontSize: 24, cursor: "pointer", zIndex: 2
-              }}
-            >✕</button>
-            {modalInfo.type === 'kakao' ? (
-              <iframe
-                src={modalInfo.url}
-                style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
-                title="카카오 플레이스"
-              />
-            ) : modalInfo.type === 'yogiyo' ? (
-              <>
-                <div style={{fontWeight:'bold', marginBottom:8}}>요기요</div>
-                <a href={modalInfo.url} target="_blank" rel="noopener noreferrer" style={{color:'#994d52', wordBreak:'break-all'}}>{modalInfo.label}</a>
-              </>
-            ) : modalInfo.type === 'custom' ? (
-              <>
-                <div style={{fontWeight:'bold', marginBottom:8}}>커스텀 링크</div>
-                <a href={modalInfo.url} target="_blank" rel="noopener noreferrer" style={{color:'#994d52', wordBreak:'break-all'}}>{modalInfo.label}</a>
-              </>
-            ) : (
-              <div>{modalInfo.label}</div>
-            )}
+            {/* 헤더 */}
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "40px",
+              background: "#f8f9fa",
+              borderBottom: "1px solid #e9ecef",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "end",
+              padding: "0 20px",
+              zIndex: 3,
+              borderTopLeftRadius: 12,
+              borderTopRightRadius: 12
+            }}>
+
+              <button
+                onClick={() => setModalOpen(false)}
+                style={{
+                  background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#666", padding: "5px"
+                }}
+              >✕</button>
+            </div>
+            <div style={{ marginTop: "20px", height: "calc(100% - 20px)", padding: "20px" }}>
+              {modalInfo.type === 'kakao' ? (
+                <iframe
+                  src={modalInfo.url}
+                  style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
+                  title="카카오 플레이스"
+                />
+              ) : modalInfo.type === 'yogiyo' ? (
+                <>
+                  <div style={{fontWeight:'bold', marginBottom:8}}>요기요</div>
+                  <a href={modalInfo.url} target="_blank" rel="noopener noreferrer" style={{color:'#994d52', wordBreak:'break-all'}}>{modalInfo.label}</a>
+                </>
+              ) : modalInfo.type === 'custom' ? (
+                <>
+                  <div style={{fontWeight:'bold', marginBottom:8}}>커스텀 링크</div>
+                  <a href={modalInfo.url} target="_blank" rel="noopener noreferrer" style={{color:'#994d52', wordBreak:'break-all'}}>{modalInfo.label}</a>
+                </>
+              ) : (
+                <div>{modalInfo.label}</div>
+              )}
+            </div>
           </div>
         </div>
       )}

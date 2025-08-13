@@ -109,10 +109,11 @@
 .cardContainer {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   height: 100%;
   padding: 20px;
+  padding-top: 15vh;
 }
 
 .card {
@@ -225,7 +226,7 @@
 
 .directionContainer {
   position: absolute;
-  bottom: 105px;
+  bottom: 15vh;
   left: 0;
   right: 0;
   display: flex;
@@ -239,9 +240,9 @@
     ". top ."
     "left center right"
     ". bottom .";
-  grid-template-columns: 80px 120px 80px;
-  grid-template-rows: 30px 30px 30px;
-  gap: 5px;
+  grid-template-columns: 1vh 25vh 1vh;
+  grid-template-rows: 3vh 5vh 3vh;
+  gap: 1vh;
   align-items: center;
   justify-items: center;
 }
@@ -251,19 +252,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 0.5vh;
 }
 
 .directionText {
   color: white;
-  font-size: 12px;
+  font-size: 1.7vh;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   line-height: 1.2;
 }
 
 .instructionContainer {
   position: absolute;
-  bottom: 60px;
+  bottom: 7vh;
   left: 0;
   right: 0;
   text-align: center;
@@ -271,7 +272,7 @@
 
 .instructionText {
   color: white;
-  font-size: 14px;
+  font-size: 2vh;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
@@ -335,6 +336,10 @@
   
   .cardTitle {
     font-size: 20px;
+  }
+  
+  .cardContainer {
+    padding-top: 30vh;
   }
   
   .card {
