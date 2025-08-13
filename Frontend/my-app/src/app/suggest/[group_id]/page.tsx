@@ -576,9 +576,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         )}
 
         {/* 하단 버튼 위에 랜덤 룰렛 돌리기 버튼/모달 추가 */}
-        {((activeTab === 'direct' && hasSectorSearchCompleted) || 
-          (activeTab === 'delivery' && hasDeliveryDataLoaded) ||
-          (hasSectorSearchCompleted && hasDeliveryDataLoaded)) && (
+        {((activeTab === 'direct' && hasSectorSearchCompleted && sectorSearchResults.length > 0) || 
+          (activeTab === 'delivery' && hasDeliveryDataLoaded && deliveryRestaurants.length > 0) ||
+          (hasSectorSearchCompleted && hasDeliveryDataLoaded && (sectorSearchResults.length > 0 || deliveryRestaurants.length > 0))) && (
           <div style={{ marginTop: 16, textAlign: 'center' }}>
                           <button
                 style={{
