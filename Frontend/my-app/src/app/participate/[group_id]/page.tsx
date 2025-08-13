@@ -86,6 +86,8 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
   };
 
   const [groupNotFound, setGroupNotFound] = useState(false);
+  const [shouldGoToVote, setShouldGoToVote] = useState(false);
+  const [voteMessage, setVoteMessage] = useState("");
 
   // 그룹 데이터 가져오기
   useEffect(() => {
@@ -138,11 +140,33 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
         const result = await response.json();
         if (result.participant_id) {
           sessionStorage.setItem(`participant_id_${groupId}`, result.participant_id);
+          
+          // 기존 멤버들의 후보 추천 완료 상태 확인
+          const participantsResponse = await fetch(`${backendUrl}/groups/${groupId}`);
+          const groupData = await participantsResponse.json();
+          const existingParticipants = groupData.participants || {};
+          
+          // 기존 멤버가 있고, 모든 기존 멤버가 후보 추천을 완료했는지 확인
+          const existingParticipantIds = Object.keys(existingParticipants).filter(id => id !== result.participant_id);
+          const allExistingCompleted = existingParticipantIds.length > 0 && 
+            existingParticipantIds.every(id => existingParticipants[id]?.suggest_complete);
+          
+          if (allExistingCompleted) {
+            console.log('기존 멤버들이 모두 후보 추천을 완료했습니다. 자동으로 후보 추천 완료 상태로 변경합니다.');
+            // 자동으로 후보 추천 완료 상태로 변경
+            await fetch(`${backendUrl}/groups/${groupId}/participants/${result.participant_id}/suggest-complete`, {
+              method: 'POST'
+            });
+            setShouldGoToVote(true);
+            setVoteMessage("기존 멤버들이 모두 후보 추천을 완료했습니다.\n투표 화면으로 이동할 수 있습니다.");
+          }
+          
           setShowNicknameModal(false);
         } else {
           alert("참가 등록 실패");
         }
       } catch (e) {
+        console.error("참가 등록 중 오류:", e);
         alert("에러 발생");
       } finally {
         setIsSubmitting(false);
@@ -611,11 +635,40 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
               </div>
             </div>
 
-            {/* 제안하러 가기 버튼 */}
+            {/* 안내 메시지 */}
+            {voteMessage && (
+              <div style={{
+                background: "#e8f5e8",
+                border: "1px solid #4caf50",
+                borderRadius: "12px",
+                padding: "15px",
+                marginBottom: "15px",
+                textAlign: "center",
+                fontSize: "14px",
+                color: "#2e7d32",
+                lineHeight: "1.5",
+                whiteSpace: "pre-line"
+              }}>
+                {voteMessage.split('\n').map((line, index) => (
+                  <React.Fragment key={index}>
+                    {line}
+                    {index < voteMessage.split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+
+            {/* 버튼 */}
             <button
-              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/suggest/${groupId}`}
+              onClick={() => {
+                if (shouldGoToVote) {
+                  window.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/tinder?group_id=${groupId}`;
+                } else {
+                  window.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/suggest/${groupId}`;
+                }
+              }}
               style={{ 
-                background: "#dc3545", 
+                background: shouldGoToVote ? "#28a745" : "#dc3545", 
                 color: "#fff", 
                 border: "none", 
                 borderRadius: "25px", 
@@ -624,19 +677,19 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                 fontWeight: "bold", 
                 cursor: "pointer",
                 width: "100%",
-                boxShadow: "0 4px 15px rgba(220, 53, 69, 0.3)",
+                boxShadow: shouldGoToVote ? "0 4px 15px rgba(40, 167, 69, 0.3)" : "0 4px 15px rgba(220, 53, 69, 0.3)",
                 transition: "all 0.3s ease"
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.background = "#c82333";
+                e.currentTarget.style.background = shouldGoToVote ? "#218838" : "#c82333";
                 e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.background = "#dc3545";
+                e.currentTarget.style.background = shouldGoToVote ? "#28a745" : "#dc3545";
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              제안하러 가기
+              {shouldGoToVote ? "투표하러 가기" : "제안하러 가기"}
             </button>
           </div>
         )}
