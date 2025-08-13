@@ -460,7 +460,7 @@ function TinderPageContent() {
           
           {/* 카드 컨테이너 */}
           <div className={styles.cardContainer}>
-            <div style={{width: 320, margin: '0 auto'}}>
+            <div style={{width: '80vh', margin: '0 auto'}}>
               <div style={{display:'flex', justifyContent:'center', marginBottom: 12}}>
                 <button
                   onClick={() => handleCardClick(currentCandidate)}
