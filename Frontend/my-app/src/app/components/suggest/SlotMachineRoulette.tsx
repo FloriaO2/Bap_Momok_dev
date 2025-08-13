@@ -36,6 +36,7 @@ interface SlotMachineRouletteProps {
   onAddCandidate: (candidate: Restaurant) => void;
   onClose: () => void;
   activeTab: 'direct' | 'delivery'; // 추가된 prop
+  filteredRestaurants?: Restaurant[]; // 필터링된 식당 데이터
 }
 
 const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({ 
@@ -44,7 +45,8 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   registeredYogiyoIds = [],
   onAddCandidate, 
   onClose,
-  activeTab
+  activeTab,
+  filteredRestaurants
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -67,6 +69,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
   // 전체 식당 데이터를 저장할 새로운 state 추가
   const [allRestaurantsData, setAllRestaurantsData] = useState<Restaurant[]>([]);
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  
+  // 슬롯머신 내부 전용 로딩 상태 (외부 isLoading과 반대로 작동)
+  const [isSlotMachineReady, setIsSlotMachineReady] = useState(false);
+  
+  // 새로고침 버튼 전용 상태
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // URL 정규화 함수 - 끝에 슬래시 제거
   const normalizeUrl = (url: string) => {
@@ -81,16 +89,18 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       return allRestaurants;
     }
 
-    // 모든 식당이 이전 후보에 들어가있는지 확인
-    const allRestaurantIds = new Set(allRestaurants.map(r => r.id));
-    const allUsed = allRestaurantIds.size > 0 && 
-                   [...allRestaurantIds].every(id => previousCandidates.has(Number(id)));
+    // 필터링된 모든 식당이 이전 후보에 들어가있는지 확인
+    const filteredRestaurantIds = new Set(allRestaurants.map(r => r.id));
+    const allUsed = filteredRestaurantIds.size > 0 && 
+                   [...filteredRestaurantIds].every(id => previousCandidates.has(Number(id)));
     
-    // 모든 식당이 이전 후보라면 previousCandidates 리셋
-    if (allUsed) {
-      console.log('모든 식당이 이전 후보에 포함되어 있습니다. previousCandidates를 리셋합니다.');
-      setPreviousCandidates(new Set());
-    }
+    console.log('🎰 previousCandidates 상태 확인:', {
+      filteredRestaurantsCount: allRestaurants.length,
+      previousCandidatesSize: previousCandidates.size,
+      allUsed: allUsed
+    });
+    
+
 
     // 요기요의 경우 카테고리별로 그룹화하여 랜덤 선택
     if (activeTab === 'delivery') {
@@ -220,6 +230,53 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 식당 목록 새로고침 함수 (API 호출 없이 기존 데이터에서만 랜덤 선택)
   const refreshRestaurants = () => {
+    // 필터링된 데이터가 있으면 우선 사용
+    if (filteredRestaurants && filteredRestaurants.length > 0) {
+      console.log('필터링된 데이터에서 새로운 후보를 선택합니다.');
+      setIsRefreshing(true);
+      setShowResult(false);
+      setSelectedRestaurant(null);
+      setCurrentIndex(0);
+      currentIndexRef.current = 0;
+      
+      // 필터링된 데이터에서 20개 랜덤 선택
+      const selectedRestaurants = selectRandomRestaurants(filteredRestaurants, 20);
+
+      // previousCandidates 상태 확인
+      let currentPreviousCandidates = new Set(previousCandidates);
+      
+      // 모든 필터링된 식당이 이전 후보에 포함되어 있는지 확인
+      const allUsed = filteredRestaurants.length > 0 && 
+                     filteredRestaurants.every(restaurant => currentPreviousCandidates.has(Number(restaurant.id)));
+      
+      if (allUsed) {
+        console.log('🔄 필터링된 모든 식당이 이전 후보에 포함되어 있습니다. previousCandidates를 리셋합니다.');
+        currentPreviousCandidates = new Set();
+      }
+
+      // 선택된 후보들을 이전 후보 목록에 추가
+      selectedRestaurants.forEach(restaurant => {
+        currentPreviousCandidates.add(Number(restaurant.id));
+      });
+      setPreviousCandidates(currentPreviousCandidates);
+      
+      console.log('🎰 previousCandidates 업데이트 (새로고침):', {
+        beforeSize: previousCandidates.size,
+        afterSize: currentPreviousCandidates.size,
+        addedCount: selectedRestaurants.length,
+        wasReset: allUsed
+      });
+
+      console.log(`새로운 후보 목록 (${activeTab} 탭, 필터링됨):`, selectedRestaurants);
+      console.log('총 식당 수:', selectedRestaurants.length);
+      console.log('카카오맵 식당 수:', selectedRestaurants.filter(r => r.type === 'kakao').length);
+      console.log('요기요 식당 수:', selectedRestaurants.filter(r => r.type === 'yogiyo').length);
+      setRestaurants(selectedRestaurants);
+      setIsSlotMachineReady(true);
+      setIsRefreshing(false);
+      return;
+    }
+
     if (!isInitialDataLoaded || allRestaurantsData.length === 0) {
       console.log('초기 데이터가 로드되지 않았거나 데이터가 없습니다. API 호출을 진행합니다.');
       fetchAllRestaurants();
@@ -227,7 +284,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     }
 
     console.log('기존 데이터에서 새로운 후보를 선택합니다.');
-    setIsLoading(true);
+    setIsRefreshing(true);
     setShowResult(false);
     setSelectedRestaurant(null);
     setCurrentIndex(0);
@@ -243,12 +300,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     });
     setPreviousCandidates(newPreviousCandidates);
 
-    console.log(`새로운 후보 목록 (${activeTab} 탭):`, selectedRestaurants);
-    console.log('총 식당 수:', selectedRestaurants.length);
-    console.log('카카오맵 식당 수:', selectedRestaurants.filter(r => r.type === 'kakao').length);
-    console.log('요기요 식당 수:', selectedRestaurants.filter(r => r.type === 'yogiyo').length);
-    setRestaurants(selectedRestaurants);
-    setIsLoading(false);
+      console.log(`새로운 후보 목록 (${activeTab} 탭):`, selectedRestaurants);
+      console.log('총 식당 수:', selectedRestaurants.length);
+      console.log('카카오맵 식당 수:', selectedRestaurants.filter(r => r.type === 'kakao').length);
+      console.log('요기요 식당 수:', selectedRestaurants.filter(r => r.type === 'yogiyo').length);
+      setRestaurants(selectedRestaurants);
+      setIsSlotMachineReady(true);
   };
 
   // 전체 식당 데이터를 가져오는 함수 (초기 로드용)
@@ -327,6 +384,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       }
 
       // 배달 탭인 경우 요기요 API로 전체 데이터 가져오기
+      // 배달 탭인 경우 요기요 API로 전체 데이터 가져오기
       if (activeTab === 'delivery' && groupData.delivery) {
         console.log('배달 탭: 요기요 API 전체 데이터 가져오기 시작');
         try {
@@ -370,6 +428,12 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
         newPreviousCandidates.add(Number(restaurant.id));
       });
       setPreviousCandidates(newPreviousCandidates);
+      
+      console.log('🎰 previousCandidates 업데이트 (최종):', {
+        beforeSize: previousCandidates.size,
+        afterSize: newPreviousCandidates.size,
+        addedCount: selectedRestaurants.length
+      });
 
       console.log(`최종 식당 목록 (${activeTab} 탭):`, selectedRestaurants);
       console.log('총 식당 수:', selectedRestaurants.length);
@@ -379,7 +443,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     } catch (error) {
       console.error('식당 정보 가져오기 오류:', error);
     } finally {
-      setIsLoading(true);
+      setIsSlotMachineReady(true);
     }
   };
 
@@ -432,8 +496,47 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 식당 정보 가져오기 (초기 로드)
   useEffect(() => {
+    console.log('🎰 슬롯머신 초기화 시작');
+    console.log('🔍 filteredRestaurants:', filteredRestaurants);
+    console.log('🔍 activeTab:', activeTab);
+    console.log('🔍 groupData:', groupData);
+    
+    // 필터링된 데이터가 있으면 우선 사용
+    if (filteredRestaurants && filteredRestaurants.length > 0) {
+      console.log('✅ 필터링된 데이터를 사용하여 슬롯머신 초기화');
+      console.log('📊 필터링된 데이터 개수:', filteredRestaurants.length);
+      console.log('📊 필터링된 데이터 샘플:', filteredRestaurants.slice(0, 3));
+      
+      // 필터링된 데이터에 type 필드 추가
+      const processedRestaurants = filteredRestaurants.map((restaurant: any) => ({
+        ...restaurant,
+        type: 'kakao' // 직접가기 탭에서는 모두 카카오맵 데이터
+      }));
+      
+      const selectedRestaurants = selectRandomRestaurants(processedRestaurants, 20);
+      
+      // 선택된 후보들을 이전 후보 목록에 추가 (selectRandomRestaurants에서 이미 처리됨)
+      console.log('🎰 previousCandidates 업데이트 (새로고침):', {
+        beforeSize: previousCandidates.size,
+        afterSize: previousCandidates.size + selectedRestaurants.length,
+        addedCount: selectedRestaurants.length
+      });
+      
+      console.log('🎰 previousCandidates 업데이트 (초기):', {
+        beforeSize: previousCandidates.size,
+        afterSize: previousCandidates.size + selectedRestaurants.length,
+        addedCount: selectedRestaurants.length
+      });
+
+      console.log(`✅ 초기 후보 목록 (${activeTab} 탭, 필터링됨):`, selectedRestaurants);
+      setRestaurants(selectedRestaurants);
+      setIsSlotMachineReady(true);
+      return;
+    }
+
+    console.log('⚠️ 필터링된 데이터가 없어서 전체 데이터를 가져옵니다.');
     fetchAllRestaurants();
-  }, [groupData, BACKEND_URL, activeTab]); // activeTab을 의존성 배열에 추가
+  }, [groupData, BACKEND_URL, activeTab, filteredRestaurants]); // filteredRestaurants를 의존성 배열에 추가
 
     // 슬롯머신 돌리기
   const handleSpin = () => {
@@ -528,15 +631,55 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
+
+
   // 후보에 추가하기
   const handleAddCandidate = () => {
     console.log('🎰 슬롯머신에서 후보 추가 시작');
     console.log('📊 선택된 식당:', selectedRestaurant);
+    console.log('🔍 선택된 식당 타입:', selectedRestaurant?.type);
+    console.log('🔍 activeTab:', activeTab);
     console.log('🔗 onAddCandidate 함수:', onAddCandidate);
     
     if (selectedRestaurant) {
       console.log('✅ 후보 추가 함수 호출');
-      onAddCandidate(selectedRestaurant);
+      
+      // 상위 컴포넌트가 기대하는 형식으로 데이터 변환
+              console.log('🔍 조건 확인:', {
+          selectedRestaurantType: selectedRestaurant.type,
+          activeTab: activeTab,
+          condition1: selectedRestaurant.type === 'kakao',
+          condition2: (!selectedRestaurant.type && activeTab === 'direct'),
+          result: selectedRestaurant.type === 'kakao' || (!selectedRestaurant.type && activeTab === 'direct')
+        });
+        
+        if (selectedRestaurant.type === 'kakao' || (!selectedRestaurant.type && activeTab === 'direct')) {
+        // 카카오맵 데이터를 직접가기탭과 동일한 방식으로 전달
+        const kakaoData = (selectedRestaurant as any).detail || selectedRestaurant;
+        console.log('🎯 슬롯머신 카카오 데이터 변환:', kakaoData);
+        onAddCandidate(kakaoData as any);
+      } else if (selectedRestaurant.type === 'yogiyo' || (!selectedRestaurant.type && activeTab === 'delivery')) {
+        // 요기요 데이터 형식으로 변환 (배달탭과 동일한 구조)
+        const yogiyoData = {
+          // 원본 데이터의 모든 필드를 먼저 포함
+          ...selectedRestaurant,
+          // 필요한 필드들을 올바른 이름으로 덮어쓰기
+          id: (selectedRestaurant as any).id,
+          name: (selectedRestaurant as any).name,
+          categories: (selectedRestaurant as any).categories || [],
+          estimated_delivery_time: (selectedRestaurant as any).estimated_delivery_time || '',
+          thumbnail_url: (selectedRestaurant as any).thumbnail_url || '',
+          review_avg: (selectedRestaurant as any).review_avg || 0,
+          review_count: (selectedRestaurant as any).review_count || 0,
+          address: (selectedRestaurant as any).address,
+          yogiyo_id: (selectedRestaurant as any).id
+        };
+        console.log('🎯 슬롯머신 요기요 데이터 변환:', yogiyoData);
+        onAddCandidate(yogiyoData);
+      } else {
+        console.log('❌ 알 수 없는 타입의 후보입니다.');
+      }
+      
       console.log('✅ 후보 추가 함수 호출 완료');
     } else {
       console.log('❌ 선택된 식당이 없음');
@@ -553,21 +696,29 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 카카오맵 상세정보 모달 열기
   const handleInfoClick = (restaurant: Restaurant) => {
-    if (restaurant.type === 'kakao' && restaurant.detail?.id) {
-      setModalUrl(`https://place.map.kakao.com/${restaurant.detail.id}`);
+    console.log('🔍 카카오맵 클릭:', restaurant);
+    const kakaoId = (restaurant as any).detail?.id || (restaurant as any).id || restaurant.id;
+    if (restaurant.type === 'kakao' && kakaoId) {
+      console.log('🔗 카카오맵 URL 생성:', `https://place.map.kakao.com/${kakaoId}`);
+      setModalUrl(`https://place.map.kakao.com/${kakaoId}`);
       setModalOpen(true);
+    } else {
+      console.log('❌ 카카오맵 ID를 찾을 수 없음');
     }
   };
 
   // 요기요 메뉴 모달 열기
   const handleMenuClick = async (restaurant: Restaurant) => {
-    if (restaurant.type === 'yogiyo') {
+    console.log('🔍 요기요 클릭:', restaurant);
+    const yogiyoId = (restaurant as any).detail?.yogiyo_id || (restaurant as any).id || restaurant.id;
+    if (restaurant.type === 'yogiyo' && yogiyoId) {
+      console.log('🔗 요기요 메뉴 요청:', `${BACKEND_URL}/yogiyo-menu/${yogiyoId}`);
       setMenuModalOpen(true);
       setMenuLoading(true);
       setMenuError(null);
       setMenuList([]);
       try {
-        const res = await fetch(`${BACKEND_URL}/yogiyo-menu/${restaurant.id}`);
+        const res = await fetch(`${BACKEND_URL}/yogiyo-menu/${yogiyoId}`);
         if (!res.ok) throw new Error("메뉴 정보를 불러올 수 없습니다");
         const data = await res.json();
         setMenuList(data.menus || []);
@@ -576,15 +727,25 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       } finally {
         setMenuLoading(false);
       }
+    } else {
+      console.log('❌ 요기요 ID를 찾을 수 없음');
     }
   };
 
   // 결과 컨테이너 클릭 핸들러
   const handleResultClick = (restaurant: Restaurant) => {
+    console.log('🎯 결과 컨테이너 클릭됨!');
+    console.log('📊 클릭된 식당:', restaurant);
+    console.log('🔍 식당 타입:', restaurant.type);
+    
     if (restaurant.type === 'kakao') {
+      console.log('🍽️ 카카오맵 클릭 처리');
       handleInfoClick(restaurant);
     } else if (restaurant.type === 'yogiyo') {
+      console.log('🍕 요기요 클릭 처리');
       handleMenuClick(restaurant);
+    } else {
+      console.log('❌ 알 수 없는 타입:', restaurant.type);
     }
   };
 
@@ -603,7 +764,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
     return false;
   };
 
-  if (!isLoading) {
+  if (!isSlotMachineReady) {
     return (
       <div className={styles.modal}>
         <div className={styles.container}>
@@ -611,7 +772,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             <button 
               className={styles.refreshButton} 
               onClick={refreshRestaurants}
-              disabled={!isLoading}
+              disabled={isRefreshing}
               title="후보 새로고침"
             >
               🔄
@@ -652,7 +813,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
           <div className={styles.wheelContainer}>
             <div className={styles.wheelWrapper}>
               <div className={styles.slotMachineContainer}>
-                {restaurants.map((restaurant, index) => {
+                {restaurants.map((restaurant: any, index) => {
                   // 현재 인덱스 기준으로 위치 계산
                   const position = (index - currentIndex + restaurants.length) % restaurants.length;
                   let className = styles.slotMachineItem;
@@ -681,7 +842,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
                       className={className}
                       style={style}
                     >
-                      {restaurant.name}
+                      {restaurant.name || restaurant.place_name || restaurant.restaurant_name || '이름 없음'}
                     </div>
                   );
                 })}
@@ -691,7 +852,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             <button
               className={`${styles.spinButton} ${isSpinning ? styles.spinning : ''}`}
               onClick={showResult ? handleSpinAgain : handleSpin}
-              disabled={isSpinning || restaurants.length === 0 || !isLoading}
+              disabled={isSpinning || restaurants.length === 0 || !isSlotMachineReady}
             >
               {isSpinning ? '돌리는 중...' : showResult ? '다시 돌리기' : 'GO!'}
             </button>
@@ -700,12 +861,22 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
           {showResult && selectedRestaurant && (
             <div 
               className={styles.resultContainer}
-              onClick={() => handleResultClick(selectedRestaurant)}
-              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                console.log('🎯 결과 컨테이너 div 클릭됨!');
+                handleResultClick(selectedRestaurant);
+              }}
+              style={{ 
+                cursor: 'pointer',
+                border: '2px solid #ddd',
+                position: 'relative',
+                zIndex: 10
+              }}
             >
               <h2>🎉 당첨! 🎉</h2>
               <div className={styles.selectedRestaurant}>
-                <span className={styles.restaurantName}>{selectedRestaurant.name}</span>
+                <span className={styles.restaurantName}>
+                  {(selectedRestaurant as any).name || (selectedRestaurant as any).place_name || (selectedRestaurant as any).restaurant_name || '이름 없음'}
+                </span>
                 <span className={styles.restaurantType}>
                   {selectedRestaurant.type === 'kakao' ? '🍽️ 카카오맵' : '🍕 요기요'}
                 </span>

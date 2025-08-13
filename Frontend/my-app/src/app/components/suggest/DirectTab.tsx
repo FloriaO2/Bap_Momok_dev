@@ -22,6 +22,8 @@ interface DirectTabProps {
   hasSectorSearchCompleted: boolean;
   setHasSectorSearchCompleted: React.Dispatch<React.SetStateAction<boolean>>;
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+  setFilteredResults?: React.Dispatch<React.SetStateAction<any[]>>; // 필터링된 결과를 상위로 전달
+  setSlotMachineResults?: React.Dispatch<React.SetStateAction<any[]>>; // 슬롯머신용 필터링된 결과를 상위로 전달
 }
 
 declare global {
@@ -39,7 +41,9 @@ export default function DirectTab({
   setSectorSearchResults,
   hasSectorSearchCompleted,
   setHasSectorSearchCompleted,
-  setLoading
+  setLoading,
+  setFilteredResults,
+  setSlotMachineResults
 }: DirectTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLocalLoading] = useState(false);
@@ -59,6 +63,15 @@ export default function DirectTab({
   const [hasMoreResults, setHasMoreResults] = useState(true);
   const ITEMS_PER_PAGE = 25;
 
+  // 카페, 디저트 제외 필터 상태
+  const [excludeCafeDessert, setExcludeCafeDessert] = useState(false);
+
+  // 필터링된 결과 상태
+  const [localFilteredResults, setLocalFilteredResults] = useState<any[]>([]);
+  
+  // 슬롯머신용 필터링된 전체 결과 (검색 결과와 무관하게 카페,디저트 필터만 적용)
+  const [slotMachineFilteredResults, setSlotMachineFilteredResults] = useState<any[]>([]);
+
   // 스크롤 위치 저장용 ref와 state
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollPos, setScrollPos] = useState<number | null>(null);
@@ -69,6 +82,50 @@ export default function DirectTab({
   };
 
   const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
+
+  // 카페, 디저트 카테고리 필터링 함수
+  const filterCafeDessert = (restaurant: any) => {
+    if (!excludeCafeDessert) return true; // 필터가 꺼져있으면 모든 식당 표시
+    
+    if (!restaurant.category_name) return true; // 카테고리 정보가 없으면 표시
+    
+    const categories = restaurant.category_name.split('>').map((cat: string) => cat.trim());
+    if (categories.length < 2) return true; // 카테고리가 2개 미만이면 표시
+    
+    const secondCategory = categories[1]; // 음식점 다음 카테고리 (예: "카페,디저트")
+    
+    // 제외할 카테고리 목록
+    const excludeCategories = [
+      '카페,디저트',
+      '제과,베이커리',
+      '간식',
+      '아이스크림',
+      '아이스크림판매점',
+      '떡,한과'
+    ];
+    
+    return !excludeCategories.includes(secondCategory);
+  };
+
+  // 카페, 디저트 제외 필터 변경 시 스크롤 맨 위로 이동 및 슬롯머신용 결과 업데이트
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+    
+    // 슬롯머신용 필터링된 결과 업데이트
+    if (sectorSearchResults.length > 0) {
+      const slotMachineFiltered = sectorSearchResults.filter(filterCafeDessert);
+      setSlotMachineFilteredResults(slotMachineFiltered);
+      
+      // 상위 컴포넌트로 슬롯머신용 결과 전달
+      if (setSlotMachineResults) {
+        setSlotMachineResults(slotMachineFiltered);
+      }
+      
+      console.log(`🎰 슬롯머신용 필터링 결과 업데이트: ${sectorSearchResults.length}개 → ${slotMachineFiltered.length}개`);
+    }
+  }, [excludeCafeDessert, sectorSearchResults]);
 
   // 지도가 준비되면 인스턴스 저장
   const handleMapReady = (mapInstance: any) => {
@@ -292,6 +349,16 @@ export default function DirectTab({
       setInitialLoading(false);
       setSearchResults(allRestaurants);
       setSectorSearchResults(allRestaurants); // 부채꼴 검색 결과 저장
+      
+      // 슬롯머신용 필터링된 결과 업데이트 (카페,디저트 필터만 적용)
+      const slotMachineFiltered = allRestaurants.filter(filterCafeDessert);
+      setSlotMachineFilteredResults(slotMachineFiltered);
+      
+      // 상위 컴포넌트로 슬롯머신용 결과 전달
+      if (setSlotMachineResults) {
+        setSlotMachineResults(slotMachineFiltered);
+      }
+      
       setHasSectorSearchCompleted(true); // 부채꼴 검색 완료 표시
       setLoading?.(false); // 상위 컴포넌트에 로딩 완료 알림
       
@@ -327,6 +394,28 @@ export default function DirectTab({
     console.log('🔍 최초 부채꼴 검색 실행');
     loadAllRestaurantsBySectors();
   }, [groupData]);
+
+  // 필터링 효과 적용
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      const filtered = searchResults.filter(filterCafeDessert);
+      setLocalFilteredResults(filtered);
+      
+      // 상위 컴포넌트로 필터링된 결과 전달
+      if (setFilteredResults) {
+        console.log('🔍 상위 컴포넌트로 필터링된 결과 전달:', filtered.length, '개');
+        setFilteredResults(filtered);
+      }
+      
+      // 페이지네이션 초기화
+      const initialDisplay = filtered.slice(0, ITEMS_PER_PAGE);
+      setDisplayedResults(initialDisplay);
+      setCurrentPage(1);
+      setHasMoreResults(filtered.length > ITEMS_PER_PAGE);
+      
+      console.log(`🔍 필터링 결과: ${searchResults.length}개 → ${filtered.length}개`);
+    }
+  }, [searchResults, excludeCafeDessert, setFilteredResults]);
 
 
 
@@ -415,7 +504,7 @@ export default function DirectTab({
         setCurrentPage(1);
         setHasMoreResults(sectorSearchResults.length > ITEMS_PER_PAGE);
         setShowSearchResults(true);
-        setIsEnd(false); // 더보기 버튼 표시
+        setIsEnd(sectorSearchResults.length <= ITEMS_PER_PAGE); // 더보기 버튼 표시 여부
         console.log('🔍 저장된 부채꼴 검색 결과 사용:', sectorSearchResults.length, '개 식당');
       } else {
         // 저장된 결과가 없으면 부채꼴 검색 실행
@@ -541,7 +630,7 @@ export default function DirectTab({
           setPage(nextPage);
         }
         
-        setIsEnd(true); // 모든 부채꼴을 검색했으므로 더보기 버튼 숨김
+        setIsEnd(false); // 더보기 버튼 표시
         
         console.log('🔍 원형 분할 검색 완료:', allRestaurants.length, '개 식당');
       };
@@ -564,15 +653,15 @@ export default function DirectTab({
     if (searchTerm.trim() !== '') {
       handleSearch(false);
     } else {
-      // 부채꼴 검색 결과인 경우 페이지네이션 적용
+      // 부채꼴 검색 결과인 경우 페이지네이션 적용 (필터링된 결과 사용)
       const nextPage = currentPage + 1;
       const startIndex = (nextPage - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;
       
-      const newItems = searchResults.slice(startIndex, endIndex);
+      const newItems = localFilteredResults.slice(startIndex, endIndex);
       setDisplayedResults(prev => [...prev, ...newItems]);
       setCurrentPage(nextPage);
-      setHasMoreResults(endIndex < searchResults.length);
+      setHasMoreResults(endIndex < localFilteredResults.length);
       
       console.log(`🔍 더보기: ${newItems.length}개 추가, 총 ${displayedResults.length + newItems.length}개 표시`);
     }
@@ -747,6 +836,44 @@ export default function DirectTab({
         </button>
       </div>
 
+      {/* 필터 체크박스 */}
+      <div style={{ 
+        marginBottom: "15px", 
+        padding: "12px", 
+        background: "#f8f9fa", 
+        borderRadius: "8px",
+        border: "1px solid #e9ecef"
+      }}>
+        <label style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "8px", 
+          cursor: "pointer",
+          fontSize: "14px",
+          color: "#333"
+        }}>
+          <input
+            type="checkbox"
+            checked={excludeCafeDessert}
+            onChange={(e) => setExcludeCafeDessert(e.target.checked)}
+            style={{
+              width: "16px",
+              height: "16px",
+              cursor: "pointer"
+            }}
+          />
+          <span>☕ 카페, 디저트 제외</span>
+        </label>
+        <div style={{ 
+          fontSize: "12px", 
+          color: "#666", 
+          marginTop: "4px",
+          marginLeft: "24px"
+        }}>
+          체크 시 카페, 디저트, 베이커리, 아이스크림 등이 제외됩니다
+        </div>
+      </div>
+
       {/* 검색 결과 목록 */}
       {showSearchResults && (
         <div 
@@ -764,6 +891,16 @@ export default function DirectTab({
             marginBottom: "15px"
           }}>
             음식점 목록
+            {excludeCafeDessert && (
+              <span style={{ 
+                fontSize: "14px", 
+                fontWeight: "normal", 
+                color: "#666",
+                marginLeft: "8px"
+              }}>
+                (카페, 디저트 제외)
+              </span>
+            )}
           </h3>
           
           {initialLoading ? (
@@ -783,7 +920,7 @@ export default function DirectTab({
             </div>
           ) : displayedResults.length === 0 ? (
             <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
-              검색 결과가 없습니다
+              {excludeCafeDessert ? "필터링된 검색 결과가 없습니다" : "검색 결과가 없습니다"}
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>

@@ -22,6 +22,12 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   const [sectorSearchResults, setSectorSearchResults] = useState<any[]>([]);
   const [hasSectorSearchCompleted, setHasSectorSearchCompleted] = useState(false);
   
+  // 필터링된 결과를 상위 컴포넌트에서 관리
+  const [filteredDirectResults, setFilteredDirectResults] = useState<any[]>([]);
+  
+  // 슬롯머신용 필터링된 결과 (카페,디저트 필터만 적용)
+  const [slotMachineDirectResults, setSlotMachineDirectResults] = useState<any[]>([]);
+  
   // 배달 탭 식당 목록을 상위 컴포넌트에서 관리
   const [deliveryRestaurants, setDeliveryRestaurants] = useState<any[]>([]);
   const [hasDeliveryDataLoaded, setHasDeliveryDataLoaded] = useState(false);
@@ -558,6 +564,8 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             hasSectorSearchCompleted={hasSectorSearchCompleted}
             setHasSectorSearchCompleted={setHasSectorSearchCompleted}
             setLoading={setDirectTabLoading}
+            setFilteredResults={setFilteredDirectResults}
+            setSlotMachineResults={setSlotMachineDirectResults}
           />
         )}
         
@@ -577,22 +585,27 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
 
         {/* 하단 버튼 위에 랜덤 룰렛 돌리기 버튼/모달 추가 */}
         {((activeTab === 'direct' && hasSectorSearchCompleted && sectorSearchResults.length > 0) || 
-          (activeTab === 'delivery' && hasDeliveryDataLoaded && deliveryRestaurants.length > 0) ||
-          (hasSectorSearchCompleted && hasDeliveryDataLoaded && (sectorSearchResults.length > 0 || deliveryRestaurants.length > 0))) && (
+          (activeTab === 'delivery' && hasDeliveryDataLoaded && deliveryRestaurants.length > 0)) && (
           <div style={{ marginTop: 16, textAlign: 'center' }}>
-                          <button
-                style={{
-                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                  color: '#fff',
-                  fontSize: '18px',
-                  padding: '10px 28px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-              onClick={() => setShowRandomModal(true)}
+            <button
+              style={{
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: '#fff',
+                fontSize: '18px',
+                padding: '10px 28px',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onClick={() => {
+                console.log('🎰 슬롯머신 버튼 클릭');
+                console.log('🔍 activeTab:', activeTab);
+                console.log('🔍 filteredDirectResults:', filteredDirectResults);
+                console.log('🔍 filteredDirectResults.length:', filteredDirectResults.length);
+                setShowRandomModal(true);
+              }}
             >
               🎰 슬롯머신 돌리기 🎰
             </button>
@@ -605,19 +618,21 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             registeredKakaoIds={registeredKakaoIds}
             registeredYogiyoIds={registeredYogiyoIds}
             activeTab={activeTab}
+            filteredRestaurants={activeTab === 'direct' ? slotMachineDirectResults : undefined}
             onAddCandidate={async (candidate: any) => {
-              if (candidate.type === 'kakao') {
+              if (!candidate) {
+                showToast('후보 데이터가 없습니다.');
+                return;
+              }
+              if (candidate.type === 'kakao' || (activeTab === 'direct' && !candidate.type)) {
                 // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 kakao_data 형태로 변환
                 const kakaoData = {
-                  id: candidate.id,
-                  place_name: candidate.detail?.place_name || candidate.name,
-                  address_name: candidate.detail?.address_name || candidate.address,
-                  category_name: candidate.detail?.category_name || candidate.category,
-                  rating: candidate.detail?.rating || candidate.rating,
-                  phone: candidate.detail?.phone,
-                  road_address_name: candidate.detail?.road_address_name,
+                  kakao_id: candidate.id,
+                  name: candidate.place_name,
+                  addr: candidate.address_name,
+                  category: candidate.category_name,
                   // 원본 카카오맵 데이터의 모든 필드를 포함
-                  ...candidate.detail
+                  ...candidate
                 };
                 console.log('🎯 슬롯머신 카카오 데이터 변환:', kakaoData);
                 console.log('🔍 원본 카카오맵 데이터:', candidate.detail);
@@ -634,6 +649,8 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
                   review_avg: candidate.detail?.review_avg || 0,
                   review_count: candidate.detail?.review_count || 0,
                   address: candidate.detail?.address || candidate.address,
+                  category: candidate.detail?.categories || [],
+                  delivery_time: candidate.detail?.estimated_delivery_time || '',
                   ...candidate.detail  // 원본 데이터도 포함
                 };
                 await addYogiyoCandidate(yogiyoData);

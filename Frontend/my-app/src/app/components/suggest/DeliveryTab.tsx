@@ -110,7 +110,7 @@ export default function DeliveryTab({
       
       // 초기 표시 데이터 설정
       setRestaurants(allRestaurantsData);
-      setHasMore(false); // 전체 데이터는 더보기 불필요
+      setHasMore(allRestaurantsData.length > 20); // 20개 이상이면 더보기 버튼 표시
       
       console.log(`🍕 요기요 전체 데이터 로드 완료: 총 ${allRestaurantsData.length}개 식당`);
     } catch (error) {
