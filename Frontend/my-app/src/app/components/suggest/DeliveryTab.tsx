@@ -8,6 +8,11 @@ interface DeliveryTabProps {
   onAddCandidate?: (restaurant: any) => void;
   registeredCandidateIds?: number[];
   setLoading?: (loading: boolean) => void;
+  // 상위 컴포넌트에서 관리하는 데이터
+  deliveryRestaurants?: any[];
+  setDeliveryRestaurants?: (restaurants: any[]) => void;
+  hasDeliveryDataLoaded?: boolean;
+  setHasDeliveryDataLoaded?: (loaded: boolean) => void;
 }
 
 interface YogiyoRestaurant {
@@ -21,15 +26,22 @@ interface YogiyoRestaurant {
   is_open: boolean;
 }
 
-export default function DeliveryTab({ groupData, groupId, onAddCandidate, registeredCandidateIds = [], setLoading: setParentLoading }: DeliveryTabProps) {
-  // 기존 상태 제거 및 통합
-  // const [activeCategory, setActiveCategory] = useState('all');
-  // const [searchTerm, setSearchTerm] = useState('');
-  // const [pageNum, setPageNum] = useState(1);
-  // const [showSearchResults, setShowSearchResults] = useState(false);
-  // const [restaurants, setRestaurants] = useState<YogiyoRestaurant[]>([]);
-  // const [hasMore, setHasMore] = useState(true);
-
+export default function DeliveryTab({ 
+  groupData, 
+  groupId, 
+  onAddCandidate, 
+  registeredCandidateIds = [], 
+  setLoading: setParentLoading,
+  deliveryRestaurants = [],
+  setDeliveryRestaurants,
+  hasDeliveryDataLoaded = false,
+  setHasDeliveryDataLoaded
+}: DeliveryTabProps) {
+  // 상위 컴포넌트에서 관리하는 데이터 사용
+  const allRestaurants = deliveryRestaurants;
+  const isInitialDataLoaded = hasDeliveryDataLoaded;
+  
+  // 현재 표시할 데이터
   const [params, setParams] = useState({ category: '', searchTerm: '', page: 1 });
   const [restaurants, setRestaurants] = useState<YogiyoRestaurant[]>([]);
   const [loading, setLoading] = useState(false);
@@ -61,20 +73,19 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
     { id: '카페디저트', name: '카페/디저트' }
   ];
 
-  // API 요청 함수
-  const fetchRestaurants = useCallback(async (params: { category: string; searchTerm: string; page: number }) => {
+  // 전체 데이터를 가져오는 함수 (초기 로드용)
+  const fetchAllRestaurants = useCallback(async () => {
+    if (!groupData?.delivery) return;
+    
     setLoading(true);
     setParentLoading?.(true);
     try {
-      const query = [];
-      if (params.category) query.push(`category=${encodeURIComponent(params.category)}`);
-      if (params.searchTerm) query.push(`search=${encodeURIComponent(params.searchTerm)}`);
-      query.push(`page=${params.page}`);
+      console.log('🍕 요기요 전체 데이터 가져오기 시작');
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 35000); // 35초 타임아웃
       
-      const res = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants?${query.join('&')}`, {
+      const res = await fetch(`${BACKEND_URL}/groups/${groupId}/yogiyo-restaurants`, {
         signal: controller.signal
       });
       
@@ -91,11 +102,19 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
       }
       
       const data = await res.json();
-      const newRestaurants = data.restaurants || [];
-      setRestaurants(prev => params.page === 1 ? newRestaurants : [...prev, ...newRestaurants]);
-      setHasMore(newRestaurants.length > 0);
+      const allRestaurantsData = data.restaurants || [];
+      
+      // 전체 데이터 저장 (상위 컴포넌트에 저장)
+      setDeliveryRestaurants?.(allRestaurantsData);
+      setHasDeliveryDataLoaded?.(true);
+      
+      // 초기 표시 데이터 설정
+      setRestaurants(allRestaurantsData);
+      setHasMore(false); // 전체 데이터는 더보기 불필요
+      
+      console.log(`🍕 요기요 전체 데이터 로드 완료: 총 ${allRestaurantsData.length}개 식당`);
     } catch (error) {
-      console.error("Error fetching restaurants:", error);
+      console.error("Error fetching all restaurants:", error);
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           console.error('요기요 API 요청이 타임아웃되었습니다.');
@@ -108,12 +127,70 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
       setLoading(false);
       setParentLoading?.(false);
     }
-  }, [groupId, BACKEND_URL, setParentLoading]);
+  }, [groupId, BACKEND_URL, setParentLoading, groupData]);
 
-  // params가 바뀔 때마다 항상 API 요청
+  // 필터링된 데이터를 가져오는 함수 (검색/카테고리 필터용)
+  const fetchFilteredRestaurants = useCallback(async (params: { category: string; searchTerm: string; page: number }) => {
+    // 전체 데이터가 로드되지 않았으면 전체 데이터 먼저 가져오기
+    if (!isInitialDataLoaded) {
+      await fetchAllRestaurants();
+      return;
+    }
+    
+    setLoading(true);
+    setParentLoading?.(true);
+    
+    try {
+      let filteredData = [...allRestaurants];
+      
+      // 카테고리 필터링
+      if (params.category) {
+        filteredData = filteredData.filter(restaurant => 
+          restaurant.categories.some((category: string) => category.includes(params.category))
+        );
+      }
+      
+      // 검색어 필터링
+      if (params.searchTerm) {
+        const searchLower = params.searchTerm.toLowerCase();
+        filteredData = filteredData.filter(restaurant => 
+          restaurant.name.toLowerCase().includes(searchLower) ||
+          restaurant.categories.some((category: string) => category.toLowerCase().includes(searchLower))
+        );
+      }
+      
+      // 페이지네이션 적용
+      const itemsPerPage = 20;
+      const startIndex = (params.page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedData = filteredData.slice(startIndex, endIndex);
+      
+      setRestaurants(prev => params.page === 1 ? paginatedData : [...prev, ...paginatedData]);
+      setHasMore(endIndex < filteredData.length);
+      
+      console.log(`🍕 필터링 결과: ${filteredData.length}개 중 ${paginatedData.length}개 표시 (페이지 ${params.page})`);
+    } catch (error) {
+      console.error("Error filtering restaurants:", error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+      setParentLoading?.(false);
+    }
+  }, [allRestaurants, isInitialDataLoaded, fetchAllRestaurants, setParentLoading]);
+
+  // 초기 데이터 로드
   useEffect(() => {
-    fetchRestaurants(params);
-  }, [params, fetchRestaurants]);
+    if (groupData?.delivery && !isInitialDataLoaded) {
+      fetchAllRestaurants();
+    }
+  }, [groupData, fetchAllRestaurants, isInitialDataLoaded]);
+
+  // params가 바뀔 때마다 필터링 적용
+  useEffect(() => {
+    if (isInitialDataLoaded) {
+      fetchFilteredRestaurants(params);
+    }
+  }, [params, fetchFilteredRestaurants, isInitialDataLoaded]);
 
   // 카테고리 선택 시
   const handleCategory = (category: string) => {
@@ -136,7 +213,8 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
 
   // 검색 버튼 클릭 시
   const handleSearch = () => {
-    setParams(prev => ({ ...prev, searchTerm: searchInput, page: 1 }));
+    // 검색 시 카테고리를 '전체'로 변경
+    setParams(prev => ({ ...prev, searchTerm: searchInput, category: '', page: 1 }));
     setIsLoadMore(false);
   };
 
@@ -153,6 +231,13 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
       setParams(prev => ({ ...prev, page: prev.page + 1 }));
       setIsLoadMore(true);
     }
+  };
+
+  // 검색어 초기화 (X 버튼 클릭 시)
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setParams(prev => ({ ...prev, searchTerm: '', page: 1 }));
+    // 검색어 초기화 시에도 카테고리는 유지 (사용자가 선택한 카테고리 그대로)
   };
 
   // 스크롤 맨 위로 이동용 ref
@@ -283,10 +368,7 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
         />
         {searchInput && !loading && (
           <button
-            onClick={() => {
-              setSearchInput('');
-              setParams(prev => ({ ...prev, searchTerm: '', page: 1 }));
-            }}
+            onClick={handleClearSearch}
             style={{
               position: "absolute",
               right: "calc(clamp(60px, 15vw, 80px) + 25px)",
@@ -355,10 +437,7 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
                 const isRegistered = registeredCandidateIds.some(registeredId => 
                   Number(registeredId) === restaurantId
                 );
-                // 검색 상태에서 디버깅 로그 추가
-                if (params.searchTerm) {
-                  console.log(`🔍 검색 결과 - 식당: ${r.name}, ID: ${r.id} (${typeof r.id}), 등록됨: ${isRegistered}, 등록된 ID 목록:`, registeredCandidateIds.map(id => ({ id, type: typeof id })));
-                }
+                
                 return (
                 <div
                   key={r.id}
@@ -384,7 +463,15 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
                   {/* + 버튼 */}
                   {typeof onAddCandidate === 'function' && (
                     <button
-                      onClick={e => { e.stopPropagation(); onAddCandidate(r); }}
+                      onClick={e => { 
+                        e.stopPropagation(); 
+                        // yogiyo_id 필드를 명시적으로 추가
+                        const restaurantData = {
+                          ...r,
+                          yogiyo_id: r.id
+                        };
+                        onAddCandidate(restaurantData); 
+                      }}
                       disabled={isRegistered}
                       style={{
                         width: "40px",
@@ -427,6 +514,7 @@ export default function DeliveryTab({ groupData, groupId, onAddCandidate, regist
               </div>
             )}
             {!loading && hasMore && (
+              // 전체 카테고리에서도 더보기 버튼 표시 (검색어가 있을 때만 제외)
               params.searchTerm === '' && (
                 <div style={{ textAlign: "center", margin: "20px 0" }}>
                   <button onClick={loadMore} style={{

@@ -22,6 +22,10 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   const [sectorSearchResults, setSectorSearchResults] = useState<any[]>([]);
   const [hasSectorSearchCompleted, setHasSectorSearchCompleted] = useState(false);
   
+  // 배달 탭 식당 목록을 상위 컴포넌트에서 관리
+  const [deliveryRestaurants, setDeliveryRestaurants] = useState<any[]>([]);
+  const [hasDeliveryDataLoaded, setHasDeliveryDataLoaded] = useState(false);
+  
   // 탭별 로딩 상태 관리
   const [directTabLoading, setDirectTabLoading] = useState(false);
   const [deliveryTabLoading, setDeliveryTabLoading] = useState(false);
@@ -96,7 +100,8 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           .filter((c: any) => c.type === 'yogiyo')
           .map((c: any) => {
             // 백엔드에서 yogiyo_id로 저장하므로 이를 사용
-            return c.detail?.yogiyo_id;
+            const id = c.detail?.yogiyo_id;
+            return id !== undefined ? Number(id) : undefined;
           })
           .filter(id => id !== undefined); // undefined 값 제거
         
@@ -563,6 +568,10 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             onAddCandidate={addYogiyoCandidate}
             registeredCandidateIds={registeredYogiyoIds}
             setLoading={setDeliveryTabLoading}
+            deliveryRestaurants={deliveryRestaurants}
+            setDeliveryRestaurants={setDeliveryRestaurants}
+            hasDeliveryDataLoaded={hasDeliveryDataLoaded}
+            setHasDeliveryDataLoaded={setHasDeliveryDataLoaded}
           />
         )}
 
@@ -591,8 +600,6 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             registeredKakaoIds={registeredKakaoIds}
             registeredYogiyoIds={registeredYogiyoIds}
             activeTab={activeTab}
-            sectorSearchResults={sectorSearchResults}
-            hasSectorSearchCompleted={hasSectorSearchCompleted}
             onAddCandidate={async (candidate: any) => {
               if (candidate.type === 'kakao') {
                 // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 kakao_data 형태로 변환
@@ -614,7 +621,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
               } else if (candidate.type === 'yogiyo') {
                 // 슬롯머신의 Restaurant 객체를 백엔드가 기대하는 yogiyo_data 형태로 변환
                 const yogiyoData = {
-                  id: candidate.id,
+                  id: candidate.detail?.yogiyo_id || candidate.id,
                   name: candidate.name,
                   categories: candidate.detail?.categories || [],
                   estimated_delivery_time: candidate.detail?.estimated_delivery_time || '',
