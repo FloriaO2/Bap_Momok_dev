@@ -1135,7 +1135,7 @@ export default function DirectTab({
             fontWeight: "500"
           }}
         >
-          🍽️ 세부 필터링
+          세부 필터링
         </button>
 
         {/* 모든 태그 제거 버튼 */}
@@ -1146,17 +1146,22 @@ export default function DirectTab({
               setExcludeCafeDessert(false); // 후식 제외 체크박스도 해제
             }}
             style={{
-              padding: "8px 16px",
-              background: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
+              padding: "8px",
+              background: "transparent",
+              color: "#6c757d",
+              border: "1px solid rgba(0, 0, 0, 0.2)",
+              borderRadius: "8px",
               cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "500"
+              fontSize: "16px",
+              width: "36px",
+              height: "36px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
             }}
+            title="모든 태그 제거"
           >
-            🗑️ 모든 태그 제거
+            🧹
           </button>
         )}
       </div>
