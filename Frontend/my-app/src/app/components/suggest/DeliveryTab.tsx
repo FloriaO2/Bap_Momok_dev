@@ -317,8 +317,8 @@ export default function DeliveryTab({
         className="category-scroll"
         style={{
           display: "flex",
-          gap: "20px",
-          paddingBottom: "10px",
+          gap: "2vh",
+          paddingBottom: "1vh",
           overflowX: "auto",
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -334,13 +334,13 @@ export default function DeliveryTab({
             key={category.id}
             onClick={() => handleCategory(category.id)}
             style={{
-              padding: "8px 0",
+              padding: "0.8vh 0",
               background: "none",
               border: "none",
-              fontSize: "14px",
+              fontSize: "1.4vh",
               fontWeight: "600",
               color: params.category === category.id ? "#333" : "#999",
-              borderBottom: params.category === category.id ? "2px solid #994d52" : "none",
+              borderBottom: params.category === category.id ? "0.2vh solid #994d52" : "none",
               cursor: "pointer",
               whiteSpace: "nowrap"
             }}
@@ -350,7 +350,7 @@ export default function DeliveryTab({
         ))}
       </div>
       {/* 검색바 */}
-      <div style={{ marginBottom: "20px", position: "relative" }}>
+      <div style={{ marginBottom: "2vh", position: "relative" }}>
         <input
           type="text"
           placeholder={placeholder}
@@ -359,10 +359,10 @@ export default function DeliveryTab({
           onKeyPress={handleKeyPress}
           style={{
             width: "100%",
-            padding: "12px 40px 12px 15px",
-            border: "1px solid #e0e0e0",
-            borderRadius: "8px",
-            fontSize: "16px",
+            padding: "1.2vh 4vh 1.2vh 1.5vh",
+            border: "0.1vh solid #e0e0e0",
+            borderRadius: "0.8vh",
+            fontSize: "1.6vh",
             outline: "none"
           }}
         />
@@ -371,12 +371,12 @@ export default function DeliveryTab({
             onClick={handleClearSearch}
             style={{
               position: "absolute",
-              right: "calc(clamp(60px, 15vw, 80px) + 25px)",
+              right: "calc(clamp(6vh, 15vw, 8vh) + 2.5vh)",
               top: "50%",
               transform: "translateY(-50%)",
               background: "none",
               border: "none",
-              fontSize: "18px",
+              fontSize: "1.8vh",
               color: "#999",
               cursor: "pointer"
             }}
@@ -389,21 +389,21 @@ export default function DeliveryTab({
           disabled={loading}
           style={{
             position: "absolute",
-            right: "15px",
+            right: "1.5vh",
             top: "50%",
             transform: "translateY(-50%)",
             background: "#994d52",
             color: "#fff",
             border: "none",
-            borderRadius: "4px",
-            padding: "7px clamp(12px, 3vw, 20px)",
-            fontSize: "clamp(12px, 2.5vw, 16px)",
+            borderRadius: "0.4vh",
+            padding: "0.7vh clamp(1.2vh, 3vw, 2vh)",
+            fontSize: "clamp(1.2vh, 2.5vw, 1.6vh)",
             fontWeight: "bold",
             cursor: loading ? "not-allowed" : "pointer",
             opacity: loading ? 0.7 : 1,
-            minWidth: "60px",
-            maxWidth: "100px",
-            width: "clamp(60px, 15vw, 80px)"
+            minWidth: "6vh",
+            maxWidth: "10vh",
+            width: "clamp(6vh, 15vw, 8vh)"
           }}
         >
           {loading ? "검색" : "검색"}
@@ -411,26 +411,26 @@ export default function DeliveryTab({
       </div>
               {/* 식당 목록 */}
         <div style={{ 
-            marginBottom: "20px",
-            maxHeight: "400px",
+            marginBottom: "2vh",
+            maxHeight: "40vh",
             overflowY: "auto"
           }}
           ref={listRef}
         >
-        <h3 style={{ fontSize: "18px", fontWeight: "bold", color: "#333", marginBottom: "15px" }}>
+        <h3 style={{ fontSize: "1.8vh", fontWeight: "bold", color: "#333", marginBottom: "1.5vh" }}>
           배달 음식점 목록
         </h3>
         {loading && restaurants.length === 0 ? (
-          <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+          <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
             식당 정보를 불러오는 중...
           </div>
         ) : uniqueRestaurants.length === 0 && !hasMore ? (
-          <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+          <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
             식당이 없습니다
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5vh" }}>
               {uniqueRestaurants.map((r) => {
                 // ID 타입을 통일하여 비교 (문자열과 숫자 모두 처리)
                 const restaurantId = Number(r.id);
@@ -441,11 +441,11 @@ export default function DeliveryTab({
                 return (
                 <div
                   key={r.id}
-                  style={{ display: "flex", alignItems: "center", padding: "15px", background: "#f8f9fa", borderRadius: "12px", gap: "15px", cursor: 'pointer' }}
+                  style={{ display: "flex", alignItems: "center", padding: "1.5vh", background: "#f8f9fa", borderRadius: "1.2vh", gap: "1.5vh", cursor: 'pointer' }}
                   onClick={() => handleCardClick(r)}
                 >
                   {/* 썸네일 */}
-                  <div style={{ width: "60px", height: "60px", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+                  <div style={{ width: "6vh", height: "6vh", borderRadius: "0.8vh", overflow: "hidden", flexShrink: 0 }}>
                     <img
                       src={r.thumbnail_url}
                       alt={r.name}
@@ -454,9 +454,9 @@ export default function DeliveryTab({
                   </div>
                   {/* 정보 */}
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "16px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>{r.name}</div>
-                    <div style={{ fontSize: "14px", color: "#666", marginBottom: "4px" }}>{r.categories.join(', ')}</div>
-                    <div style={{ fontSize: "14px", color: "#666", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <div style={{ fontSize: "1.6vh", fontWeight: "bold", color: "#333", marginBottom: "0.4vh" }}>{r.name}</div>
+                    <div style={{ fontSize: "1.4vh", color: "#666", marginBottom: "0.4vh" }}>{r.categories.join(', ')}</div>
+                    <div style={{ fontSize: "1.4vh", color: "#666", display: "flex", alignItems: "center", gap: "0.4vh" }}>
                       ⭐ {r.review_avg} ({r.review_count} {r.review_count <= 1 ? "review" : "reviews"})
                     </div>
                   </div>
@@ -474,13 +474,13 @@ export default function DeliveryTab({
                       }}
                       disabled={isRegistered}
                       style={{
-                        width: "40px",
-                        height: "40px",
+                        width: "4vh",
+                        height: "4vh",
                         background: isRegistered ? "#ccc" : "#994d52",
                         color: "#fff",
                         border: "none",
                         borderRadius: "50%",
-                        fontSize: "20px",
+                        fontSize: "2vh",
                         fontWeight: "bold",
                         cursor: isRegistered ? "not-allowed" : "pointer",
                         display: "flex",
@@ -509,21 +509,21 @@ export default function DeliveryTab({
               })}
             </div>
             {loading && (
-              <div style={{ textAlign: "center", color: "#999", padding: "20px 0" }}>
+              <div style={{ textAlign: "center", color: "#999", padding: "2vh 0" }}>
                 더 많은 식당을 불러오는 중...
               </div>
             )}
             {!loading && hasMore && (
               // 전체 카테고리에서도 더보기 버튼 표시 (검색어가 있을 때만 제외)
               params.searchTerm === '' && (
-                <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <div style={{ textAlign: "center", margin: "2vh 0" }}>
                   <button onClick={loadMore} style={{
                     background: "#994d52",
                     color: "#fff",
                     border: "none",
-                    borderRadius: "20px",
-                    padding: "10px 30px",
-                    fontSize: "16px",
+                    borderRadius: "2vh",
+                    padding: "1vh 3vh",
+                    fontSize: "1.6vh",
                     fontWeight: "bold",
                     cursor: "pointer"
                   }}>
@@ -547,34 +547,34 @@ export default function DeliveryTab({
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: 12, width: "90vw", maxWidth: 500, maxHeight: '80vh', overflowY: 'auto', position: "relative", padding: 24, textAlign: 'center'
+              background: "#fff", borderRadius: "1.2vh", width: "90vw", maxWidth: "50vh", maxHeight: '80vh', overflowY: 'auto', position: "relative", padding: "2.4vh", textAlign: 'center'
             }}
           >
             <button
               onClick={() => setMenuModalOpen(false)}
               style={{
-                position: "absolute", top: 10, right: 10, background: "none", border: "none", fontSize: 24, cursor: "pointer"
+                position: "absolute", top: "1vh", right: "1vh", background: "none", border: "none", fontSize: "2.4vh", cursor: "pointer"
               }}
             >✕</button>
-            <h3 style={{fontWeight:'bold', marginBottom:16, fontSize:20}}>메뉴</h3>
+            <h3 style={{fontWeight:'bold', marginBottom:"1.6vh", fontSize:"2vh"}}>메뉴</h3>
             {menuLoading ? (
-              <div style={{color:'#999', padding:40}}>메뉴 불러오는 중...</div>
+              <div style={{color:'#999', padding:"4vh"}}>메뉴 불러오는 중...</div>
             ) : menuError ? (
-              <div style={{color:'#e57373', padding:40}}>{menuError}</div>
+              <div style={{color:'#e57373', padding:"4vh"}}>{menuError}</div>
             ) : menuList.length === 0 ? (
-              <div style={{color:'#999', padding:40}}>메뉴가 없습니다</div>
+              <div style={{color:'#999', padding:"4vh"}}>메뉴가 없습니다</div>
             ) : (
-              <div style={{display:'flex', flexWrap:'wrap', gap:20, justifyContent:'center'}}>
+              <div style={{display:'flex', flexWrap:'wrap', gap:"2vh", justifyContent:'center'}}>
                 {menuList.map((menu, idx) => (
-                  <div key={menu.name + '-' + idx} style={{width:120, textAlign:'center'}}>
+                  <div key={menu.name + '-' + idx} style={{width:"12vh", textAlign:'center'}}>
                     {menu.image ? (
-                      <img src={menu.image} alt={menu.name} style={{width:100, height:80, objectFit:'cover', borderRadius:8, marginBottom:8}} />
+                      <img src={menu.image} alt={menu.name} style={{width:"10vh", height:"8vh", objectFit:'cover', borderRadius:"0.8vh", marginBottom:"0.8vh"}} />
                     ) : (
-                      <div style={{width:100, height:80, background:'#eee', borderRadius:8, marginBottom:8, display:'flex', alignItems:'center', justifyContent:'center', color:'#aaa', fontSize:13}}>
+                      <div style={{width:"10vh", height:"8vh", background:'#eee', borderRadius:"0.8vh", marginBottom:"0.8vh", display:'flex', alignItems:'center', justifyContent:'center', color:'#aaa', fontSize:"1.3vh"}}>
                         이미지 없음
                       </div>
                     )}
-                    <div style={{fontSize:14, color:'#222', fontWeight:500}}>{menu.name}</div>
+                    <div style={{fontSize:"1.4vh", color:'#222', fontWeight:500}}>{menu.name}</div>
                   </div>
                 ))}
               </div>

@@ -961,14 +961,14 @@ export default function DirectTab({
   return (
     <div>
       {/* 지도 표시 */}
-      {groupData && (
-        <div style={{ 
-          marginBottom: "20px",
-          height: "300px",
-          borderRadius: "12px",
-          overflow: "hidden",
-          position: "relative"
-        }}>
+             {groupData && (
+         <div style={{ 
+           marginBottom: "2vh",
+           height: "30vh",
+           borderRadius: "1.2vh",
+           overflow: "hidden",
+           position: "relative"
+         }}>
           <KakaoMap
             searchKeyword=""
             onLocationChange={() => {}}
@@ -982,7 +982,7 @@ export default function DirectTab({
       )}
 
       {/* 검색바 */}
-      <div style={{ marginBottom: "20px", position: "relative" }}>
+      <div style={{ marginBottom: "2vh", position: "relative" }}>
         <input
           type="text"
           placeholder={placeholder}
@@ -991,10 +991,10 @@ export default function DirectTab({
           onKeyPress={handleKeyPress}
           style={{
             width: "100%",
-            padding: "12px 40px 12px 15px",
-            border: "1px solid #e0e0e0",
-            borderRadius: "8px",
-            fontSize: "16px",
+            padding: "1.2vh 4vh 1.2vh 1.5vh",
+            border: "0.1vh solid #e0e0e0",
+            borderRadius: "0.8vh",
+            fontSize: "1.6vh",
             outline: "none"
           }}
         />
@@ -1020,12 +1020,12 @@ export default function DirectTab({
                 }}
                 style={{
                   position: "absolute",
-                  right: "calc(clamp(60px, 15vw, 80px) + 25px)",
+                  right: "calc(clamp(6vh, 15vw, 8vh) + 2.5vh)",
                   top: "50%",
                   transform: "translateY(-50%)",
                   background: "none",
                   border: "none",
-                  fontSize: "18px",
+                  fontSize: "1.8vh",
                   color: "#999",
                   cursor: "pointer"
                 }}
@@ -1040,21 +1040,21 @@ export default function DirectTab({
           disabled={loading}
           style={{
             position: "absolute",
-            right: "15px",
+            right: "1.5vh",
             top: "50%",
             transform: "translateY(-50%)",
             background: "#994d52",
             color: "#fff",
             border: "none",
-            borderRadius: "4px",
-            padding: "7px clamp(12px, 3vw, 20px)",
-            fontSize: "clamp(12px, 2.5vw, 16px)",
+            borderRadius: "0.4vh",
+            padding: "0.7vh clamp(1.2vh, 3vw, 2vh)",
+            fontSize: "clamp(1.2vh, 2.5vw, 1.6vh)",
             fontWeight: "bold",
             cursor: loading ? "not-allowed" : "pointer",
             opacity: loading ? 0.7 : 1,
-            minWidth: "60px",
-            maxWidth: "100px",
-            width: "clamp(60px, 15vw, 80px)"
+            minWidth: "6vh",
+            maxWidth: "10vh",
+            width: "clamp(6vh, 15vw, 8vh)"
           }}
         >
           {loading ? "검색" : "검색"}
@@ -1063,24 +1063,24 @@ export default function DirectTab({
 
       {/* 필터 영역 - 가로 정렬 */}
       <div style={{ 
-        marginBottom: "15px",
+        marginBottom: "1.5vh",
         display: "flex",
-        gap: "15px",
+        gap: "1.5vh",
         alignItems: "center"
       }}>
         {/* 카페, 디저트 제외 필터 */}
         <div style={{ 
-          padding: "12px", 
+          padding: "1.2vh", 
           background: "#f8f9fa", 
-          borderRadius: "8px",
-          border: "1px solid #e9ecef"
+          borderRadius: "0.8vh",
+          border: "0.1vh solid #e9ecef"
         }}>
           <label style={{ 
             display: "flex", 
             alignItems: "center", 
-            gap: "8px", 
+            gap: "0.8vh", 
             cursor: "pointer",
-            fontSize: "14px",
+            fontSize: "1.4vh",
             color: "#333"
           }}>
             <input
@@ -1112,8 +1112,8 @@ export default function DirectTab({
                  }
                }}
               style={{
-                width: "16px",
-                height: "16px",
+                width: "1.6vh",
+                height: "1.6vh",
                 cursor: "pointer"
               }}
             />
@@ -1125,13 +1125,13 @@ export default function DirectTab({
         <button
           onClick={() => setShowCategoryModal(true)}
           style={{
-            padding: "8px 16px",
+            padding: "0.8vh 1.6vh",
             background: "#994d52",
             color: "white",
             border: "none",
-            borderRadius: "6px",
+            borderRadius: "0.6vh",
             cursor: "pointer",
-            fontSize: "14px",
+            fontSize: "1.4vh",
             fontWeight: "500"
           }}
         >
@@ -1146,15 +1146,15 @@ export default function DirectTab({
               setExcludeCafeDessert(false); // 후식 제외 체크박스도 해제
             }}
             style={{
-              padding: "8px",
+              padding: "0.8vh",
               background: "transparent",
               color: "#6c757d",
-              border: "1px solid rgba(0, 0, 0, 0.2)",
-              borderRadius: "8px",
+              border: "0.1vh solid rgba(0, 0, 0, 0.2)",
+              borderRadius: "0.8vh",
               cursor: "pointer",
-              fontSize: "16px",
-              width: "36px",
-              height: "36px",
+              fontSize: "1.6vh",
+              width: "3.6vh",
+              height: "3.6vh",
               display: "flex",
               alignItems: "center",
               justifyContent: "center"
@@ -1169,10 +1169,10 @@ export default function DirectTab({
       {/* 제외된 카테고리 태그들 */}
       {excludedCategories.length > 0 && (
         <div style={{ 
-          marginBottom: "15px",
+          marginBottom: "1.5vh",
           display: "flex",
           flexWrap: "wrap",
-          gap: "8px"
+          gap: "0.8vh"
         }}>
           {(() => {
             // 상위 카테고리별로 그룹화하여 태그 생성
@@ -1201,11 +1201,11 @@ export default function DirectTab({
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  padding: "4px 8px",
+                  padding: "0.4vh 0.8vh",
                   background: "rgb(220, 53, 69)",
                   color: "white",
-                  borderRadius: "12px",
-                  fontSize: "12px",
+                  borderRadius: "1.2vh",
+                  fontSize: "1.2vh",
                   fontWeight: "500"
                 }}
               >
@@ -1225,9 +1225,9 @@ export default function DirectTab({
                     background: "none",
                     border: "none",
                     color: "white",
-                    marginLeft: "6px",
+                    marginLeft: "0.6vh",
                     cursor: "pointer",
-                    fontSize: "14px",
+                    fontSize: "1.4vh",
                     fontWeight: "bold"
                   }}
                 >
@@ -1244,24 +1244,24 @@ export default function DirectTab({
         <div 
           ref={listRef}
           style={{ 
-            marginBottom: "20px",
-            maxHeight: "400px",
+            marginBottom: "2vh",
+            maxHeight: "40vh",
             overflowY: "auto"
           }}
         >
           <h3 style={{ 
-            fontSize: "18px", 
+            fontSize: "1.8vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "15px"
+            marginBottom: "1.5vh"
           }}>
             음식점 목록
             {excludedCategories.length > 0 && (
               <span style={{ 
-                fontSize: "14px", 
+                fontSize: "1.4vh", 
                 fontWeight: "normal", 
                 color: "#666",
-                marginLeft: "8px"
+                marginLeft: "0.8vh"
               }}>
                 ({excludedCategories.length}개 카테고리 제외)
               </span>
@@ -1270,25 +1270,25 @@ export default function DirectTab({
           
           {initialLoading ? (
             <div style={{ 
-              height: "calc(100vh - 800px)",
-              minHeight: "200px",
-              maxHeight: "400px",
+              height: "calc(100vh - 80vh)",
+              minHeight: "20vh",
+              maxHeight: "40vh",
               overflowY: "auto"
             }}>
-              <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+              <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
               식당 정보를 불러오고 있습니다...
               </div>
             </div>
           ) : loading ? (
-            <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+            <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
               검색
             </div>
           ) : displayedResults.length === 0 ? (
-            <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+            <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
               {excludedCategories.length > 0 ? "필터링된 검색 결과가 없습니다" : "검색 결과가 없습니다"}
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5vh" }}>
               {displayedResults.map((restaurant) => {
                 const cardId = restaurant.id || restaurant.kakao_id;
                 const isRegistered = registeredCandidateIds.includes(Number(cardId));
@@ -1300,28 +1300,28 @@ export default function DirectTab({
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      padding: "15px",
+                      padding: "1.5vh",
                       background: "#f8f9fa",
-                      borderRadius: "12px",
-                      gap: "15px",
-                      border: selectedId === cardId ? "2px solid #994d52" : "2px solid transparent",
+                      borderRadius: "1.2vh",
+                      gap: "1.5vh",
+                      border: selectedId === cardId ? "0.2vh solid #994d52" : "0.2vh solid transparent",
                       cursor: "pointer"
                     }}
                   >
                     {/* 정보 */}
                     <div style={{ flex: 1 }}>
                       <div style={{ 
-                        fontSize: "16px", 
+                        fontSize: "1.6vh", 
                         fontWeight: "bold", 
                         color: "#333",
-                        marginBottom: "4px"
+                        marginBottom: "0.4vh"
                       }}>
                         {restaurant.place_name || restaurant.name}
                       </div>
                       <div style={{ 
-                        fontSize: "14px", 
+                        fontSize: "1.4vh", 
                         color: "#666",
-                        marginBottom: "4px"
+                        marginBottom: "0.4vh"
                       }}>
                         {restaurant.category_name && restaurant.category_name.trim() !== '' 
                           ? (() => {
@@ -1341,34 +1341,34 @@ export default function DirectTab({
                       </div>
                       {restaurant.road_address_name && (
                         <div style={{ 
-                          fontSize: "12px", 
+                          fontSize: "1.1vh", 
                           color: "#999",
-                          marginBottom: "2px"
+                          marginBottom: "0.2vh"
                         }}>
                           📍 {restaurant.road_address_name}
                         </div>
                       )}
                       {restaurant.address_name && (
                         <div style={{ 
-                          fontSize: "12px", 
+                          fontSize: "1.1vh", 
                           color: "#999",
-                          marginBottom: "2px"
+                          marginBottom: "0.2vh"
                         }}>
                           📍 {restaurant.address_name}
                         </div>
                       )}
                     </div>
                     {/* 버튼 영역: i버튼 + +버튼 */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.8vh", marginLeft: "1.2vh" }}>
                       <button
                         onClick={e => { e.stopPropagation(); handleInfoClick(restaurant); }}
                         style={{
                           background: "#eee",
                           border: "none",
                           borderRadius: "50%",
-                          width: 32,
-                          height: 32,
-                          fontSize: 20,
+                          width: "3.2vh",
+                          height: "3.2vh",
+                          fontSize: "2vh",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1383,13 +1383,13 @@ export default function DirectTab({
                         onClick={e => { e.stopPropagation(); onAddCandidate(restaurant); }}
                         disabled={isRegistered}
                         style={{ 
-                          width: "40px",
-                          height: "40px",
+                          width: "4vh",
+                          height: "4vh",
                           background: isRegistered ? "#ccc" : "#994d52",
                           color: "#fff",
                           border: "none",
                           borderRadius: "50%",
-                          fontSize: "20px",
+                          fontSize: "2vh",
                           fontWeight: "bold",
                           cursor: isRegistered ? "not-allowed" : "pointer",
                           display: "flex",
@@ -1417,7 +1417,7 @@ export default function DirectTab({
                 );
               })}
               {!isEnd && hasMoreResults && (
-                <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <div style={{ textAlign: "center", margin: "2vh 0" }}>
                   <button
                     type="button"
                     onClick={e => { e.preventDefault(); handleLoadMore(); }}
@@ -1425,9 +1425,9 @@ export default function DirectTab({
                       background: "#994d52",
                       color: "#fff",
                       border: "none",
-                      borderRadius: "20px",
-                      padding: "10px 30px",
-                      fontSize: "16px",
+                      borderRadius: "2vh",
+                      padding: "1vh 3vh",
+                      fontSize: "1.6vh",
                       fontWeight: "bold",
                       cursor: "pointer"
                     }}
@@ -1445,21 +1445,21 @@ export default function DirectTab({
       {/* 기존 식당 목록 (검색 결과가 없을 때만 표시) */}
       {!showSearchResults && (
         <div style={{ 
-          height: "calc(100vh - 800px)",
-          minHeight: "200px",
-          maxHeight: "400px",
+          height: "calc(100vh - 80vh)",
+          minHeight: "20vh",
+          maxHeight: "40vh",
           overflowY: "auto"
         }}>
           <h3 style={{ 
-            fontSize: "18px", 
+            fontSize: "1.8vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "15px"
+            marginBottom: "1.5vh"
           }}>
             음식점 목록
           </h3>
           
-          <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
+          <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
             식당 정보를 불러오고 있습니다...
           </div>
         </div>
@@ -1476,7 +1476,7 @@ export default function DirectTab({
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: 12, width: "90vw", maxWidth: 600, height: "80vh", position: "relative", padding: 0, textAlign: 'center', overflow: 'hidden'
+              background: "#fff", borderRadius: "1.2vh", width: "90vw", maxWidth: "60vh", height: "80vh", position: "relative", padding: 0, textAlign: 'center', overflow: 'hidden'
             }}
           >
             {/* 헤더 */}
@@ -1485,28 +1485,28 @@ export default function DirectTab({
               top: 0,
               left: 0,
               right: 0,
-              height: "40px",
+              height: "4vh",
               background: "#f8f9fa",
-              borderBottom: "1px solid #e9ecef",
+              borderBottom: "0.1vh solid #e9ecef",
               display: "flex",
               alignItems: "center",
               justifyContent: "end",
-              padding: "0 20px",
+              padding: "0 2vh",
               zIndex: 3,
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12
+              borderTopLeftRadius: "1.2vh",
+              borderTopRightRadius: "1.2vh"
             }}>
 
               <button
                 onClick={() => setModalOpen(false)}
                 style={{
-                  background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#666", padding: "5px"
+                  background: "none", border: "none", fontSize: "2vh", cursor: "pointer", color: "#666", padding: "0.5vh"
                 }}
               >✕</button>
             </div>
             <iframe
               src={modalUrl}
-              style={{ width: "100%", height: "calc(100% - 20px)", border: "none", borderRadius: 12, marginTop: "40px" }}
+              style={{ width: "100%", height: "calc(100% - 2vh)", border: "none", borderRadius: "1.2vh", marginTop: "4vh" }}
               title="카카오 플레이스"
             />
           </div>
@@ -1534,11 +1534,11 @@ export default function DirectTab({
             onClick={e => e.stopPropagation()}
             style={{
               background: "#fff",
-              borderRadius: "12px",
+              borderRadius: "1.2vh",
               width: "90vw",
-              maxWidth: "500px",
+              maxWidth: "50vh",
               maxHeight: "80vh",
-              padding: "20px",
+              padding: "2vh",
               overflow: "auto"
             }}
           >
@@ -1547,27 +1547,27 @@ export default function DirectTab({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: "20px",
-              borderBottom: "1px solid #e9ecef",
-              paddingBottom: "15px"
+              marginBottom: "2vh",
+              borderBottom: "0.1vh solid #e9ecef",
+              paddingBottom: "1.5vh"
             }}>
               <h3 style={{
-                fontSize: "18px",
+                fontSize: "1.8vh",
                 fontWeight: "bold",
                 color: "#333",
                 margin: 0
               }}>
-                🍽️ 세부 필터링
+                🍽️ 세부 필터링 🍽️
               </h3>
               <button
                 onClick={() => setShowCategoryModal(false)}
                 style={{
                   background: "none",
                   border: "none",
-                  fontSize: "20px",
+                  fontSize: "2vh",
                   cursor: "pointer",
                   color: "#666",
-                  padding: "5px"
+                  padding: "0.5vh"
                 }}
               >
                 ✕
@@ -1576,20 +1576,20 @@ export default function DirectTab({
 
             {/* 설명 */}
             <div style={{
-              fontSize: "14px",
+              fontSize: "1.4vh",
               color: "#666",
-              marginBottom: "20px",
-              padding: "12px",
+              marginBottom: "2vh",
+              padding: "1.2vh",
               background: "#f8f9fa",
-              borderRadius: "8px"
+              borderRadius: "0.8vh"
             }}>
-              상위 카테고리를 클릭하면 모든 하위 카테고리가 제외됩니다. 개별 하위 카테고리도 선택 가능합니다.
+              상위 카테고리를 클릭하면 모든 하위 카테고리가 제외됩니다.
             </div>
 
             {/* 카테고리 목록 - 테이블 구조 */}
             <div style={{
-              border: "1px solid #e9ecef",
-              borderRadius: "8px",
+              border: "0.1vh solid #e9ecef",
+              borderRadius: "0.8vh",
               overflow: "hidden"
             }}>
               {Object.entries(categoryHierarchy).map(([parentCategory, subCategories], index) => {
@@ -1600,13 +1600,13 @@ export default function DirectTab({
                 return (
                   <div key={parentCategory} style={{
                     display: "flex",
-                    borderBottom: index < Object.keys(categoryHierarchy).length - 1 ? "1px solid #e9ecef" : "none"
+                    borderBottom: index < Object.keys(categoryHierarchy).length - 1 ? "0.1vh solid #e9ecef" : "none"
                   }}>
                     {/* 좌측: 상위 카테고리 */}
                     <div style={{
-                      width: "120px",
-                      padding: "12px",
-                      borderRight: "1px solid #e9ecef",
+                      width: "8vh",
+                      padding: "0.8vh",
+                      borderRight: "0.1vh solid #e9ecef",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -1616,11 +1616,11 @@ export default function DirectTab({
                         onClick={() => toggleParentCategory(parentCategory)}
                         style={{
                           width: "100%",
-                          padding: "10px 12px",
+                          padding: "0.6vh 0.8vh",
                           background: "#f8f9fa",
                           color: "#333",
                           cursor: "pointer",
-                          fontSize: "14px",
+                          fontSize: "1.4vh",
                           fontWeight: "600",
                           textAlign: "center",
                           transition: "all 0.2s ease"
@@ -1633,10 +1633,10 @@ export default function DirectTab({
                     {/* 우측: 하위 카테고리들 */}
                     <div style={{
                       flex: "1",
-                      padding: "12px",
+                      padding: "1.2vh",
                       display: "flex",
                       flexWrap: "wrap",
-                      gap: "8px",
+                      gap: "0.8vh",
                       alignItems: "center"
                     }}>
                       {subCategories.map((subCategory) => {
@@ -1646,13 +1646,13 @@ export default function DirectTab({
                             key={subCategory}
                             onClick={() => toggleCategory(subCategory)}
                             style={{
-                              padding: "8px 12px",
+                              padding: "0.8vh 1.2vh",
                               background: isExcluded ? "#dc3545" : "#28a745",
                               color: "white",
-                              border: "1px solid #e9ecef",
-                              borderRadius: "6px",
+                              border: "0.1vh solid #e9ecef",
+                              borderRadius: "0.6vh",
                               cursor: "pointer",
-                              fontSize: "12px",
+                              fontSize: "1.2vh",
                               fontWeight: "500",
                               textDecoration: isExcluded ? "line-through" : "none",
                               transition: "all 0.2s ease",
@@ -1673,13 +1673,13 @@ export default function DirectTab({
             <div style={{
               display: "flex",
               justifyContent: "space-between",
-              marginTop: "20px",
-              paddingTop: "15px",
-              borderTop: "1px solid #e9ecef"
+              marginTop: "2vh",
+              paddingTop: "1.5vh",
+              borderTop: "0.1vh solid #e9ecef"
             }}>
               <div style={{
                 display: "flex",
-                gap: "10px"
+                gap: "1vh"
               }}>
                 <button
                   onClick={() => {
@@ -1688,13 +1688,13 @@ export default function DirectTab({
                     setExcludedCategories(allSubCategories);
                   }}
                   style={{
-                    padding: "8px 16px",
+                    padding: "0.8vh 1.6vh",
                     background: "#dc3545",
                     color: "white",
                     border: "none",
-                    borderRadius: "6px",
+                    borderRadius: "0.6vh",
                     cursor: "pointer",
-                    fontSize: "14px"
+                    fontSize: "1.4vh"
                   }}
                 >
                   전체 제외
@@ -1702,13 +1702,13 @@ export default function DirectTab({
                 <button
                   onClick={() => setExcludedCategories([])}
                   style={{
-                    padding: "8px 16px",
+                    padding: "0.8vh 1.6vh",
                     background: "#28a745",
                     color: "white",
                     border: "none",
-                    borderRadius: "6px",
+                    borderRadius: "0.6vh",
                     cursor: "pointer",
-                    fontSize: "14px"
+                    fontSize: "1.4vh"
                   }}
                 >
                   전체 포함
@@ -1717,13 +1717,13 @@ export default function DirectTab({
               <button
                 onClick={() => setShowCategoryModal(false)}
                 style={{
-                  padding: "8px 16px",
+                  padding: "0.8vh 1.6vh",
                   background: "#994d52",
                   color: "white",
                   border: "none",
-                  borderRadius: "6px",
+                  borderRadius: "0.6vh",
                   cursor: "pointer",
-                  fontSize: "14px"
+                  fontSize: "1.4vh"
                 }}
               >
                 확인

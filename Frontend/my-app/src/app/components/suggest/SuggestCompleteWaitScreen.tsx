@@ -109,72 +109,72 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "20px"
+      padding: "2vh"
     }}>
       <div style={{
-        maxWidth: "400px",
+        maxWidth: "40vh",
         width: "100%",
         background: "#fff",
-        borderRadius: "20px",
-        padding: "40px 30px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        borderRadius: "2vh",
+        padding: "4vh 3vh",
+        boxShadow: "0 1vh 3vh rgba(0,0,0,0.2)",
         textAlign: "center"
       }}>
-        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#333", marginBottom: "20px" }}>
+        <h2 style={{ fontSize: "2.4vh", fontWeight: "bold", color: "#333", marginBottom: "2vh" }}>
           제안 완료 대기 중
         </h2>
         {/* 남은 시간 게이지 */}
-        <div style={{ width: "100%", marginBottom: "24px" }}>
-          <div style={{ fontSize: "16px", color: "#666", marginBottom: "8px" }}>
+        <div style={{ width: "100%", marginBottom: "2.4vh" }}>
+          <div style={{ fontSize: "1.6vh", color: "#666", marginBottom: "0.8vh" }}>
             투표까지 남은시간
           </div>
-          <div style={{ fontSize: "20px", fontWeight: "bold", color: timeLeft === "후보 제안 시간 종료" ? "#dc3545" : "#333" }}>
+          <div style={{ fontSize: "2vh", fontWeight: "bold", color: timeLeft === "후보 제안 시간 종료" ? "#dc3545" : "#333" }}>
             {timeLeft}
           </div>
           {timeLeft === "후보 제안 시간 종료" && (
             <div style={{ 
-              fontSize: "14px", 
+              fontSize: "1.4vh", 
               color: "#dc3545", 
-              marginTop: "5px" 
+              marginTop: "0.5vh" 
             }}>
               투표 화면으로 이동합니다.
             </div>
           )}
-          <div style={{ width: "100%", height: "8px", background: "#f0f0f0", borderRadius: "4px", marginTop: "10px", overflow: "hidden" }}>
+          <div style={{ width: "100%", height: "0.8vh", background: "#f0f0f0", borderRadius: "0.4vh", marginTop: "1vh", overflow: "hidden" }}>
             <div style={{
               width: `${progressPercent}%`,
               height: "100%",
               background: timeLeft === "후보 제안 시간 종료"
                 ? "linear-gradient(90deg, #dc3545, #c82333)"
                 : "linear-gradient(90deg, #667eea, #764ba2)",
-              borderRadius: "4px",
+              borderRadius: "0.4vh",
               transition: "width 0.3s ease"
             }}></div>
           </div>
         </div>
-        <div style={{ fontSize: "16px", color: "#666", marginBottom: "20px" }}>
+        <div style={{ fontSize: "1.6vh", color: "#666", marginBottom: "2vh" }}>
           모든 참가자가 제안을 완료하면 투표가 시작됩니다.<br />
         </div>
-        <div style={{ marginBottom: "20px" }}>
-          <h3 style={{ fontSize: "18px", color: "#333", marginBottom: "10px" }}>참가자 현황</h3>
+        <div style={{ marginBottom: "2vh" }}>
+          <h3 style={{ fontSize: "1.8vh", color: "#333", marginBottom: "1vh" }}>참가자 현황</h3>
           <div style={{ 
-            maxHeight: '150px', 
+            maxHeight: '15vh', 
             overflowY: 'auto', 
             background: '#f8f9fa', 
-            padding: '15px', 
-            borderRadius: '8px', 
-            border: '1px solid #eee', 
+            padding: '1.5vh', 
+            borderRadius: '0.8vh', 
+            border: '0.1vh solid #eee', 
             textAlign: 'center' 
           }}>
             {Object.values(participants).length === 0 ? (
               <div style={{ color: "#999", textAlign: 'center' }}>참가자 정보를 불러오는 중...</div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.8vh" }}>
                 {Object.values(participants).map((p, idx) => (
                   <div key={idx} style={{
                     color: p.suggest_complete ? "#28a745" : "#999",
                     fontWeight: p.suggest_complete ? "bold" : undefined,
-                    fontSize: "16px"
+                    fontSize: "1.6vh"
                   }}>
                     {p.nickname} {p.suggest_complete ? "✔" : "(제안 중...)"}
                   </div>
@@ -184,25 +184,25 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
           </div>
         </div>
         {/* 실시간 후보 목록 */}
-        <div style={{ marginBottom: "20px" }}>
-          <h3 style={{ fontSize: "18px", color: "#333", marginBottom: "10px" }}>실시간 후보 목록</h3>
+        <div style={{ marginBottom: "2vh" }}>
+          <h3 style={{ fontSize: "1.8vh", color: "#333", marginBottom: "1vh" }}>실시간 후보 목록</h3>
           <div style={{ 
-            maxHeight: '150px', 
+            maxHeight: '15vh', 
             overflowY: 'auto', 
             background: '#f8f9fa', 
-            padding: '15px', 
-            borderRadius: '8px', 
-            border: '1px solid #eee', 
+            padding: '1.5vh', 
+            borderRadius: '0.8vh', 
+            border: '0.1vh solid #eee', 
             textAlign: 'center' 
           }}>
             {candidates.length === 0 ? (
               <div style={{ color: "#999", textAlign: 'center' }}>아직 추가된 후보가 없습니다.</div>
             ) : (
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '1vh' }}>
                 {candidates.map((candidate, index) => (
                   <li key={index} style={{
-                    paddingBottom: index < candidates.length - 1 ? '10px' : '0',
-                    borderBottom: index < candidates.length - 1 ? '1px solid #e9ecef' : 'none'
+                    paddingBottom: index < candidates.length - 1 ? '1vh' : '0',
+                    borderBottom: index < candidates.length - 1 ? '0.1vh solid #e9ecef' : 'none'
                   }}>
                     {`${getEmojiForCandidate(candidate)} ${candidate.name || '이름 없음'}`}
                   </li>
@@ -211,7 +211,7 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
             )}
           </div>
         </div>
-        <div style={{ fontSize: "15px", color: allComplete ? "#28a745" : "#666", fontWeight: allComplete ? "bold" : undefined }}>
+        <div style={{ fontSize: "1.5vh", color: allComplete ? "#28a745" : "#666", fontWeight: allComplete ? "bold" : undefined }}>
           {allComplete 
             ? <>
                 모든 참가자가 제안을 완료했습니다!

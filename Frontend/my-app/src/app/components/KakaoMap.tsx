@@ -263,7 +263,7 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "250px", margin: "16px 0" }}>
+    <div style={{ position: "relative", width: "100%", height: "30vh", margin: "1.6vh 0" }}>
       {error ? (
         <div style={{
           width: "100%",
@@ -313,15 +313,15 @@ const KakaoMap = ({ onLocationChange, searchKeyword, centerLat, centerLng, onMap
               onClick={handlePinClick}
               style={{
                 position: "absolute",
-                right: 16,
-                bottom: 16,
+                right: "1.6vh",
+                bottom: "3vh",
                 zIndex: 10,
                 background: pinButtonType === 'group' ? "#994d52" : "#fff",
-                border: pinButtonType === 'group' ? "none" : "1px solid #994d52",
+                border: pinButtonType === 'group' ? "none" : "0.1vh solid #994d52",
                 borderRadius: "50%",
-                width: 48,
-                height: 48,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                width: "4.8vh",
+                height: "4.8vh",
+                boxShadow: "0 0.2vh 0.8vh rgba(0,0,0,0.15)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

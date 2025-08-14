@@ -418,23 +418,23 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
     <div style={{ 
       minHeight: "100vh", 
       background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      padding: "20px",
+      padding: "2vh",
       fontFamily: "Arial, sans-serif"
     }}>
       {toast && (
         <div style={{
           position: "fixed",
-          bottom: "40px",
+          bottom: "4vh",
           left: "50%",
           transform: "translateX(-50%)",
           background: "#333",
           color: "#fff",
-          padding: "16px 0.8vw",
-          borderRadius: "24px",
-          fontSize: "16px",
+          padding: "1.6vh 0.8vw",
+          borderRadius: "2.4vh",
+          fontSize: "1.6vh",
           zIndex: 10000,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-          minWidth: "280px",
+          boxShadow: "0 0.4vh 1.6vh rgba(0,0,0,0.2)",
+          minWidth: "28vh",
           maxWidth: "92vw",
           textAlign: "center",
           wordBreak: "keep-all",
@@ -444,36 +444,36 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         </div>
       )}
       <div style={{ 
-        maxWidth: "600px", 
+        maxWidth: "60vh", 
         margin: "0 auto", 
         background: "#fff", 
-        borderRadius: "20px", 
-        padding: "30px", 
-        boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+        borderRadius: "2vh", 
+        padding: "3vh", 
+        boxShadow: "0 1vh 3vh rgba(0,0,0,0.2)"
       }}>
         {/* 헤더 */}
-        <div style={{ marginBottom: "30px" }}>
+        <div style={{ marginBottom: "0vh" }}>
           <h1 style={{ 
-            fontSize: "32px", 
+            fontSize: "3.2vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "30px",
+            marginBottom: "3vh",
             textAlign: "center"
           }}>
             투표 후보 선택
           </h1>
           
           {/* 투표 시간 */}
-          <div style={{ marginBottom: "30px", textAlign: "center" }}>
+          <div style={{ marginBottom: "3vh", textAlign: "center" }}>
             <div style={{ 
-              fontSize: "16px", 
+              fontSize: "1.6vh", 
               color: "#666", 
-              marginBottom: "10px" 
+              marginBottom: "1vh" 
             }}>
               투표까지 남은시간
             </div>
             <div style={{ 
-              fontSize: "20px", 
+              fontSize: "2vh", 
               fontWeight: "bold", 
               color: timeLeft === "후보 제안 시간 종료" ? "#dc3545" : "#333" 
             }}>
@@ -481,9 +481,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             </div>
             {timeLeft === "후보 제안 시간 종료" && (
               <div style={{ 
-                fontSize: "14px", 
+                fontSize: "1.4vh", 
                 color: "#dc3545", 
-                marginTop: "5px" 
+                marginTop: "0.5vh" 
               }}>
                 투표 화면으로 이동합니다.
               </div>
@@ -491,10 +491,10 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             {/* 진행바 */}
             <div style={{ 
               width: "100%", 
-              height: "8px", 
+              height: "0.8vh", 
               background: "#f0f0f0", 
-              borderRadius: "4px", 
-              marginTop: "10px",
+              borderRadius: "0.4vh", 
+              marginTop: "1vh",
               overflow: "hidden"
             }}>
               <div style={{ 
@@ -503,7 +503,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
                 background: timeLeft === "후보 제안 시간 종료" 
                   ? "linear-gradient(90deg, #dc3545, #c82333)" 
                   : "linear-gradient(90deg, #667eea, #764ba2)", 
-                borderRadius: "4px",
+                borderRadius: "0.4vh",
                 transition: "width 0.3s ease"
               }}></div>
             </div>
@@ -513,20 +513,20 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           {showDirectTab && showDeliveryTab && (
             <div style={{ 
               display: "flex", 
-              borderBottom: "1px solid #e0e0e0",
-              marginBottom: "15px"
+              borderBottom: "0.1vh solid #e0e0e0",
+              marginBottom: "1.5vh"
             }}>
               <button
                 onClick={() => setActiveTab('direct')}
                 style={{ 
                   flex: 1,
-                  padding: "12px",
+                  padding: "1.2vh",
                   background: "none",
                   border: "none",
-                  fontSize: "16px",
+                  fontSize: "1.6vh",
                   fontWeight: "600",
                   color: activeTab === 'direct' ? "#333" : "#999",
-                  borderBottom: activeTab === 'direct' ? "2px solid #994d52" : "none",
+                  borderBottom: activeTab === 'direct' ? "0.2vh solid #994d52" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -536,13 +536,13 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
                 onClick={() => setActiveTab('delivery')}
                 style={{ 
                   flex: 1,
-                  padding: "12px",
+                  padding: "1.2vh",
                   background: "none",
                   border: "none",
-                  fontSize: "16px",
+                  fontSize: "1.6vh",
                   fontWeight: "600",
                   color: activeTab === 'delivery' ? "#333" : "#999",
-                  borderBottom: activeTab === 'delivery' ? "2px solid #994d52" : "none",
+                  borderBottom: activeTab === 'delivery' ? "0.2vh solid #994d52" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -586,17 +586,17 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         {/* 하단 버튼 위에 랜덤 룰렛 돌리기 버튼/모달 추가 */}
         {((activeTab === 'direct' && hasSectorSearchCompleted && sectorSearchResults.length > 0) || 
           (activeTab === 'delivery' && hasDeliveryDataLoaded && deliveryRestaurants.length > 0)) && (
-          <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <div style={{ marginTop: "1.6vh", textAlign: 'center' }}>
             <button
               style={{
                 background: 'linear-gradient(135deg, #667eea, #764ba2)',
                 color: '#fff',
-                fontSize: '18px',
-                padding: '10px 28px',
+                fontSize: '1.8vh',
+                padding: '1vh 2.8vh',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '0.8vh',
                 cursor: 'pointer',
-                boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
+                boxShadow: '0 0.4vh 1.5vh rgba(255, 107, 107, 0.3)',
                 transition: 'all 0.3s ease'
               }}
               onClick={() => {
@@ -664,9 +664,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         )}
         {/* 하단 버튼 */}
         <div style={{ 
-          marginTop: "30px",
+          marginTop: "3vh",
           display: "flex",
-          gap: "15px"
+          gap: "1.5vh"
         }}>
           <button
             onClick={handleSuggestComplete}
@@ -676,9 +676,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
               background: "#994d52",
               color: "#fff", 
               border: "none",
-              borderRadius: "25px", 
-              padding: "15px 30px", 
-              fontSize: "16px",
+              borderRadius: "2.5vh", 
+              padding: "1.5vh 3vh", 
+              fontSize: "1.6vh",
               fontWeight: "bold",
               cursor: !participantId ? "not-allowed" : "pointer",
               transition: "all 0.3s ease"
@@ -686,7 +686,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             onMouseOver={(e) => {
               if (participantId) {
                 e.currentTarget.style.background = "#8a4449";
-                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.transform = "translateY(-0.2vh)";
               }
             }}
             onMouseOut={(e) => {

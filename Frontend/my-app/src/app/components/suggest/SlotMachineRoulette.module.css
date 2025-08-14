@@ -13,14 +13,14 @@
 
 .container {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
+  border-radius: 2vh;
   width: 95vw;
-  max-width: 500px;
+  max-width: 50vh;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   padding: 0;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2vh 4vh rgba(0, 0, 0, 0.3);
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
@@ -33,8 +33,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 25px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 2vh 2.5vh;
+  border-bottom: 0.2vh solid rgba(255, 255, 255, 0.1);
   color: white;
   position: relative;
 }
@@ -43,18 +43,18 @@
   background: none;
   border: none;
   color: #ffffff;
-  font-size: 24px;
+  font-size: 2.4vh;
   cursor: pointer;
-  padding: 5px;
+  padding: 0.5vh;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 3.5vh;
+  height: 3.5vh;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   position: absolute;
-  right: 25px;
+  right: 2.5vh;
   z-index: 1;
 }
 
@@ -67,19 +67,20 @@
   background: none;
   border: none;
   color: #ffffff;
-  font-size: 20px;
+  font-size: 3vh;
   cursor: pointer;
-  padding: 5px;
+  padding: 0.5vh;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 4vh;
+  height: 4vh;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   position: absolute;
-  left: 25px;
+  left: 2.5vh;
   z-index: 1;
+  margin-top: 0.5vh;
 }
 
 .refreshButton:hover:not(:disabled) {
@@ -94,9 +95,9 @@
 }
 
 .header h1 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0.2vh 0.2vh 0.4vh rgba(0, 0, 0, 0.3);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   font-weight: 700;
   flex: 1;
@@ -109,14 +110,14 @@
 }
 
 .body {
-  padding: 30px 25px;
+  padding: 3vh 2.5vh;
 }
 
 .wheelContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 3vh;
   width: 100%;
   justify-content: center;
 }
@@ -124,14 +125,14 @@
 .wheelWrapper {
   position: relative;
   width: 100%;
-  height: 240px;
-  margin-bottom: 30px;
+  height: 24vh;
+  margin-bottom: 3vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.5vh;
+  border: 0.3vh solid rgba(255, 255, 255, 0.2);
 }
 
 .slotMachineContainer {
@@ -145,15 +146,15 @@
 }
 
 .slotMachineItem {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 500;
   text-align: center;
   transition: all 0.03s linear;
   white-space: nowrap;
   user-select: none;
   color: #ffffff;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 1vh;
+  border-radius: 0.8vh;
   background: transparent;
   max-width: 90%;
   overflow: hidden;
@@ -163,7 +164,7 @@
 }
 
 .slotMachineItem.active {
-  font-size: 1.8rem;
+  font-size: 2.7vh;
   font-weight: 700;
   color: #ffffff;
   transform: scale(1);
@@ -177,19 +178,19 @@
   background: linear-gradient(45deg, #ff6b6b, #ee5a24);
   color: white;
   border: none;
-  border-radius: 50px;
-  padding: 15px 40px;
-  font-size: 1.2rem;
+  border-radius: 5vh;
+  padding: 1.5vh 4vh;
+  font-size: 1.8vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-  min-width: 120px;
+  box-shadow: 0 0.4vh 1.5vh rgba(255, 107, 107, 0.4);
+  min-width: 12vh;
 }
 
 .spinButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+  transform: translateY(-0.2vh);
+  box-shadow: 0 0.6vh 2vh rgba(255, 107, 107, 0.6);
 }
 
 .spinButton:disabled {
@@ -217,18 +218,19 @@
 
 .resultContainer {
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
-  padding: 25px;
+  border-radius: 1.5vh;
+  padding: 2.5vh;
+  padding-bottom: 1.7vh;
   text-align: center;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 0.2vh solid rgba(255, 255, 255, 0.2);
   animation: slideIn 0.5s ease-out;
-  margin-top: 20px;
+  margin-top: 2vh;
 }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(2vh);
   }
   to {
     opacity: 1;
@@ -238,77 +240,78 @@
 
 .resultContainer h2 {
   color: #333333;
-  margin: 0 0 15px 0;
-  font-size: 1.3rem;
+  margin: 0 0 1.5vh 0;
+  font-size: 2.08vh;
   font-weight: bold;
 }
 
 .selectedRestaurant {
   color: #333333;
-  font-size: 1.2rem;
+  font-size: 1.92vh;
   font-weight: bold;
-  margin: 15px 0;
-  padding: 15px;
-  border-radius: 10px;
+  margin: 1.5vh 0;
+  margin-bottom: 0.5vh;
+  padding: 1.5vh;
+  border-radius: 1vh;
   word-break: break-word;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.8vh;
   align-items: center;
 }
 
 .restaurantName {
-  font-size: 1.3rem;
+  font-size: 2.08vh;
   font-weight: bold;
   color: #333333;
 }
 
 .restaurantType {
-  font-size: 0.9rem;
+  font-size: 1.44vh;
   color: #666666;
   background: rgba(0, 0, 0, 0.1);
-  padding: 4px 12px;
-  border-radius: 15px;
+  padding: 0.4vh 1.2vh;
+  border-radius: 1.5vh;
 }
 
 .clickHint {
-  font-size: 0.8rem;
+  font-size: 1.28vh;
   color: #888888;
   font-style: italic;
-  margin-top: 5px;
+  margin-top: 0.5vh;
 }
 
 .addCandidateButton {
   background: linear-gradient(45deg, #00b894, #00a085);
   color: white;
   border: none;
-  border-radius: 25px;
-  padding: 12px 30px;
-  font-size: 1rem;
+  border-radius: 2.5vh;
+  padding: 1.2vh 3vh;
+  font-size: 1.6vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
-  margin-top: 10px;
+  box-shadow: 0 0.4vh 1.5vh rgba(0, 184, 148, 0.4);
+  margin-top: 1vh;
   display: inline-block;
   text-align: center;
-  min-width: 140px;
+  min-width: 14vh;
 }
 
 .addCandidateButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.6);
+  transform: translateY(-0.2vh);
+  box-shadow: 0 0.6vh 2vh rgba(0, 184, 148, 0.6);
 }
 
 .alreadyRegistered {
   background: linear-gradient(45deg, #95a5a6, #7f8c8d);
   color: white;
   border: none;
-  border-radius: 25px;
-  padding: 12px 30px;
-  font-size: 1rem;
+  border-radius: 2.5vh;
+  padding: 1.2vh 3vh;
+  font-size: 1.6vh;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 1vh;
   cursor: default;
   opacity: 0.9;
   display: inline-block;
@@ -369,15 +372,6 @@
   
   .wheelWrapper {
     height: 180px;
-  }
-  
-  .slotMachineItem.active {
-    font-size: 1.8rem;
-  }
-  
-  .spinButton {
-    padding: 12px 30px;
-    font-size: 1.1rem;
   }
 }
 

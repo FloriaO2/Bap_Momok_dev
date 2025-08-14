@@ -775,7 +775,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
               disabled={isRefreshing}
               title="후보 새로고침"
             >
-              🔄
+              ⭮
             </button>
             <h1>
               {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
@@ -801,7 +801,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             disabled={isLoading}
             title="후보 새로고침"
           >
-            🔄
+            ⭮
           </button>
           <h1>
             {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
@@ -824,11 +824,11 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
                     className += ` ${styles.active}`;
                   } else if (position === 1) {
                     // 중앙위
-                    style.transform = 'translateY(-50px) scale(1)';
+                    style.transform = 'translateY(-5vh) scale(1)';
                     style.opacity = '0.5';
                   } else if (position === restaurants.length - 1) {
                     // 중앙아래
-                    style.transform = 'translateY(50px) scale(1)';
+                    style.transform = 'translateY(5vh) scale(1)';
                     style.opacity = '0.5';
                   } else {
                     // 보이지 않는 요소들
