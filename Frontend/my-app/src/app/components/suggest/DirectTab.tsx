@@ -79,8 +79,8 @@ export default function DirectTab({
   // 카테고리 계층 구조 정의
   const categoryHierarchy = {
     '한식': ['분식', '고기', '밥류', '찌개', '기타한식'],
-    '중식': ['마라탕', '기타중식'],
-    '일식': ['초밥', '회', '돈까스', '우동', '기타일식'],
+    '중식': ['중식'],
+    '일식': ['초밥', '회', '돈까스', '기타일식'],
     '양식': ['치킨', '피자', '패스트푸드', '기타양식'],
     '건강식': ['샐러드', '죽', '샤브샤브'],
     '기타': ['베트남음식', '동남아음식', '태국음식', '기타식당'],
@@ -114,14 +114,12 @@ export default function DirectTab({
     '찌개': ['찌개'],
     
     // 중식
-    '마라탕': ['마라탕'],
-    '기타중식': ['중식'],
+    '중식': ['중식'],
     
     // 일식 하위 카테고리
-    '초밥': ['일식'],
-    '돈까스': ['일식'],
-    '우동': ['면류'],
-    '회': ['해산물'],
+    '초밥': ['초밥'],
+    '돈까스': ['돈까스'],
+    '회': ['회'],
     
     // 양식 하위 카테고리
     '치킨': ['치킨'],
@@ -175,21 +173,39 @@ export default function DirectTab({
     const fullCategoryString = restaurant.category_name; // 전체 카테고리 문자열
     
     // 제외된 카테고리와 매칭 확인
-    for (const excludedCategory of excludedCategories) {
-      // '기타' 카테고리 특별 처리
+    // 구체적인 카테고리를 먼저 처리하고, '기타' 카테고리를 나중에 처리
+    const specificCategories = excludedCategories.filter(cat => 
+      !cat.startsWith('기타') && cat !== '기타식당'
+    );
+    const generalCategories = excludedCategories.filter(cat => 
+      cat.startsWith('기타') || cat === '기타식당'
+    );
+    
+    // 구체적인 카테고리 먼저 처리
+    for (const excludedCategory of specificCategories) {
+      const mappedCategories = categoryMapping[excludedCategory] || [excludedCategory];
+      for (const mappedCategory of mappedCategories) {
+        if (fullCategoryString.includes(mappedCategory)) {
+          return false;
+        }
+      }
+    }
+    
+    // '기타' 카테고리 나중에 처리
+    for (const excludedCategory of generalCategories) {
       if (excludedCategory === '기타한식') {
         // 한식의 기타: 한식 중 분식, 고기, 밥류가 아닌 것들
         if (fullCategoryString.includes('한식') || fullCategoryString.includes('해장국') || fullCategoryString.includes('한정식') || fullCategoryString.includes('국밥')) {
           return false;
         }
-      } else if (excludedCategory === '기타중식') {
-        // 중식의 기타: 중식 중 마라탕이 아닌 것들
-        if (fullCategoryString.includes('중식')) {
-          return false;
-        }
+
       } else if (excludedCategory === '기타일식') {
-        // 일식의 기타: 일식 중 초밥, 회, 돈까스, 우동이 아닌 것들
-        if (fullCategoryString.includes('일식')) {
+        // 일식의 기타: 일식 중 초밥, 회, 돈까스가 아닌 것들
+        // 돈까스, 초밥, 회가 포함된 경우는 기타일식에 해당하지 않음
+        if (fullCategoryString.includes('일식') && 
+            !fullCategoryString.includes('초밥') && 
+            !fullCategoryString.includes('회') && 
+            !fullCategoryString.includes('돈까스')) {
           return false;
         }
       } else if (excludedCategory === '기타양식') {
@@ -232,14 +248,6 @@ export default function DirectTab({
         
         if (!hasOtherCategory) {
           return false;
-        }
-      } else {
-        // 일반 카테고리 매칭 - 전체 카테고리 문자열에서 키워드 검색
-        const mappedCategories = categoryMapping[excludedCategory] || [excludedCategory];
-        for (const mappedCategory of mappedCategories) {
-          if (fullCategoryString.includes(mappedCategory)) {
-            return false;
-          }
         }
       }
     }
@@ -1189,7 +1197,7 @@ export default function DirectTab({
                   display: "inline-flex",
                   alignItems: "center",
                   padding: "4px 8px",
-                  background: "#ff6b6b",
+                  background: "rgb(220, 53, 69)",
                   color: "white",
                   borderRadius: "12px",
                   fontSize: "12px",

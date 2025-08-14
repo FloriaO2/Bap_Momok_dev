@@ -55,6 +55,48 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // 카카오맵 로그인 체크 에러 무시
+              const originalFetch = window.fetch;
+              window.fetch = function(...args) {
+                const url = args[0];
+                if (typeof url === 'string' && url.includes('place.map.kakao.com/place/is-login-user/')) {
+                  // 카카오맵 로그인 체크 요청은 에러를 무시하고 빈 응답 반환
+                  return Promise.resolve(new Response('{}', {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                  }));
+                }
+                return originalFetch.apply(this, args);
+              };
+
+              // XMLHttpRequest도 가로채기
+              const originalXHROpen = XMLHttpRequest.prototype.open;
+              XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                if (typeof url === 'string' && url.includes('place.map.kakao.com/place/is-login-user/')) {
+                  // 카카오맵 로그인 체크 요청은 무시
+                  this.abort();
+                  return;
+                }
+                return originalXHROpen.apply(this, [method, url, ...args]);
+              };
+
+              // 콘솔 에러도 필터링
+              const originalConsoleError = console.error;
+              console.error = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('place.map.kakao.com/place/is-login-user/') && 
+                    message.includes('400 (Bad Request)')) {
+                  // 카카오맵 로그인 체크 에러는 무시
+                  return;
+                }
+                return originalConsoleError.apply(this, args);
+              };
+            `,
+          }}
+        />
       </body>
     </html>
   );
