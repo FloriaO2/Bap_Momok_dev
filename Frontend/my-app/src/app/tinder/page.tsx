@@ -349,26 +349,26 @@ function TinderPageContent() {
                 margin: '0 auto'
               }}>
                 <div style={{
-                  fontSize: '64px',
-                  marginBottom: '20px',
+                  fontSize: '6.4vh',
+                  marginBottom: '2vh',
                   animation: 'bounce 2s infinite'
                 }}>
                   🎉
                 </div>
                 <h2 style={{
-                  fontSize: '28px',
+                  fontSize: '2.8vh',
                   fontWeight: '700',
                   color: '#333',
-                  marginBottom: '16px',
+                  marginBottom: '1.6vh',
                   marginTop: '0'
                 }}>
                   투표 완료!
                 </h2>
                 <p style={{
-                  fontSize: '16px',
+                  fontSize: '1.6vh',
                   color: '#666',
                   lineHeight: '1.6',
-                  marginBottom: '24px'
+                  marginBottom: '2.4vh'
                 }}>
                   모든 후보에 대한 투표가 완료되었습니다.
                 </p>
@@ -376,43 +376,43 @@ function TinderPageContent() {
                 {/* 진행률 표시 */}
                 <div style={{
                   background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  marginBottom: '24px',
-                  border: '1px solid #dee2e6'
+                  borderRadius: '1.6vh',
+                  padding: '2vh',
+                  marginBottom: '2.4vh',
+                  border: '0.1vh solid #dee2e6'
                 }}>
                   <div style={{
-                    fontSize: '14px',
+                    fontSize: '1.4vh',
                     color: '#6c757d',
-                    marginBottom: '8px'
+                    marginBottom: '0.8vh'
                   }}>
                     서버 반영 진행률
                   </div>
                   <div style={{
-                    fontSize: '24px',
+                    fontSize: '2.4vh',
                     fontWeight: '700',
                     color: '#994d52',
-                    marginBottom: '8px'
+                    marginBottom: '0.8vh'
                   }}>
                     {voteDoneCount} / {totalVotes}
                   </div>
                   <div style={{
                     background: '#e9ecef',
-                    borderRadius: '8px',
-                    height: '8px',
+                    borderRadius: '0.8vh',
+                    height: '0.8vh',
                     overflow: 'hidden',
-                    marginBottom: '8px'
+                    marginBottom: '0.8vh'
                   }}>
                     <div style={{
                       background: 'linear-gradient(90deg, #994d52 0%, #c82333 100%)',
                       height: '100%',
                       width: `${percent}%`,
                       transition: 'width 0.5s ease',
-                      borderRadius: '8px'
+                      borderRadius: '0.8vh'
                     }} />
                   </div>
                   <div style={{
-                    fontSize: '14px',
+                    fontSize: '1.4vh',
                     color: '#6c757d'
                   }}>
                     {percent}% 완료
@@ -420,10 +420,10 @@ function TinderPageContent() {
                 </div>
                 
                 <p style={{
-                  fontSize: '14px',
+                  fontSize: '1.4vh',
                   color: '#888',
                   lineHeight: '1.5',
-                  marginBottom: '24px'
+                  marginBottom: '2.4vh'
                 }}>
                   모든 투표가 서버에 반영되면<br/>
                   잠시 후 자동으로 결과 화면으로 이동합니다.

@@ -539,7 +539,7 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                 justifyContent: "space-between"
               }}>
                 <span style={{ 
-                  fontSize: "14px", 
+                  fontSize: "1.6vh", 
                   color: "#666", 
                   wordBreak: "break-all",
                   flex: 1,

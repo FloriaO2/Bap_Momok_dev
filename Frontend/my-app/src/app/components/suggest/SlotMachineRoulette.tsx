@@ -775,7 +775,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
               disabled={isRefreshing}
               title="후보 새로고침"
             >
-              ⭮
+              🔄
             </button>
             <h1>
               {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
@@ -801,7 +801,7 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
             disabled={isLoading}
             title="후보 새로고침"
           >
-            ⭮
+            🔄
           </button>
           <h1>
             {activeTab === 'direct' ? '🍽️ 직접가기 슬롯머신 룰렛 🍽️' : '🛵 배달 슬롯머신 룰렛 🛵'}
