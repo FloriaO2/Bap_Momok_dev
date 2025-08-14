@@ -457,7 +457,7 @@ export default function HomePage() {
                 }
               }}
             />
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+            <div style={{ display: 'flex', gap: '1.2vh', justifyContent: 'center', marginTop: '1.6vh' }}>
               <button
                 className={styles.modalButton}
                 onClick={() => joinRoom(joinRoomInput)}
@@ -489,7 +489,7 @@ export default function HomePage() {
                   e.preventDefault();
                   setSearchKeyword(createRoomData.location);
                 }}
-                style={{ display: 'flex', gap: 8 }}
+                style={{ display: 'flex', gap: '0.8vh' }}
               >
                 <input
                   className={styles.modalInput}
@@ -539,7 +539,7 @@ export default function HomePage() {
 
             {/* Delivery 옵션 */}
             <div className={styles.optionGroup}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2vh' }}>
                 <input
                   type="checkbox"
                   id="delivery"
@@ -569,7 +569,7 @@ export default function HomePage() {
 
             {/* Visit 옵션 */}
             <div className={styles.optionGroup}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2vh' }}>
                 <input
                   type="checkbox"
                   id="visit"
@@ -629,7 +629,7 @@ export default function HomePage() {
                   e.preventDefault();
                   setSearchKeyword(randomRoomData.location);
                 }}
-                style={{ display: 'flex', gap: 8 }}
+                style={{ display: 'flex', gap: '0.8vh' }}
               >
                 <input
                   className={styles.modalInput}
@@ -664,7 +664,7 @@ export default function HomePage() {
 
             {/* Delivery 옵션 */}
             <div className={styles.optionGroup}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2vh' }}>
                 <input
                   type="checkbox"
                   id="random-delivery"
@@ -694,7 +694,7 @@ export default function HomePage() {
 
             {/* Visit 옵션 */}
             <div className={styles.optionGroup}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2vh' }}>
                 <input
                   type="checkbox"
                   id="random-visit"

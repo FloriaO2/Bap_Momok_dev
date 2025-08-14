@@ -146,43 +146,42 @@
 
 .modalContent {
   background-color: white;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 1vh;
+  padding: 2vh;
   width: 80%;
-  max-width: 400px;
+  max-width: 40vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1vh 2.5vh rgba(0, 0, 0, 0.3);
 }
 
 .createModalContent {
   background-color: white;
-  border-radius: 10px;
-  padding: 30px;
+  border-radius: 1vh;
+  padding: 3vh;
   width: 90%;
-  max-width: 500px;
+  max-width: 50vh;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1vh 2.5vh rgba(0, 0, 0, 0.3);
 }
 
 .modalTitle {
-  font-size: 24px;
+  font-size: 2.4vh;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
   color: #333;
   text-align: center;
 }
 
 .modalInput {
   width: 100%;
-  height: 50px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 0 10px;
-  margin-bottom: 20px;
-  font-size: 16px;
+  height: 5vh;
+  border: 0.1vh solid #ccc;
+  border-radius: 0.8vh;
+  padding: 0 1vh;
+  font-size: 1.6vh;
   color: #333;
   box-sizing: border-box;
 }
@@ -190,23 +189,22 @@
 .modalInput:focus {
   outline: none;
   border-color: #994d52;
-  box-shadow: 0 0 0 2px rgba(153, 77, 82, 0.2);
+  box-shadow: 0 0 0 0.2vh rgba(153, 77, 82, 0.2);
 }
 
 .searchButton {
-  height: 50px;
-  min-width: 60px;
-  max-width: 90px;
-  padding: 0 18px;
+  height: 5vh;
+  min-width: 6vh;
+  max-width: 9vh;
+  padding: 0 1.8vh;
   background-color: #994d52;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 0.8vh;
+  font-size: 1.6vh;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,42 +216,42 @@
 
 .inputGroup {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
 }
 
 .inputLabel {
   display: block;
-  font-size: 16px;
+  font-size: 1.6vh;
   font-weight: 600;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 0.8vh;
 }
 
 .optionGroup {
   width: 100%;
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  margin-bottom: 2vh;
+  padding: 0.5vh 2vh;
+  border: 0.1vh solid #e0e0e0;
+  border-radius: 0.8vh;
   background-color: #f9f9f9;
 }
 
 .checkboxGroup {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 1vh;
 }
 
 .checkbox {
-  width: 18px;
-  height: 18px;
-  margin-right: 10px;
+  width: 1.8vh;
+  height: 1.8vh;
+  margin-right: 1vh;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  border: 2px solid #ccc;
-  border-radius: 3px;
+  border: 0.2vh solid #ccc;
+  border-radius: 0.3vh;
   background-color: white;
   box-sizing: border-box;
   position: relative;
@@ -272,16 +270,16 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  font-size: 12px;
+  font-size: 1.2vh;
   font-weight: bold;
 }
 
 .checkboxLabel {
-  font-size: 16px;
+  font-size: 1.6vh;
   font-weight: 600;
   color: #333;
   cursor: pointer;
-  height: 40px;
+  height: 4vh;
   display: flex;
   align-items: center;
   vertical-align: middle;
@@ -289,11 +287,11 @@
 
 .timeSelect {
   width: 100%;
-  height: 40px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 0 10px;
-  font-size: 14px;
+  height: 4vh;
+  border: 0.1vh solid #ccc;
+  border-radius: 0.6vh;
+  padding: 0 2vh;
+  font-size: 1.4vh;
   color: #333;
   background-color: white;
   cursor: pointer;
@@ -302,14 +300,14 @@
 .timeSelect:focus {
   outline: none;
   border-color: #994d52;
-  box-shadow: 0 0 0 2px rgba(153, 77, 82, 0.2);
+  box-shadow: 0 0 0 0.2vh rgba(153, 77, 82, 0.2);
 }
 
 .modalButtonGroup {
   display: flex;
-  gap: 10px;
+  gap: 1vh;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 3vh;
 }
 
 .modalButton {
@@ -317,9 +315,9 @@
   background-color: #994d52;
   color: white;
   border: none;
-  padding: 12px 30px;
-  border-radius: 25px;
-  font-size: 16px;
+  padding: 1.2vh 3vh;
+  border-radius: 2.5vh;
+  font-size: 1.6vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -327,7 +325,7 @@
 
 .modalButton:hover {
   background-color: #994d52;
-  transform: translateY(-1px);
+  transform: translateY(-0.1vh);
 }
 
 .modalButton:last-child {
