@@ -290,7 +290,8 @@
   height: 4vh;
   border: 0.1vh solid #ccc;
   border-radius: 0.6vh;
-  padding: 0 2vh;
+  padding-left: 0.5vh;
+  padding-right: 2vh;
   font-size: 1.4vh;
   color: #333;
   background-color: white;

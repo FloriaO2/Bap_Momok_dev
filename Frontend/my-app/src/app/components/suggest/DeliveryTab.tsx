@@ -337,7 +337,7 @@ export default function DeliveryTab({
               padding: "0.8vh 0",
               background: "none",
               border: "none",
-              fontSize: "1.4vh",
+              fontSize: "1.68vh",
               fontWeight: "600",
               color: params.category === category.id ? "#333" : "#999",
               borderBottom: params.category === category.id ? "0.2vh solid #994d52" : "none",
@@ -362,7 +362,7 @@ export default function DeliveryTab({
             padding: "1.2vh 4vh 1.2vh 1.5vh",
             border: "0.1vh solid #e0e0e0",
             borderRadius: "0.8vh",
-            fontSize: "1.6vh",
+            fontSize: "1.92vh",
             outline: "none"
           }}
         />
@@ -376,7 +376,7 @@ export default function DeliveryTab({
               transform: "translateY(-50%)",
               background: "none",
               border: "none",
-              fontSize: "1.8vh",
+              fontSize: "2.16vh",
               color: "#999",
               cursor: "pointer"
             }}
@@ -417,15 +417,15 @@ export default function DeliveryTab({
           }}
           ref={listRef}
         >
-        <h3 style={{ fontSize: "1.8vh", fontWeight: "bold", color: "#333", marginBottom: "1.5vh" }}>
+        <h3 style={{ fontSize: "2.16vh", fontWeight: "bold", color: "#333", marginBottom: "1.5vh" }}>
           배달 음식점 목록
         </h3>
         {loading && restaurants.length === 0 ? (
-          <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
+          <div style={{ textAlign: "center", color: "#999", fontSize: "1.92vh", padding: "4vh 0" }}>
             식당 정보를 불러오는 중...
           </div>
         ) : uniqueRestaurants.length === 0 && !hasMore ? (
-          <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
+          <div style={{ textAlign: "center", color: "#999", fontSize: "1.92vh", padding: "4vh 0" }}>
             식당이 없습니다
           </div>
         ) : (
@@ -454,9 +454,9 @@ export default function DeliveryTab({
                   </div>
                   {/* 정보 */}
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "1.6vh", fontWeight: "bold", color: "#333", marginBottom: "0.4vh" }}>{r.name}</div>
-                    <div style={{ fontSize: "1.4vh", color: "#666", marginBottom: "0.4vh" }}>{r.categories.join(', ')}</div>
-                    <div style={{ fontSize: "1.4vh", color: "#666", display: "flex", alignItems: "center", gap: "0.4vh" }}>
+                    <div style={{ fontSize: "1.92vh", fontWeight: "bold", color: "#333", marginBottom: "0.4vh" }}>{r.name}</div>
+                    <div style={{ fontSize: "1.68vh", color: "#666", marginBottom: "0.4vh" }}>{r.categories.join(', ')}</div>
+                    <div style={{ fontSize: "1.68vh", color: "#666", display: "flex", alignItems: "center", gap: "0.4vh" }}>
                       ⭐ {r.review_avg} ({r.review_count} {r.review_count <= 1 ? "review" : "reviews"})
                     </div>
                   </div>

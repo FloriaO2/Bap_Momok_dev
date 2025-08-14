@@ -989,14 +989,14 @@ export default function DirectTab({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyPress={handleKeyPress}
-          style={{
-            width: "100%",
-            padding: "1.2vh 4vh 1.2vh 1.5vh",
-            border: "0.1vh solid #e0e0e0",
-            borderRadius: "0.8vh",
-            fontSize: "1.6vh",
-            outline: "none"
-          }}
+                      style={{
+              width: "100%",
+              padding: "1.2vh 4vh 1.2vh 1.5vh",
+              border: "0.1vh solid #e0e0e0",
+              borderRadius: "0.8vh",
+              fontSize: "1.92vh",
+              outline: "none"
+            }}
         />
                     {searchTerm && !loading && (
               <button
@@ -1025,7 +1025,7 @@ export default function DirectTab({
                   transform: "translateY(-50%)",
                   background: "none",
                   border: "none",
-                  fontSize: "1.8vh",
+                  fontSize: "2.16vh",
                   color: "#999",
                   cursor: "pointer"
                 }}
@@ -1080,7 +1080,7 @@ export default function DirectTab({
             alignItems: "center", 
             gap: "0.8vh", 
             cursor: "pointer",
-            fontSize: "1.4vh",
+            fontSize: "1.68vh",
             color: "#333"
           }}>
             <input
@@ -1131,7 +1131,7 @@ export default function DirectTab({
             border: "none",
             borderRadius: "0.6vh",
             cursor: "pointer",
-            fontSize: "1.4vh",
+            fontSize: "1.68vh",
             fontWeight: "500"
           }}
         >
@@ -1152,7 +1152,7 @@ export default function DirectTab({
               border: "0.1vh solid rgba(0, 0, 0, 0.2)",
               borderRadius: "0.8vh",
               cursor: "pointer",
-              fontSize: "1.6vh",
+              fontSize: "1.92vh",
               width: "3.6vh",
               height: "3.6vh",
               display: "flex",
@@ -1205,7 +1205,7 @@ export default function DirectTab({
                   background: "rgb(220, 53, 69)",
                   color: "white",
                   borderRadius: "1.2vh",
-                  fontSize: "1.2vh",
+                  fontSize: "1.44vh",
                   fontWeight: "500"
                 }}
               >
@@ -1227,7 +1227,7 @@ export default function DirectTab({
                     color: "white",
                     marginLeft: "0.6vh",
                     cursor: "pointer",
-                    fontSize: "1.4vh",
+                    fontSize: "1.68vh",
                     fontWeight: "bold"
                   }}
                 >
@@ -1250,15 +1250,16 @@ export default function DirectTab({
           }}
         >
           <h3 style={{ 
-            fontSize: "1.8vh", 
+            fontSize: "2.16vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "1.5vh"
+            marginBottom: "1.5vh",
+            marginTop: "2vh"
           }}>
             음식점 목록
             {excludedCategories.length > 0 && (
               <span style={{ 
-                fontSize: "1.4vh", 
+                fontSize: "1.68vh", 
                 fontWeight: "normal", 
                 color: "#666",
                 marginLeft: "0.8vh"
@@ -1275,7 +1276,7 @@ export default function DirectTab({
               maxHeight: "40vh",
               overflowY: "auto"
             }}>
-              <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
+              <div style={{ textAlign: "center", color: "#999", fontSize: "1.92vh", padding: "4vh 0" }}>
               식당 정보를 불러오고 있습니다...
               </div>
             </div>
@@ -1311,7 +1312,7 @@ export default function DirectTab({
                     {/* 정보 */}
                     <div style={{ flex: 1 }}>
                       <div style={{ 
-                        fontSize: "1.6vh", 
+                        fontSize: "1.92vh", 
                         fontWeight: "bold", 
                         color: "#333",
                         marginBottom: "0.4vh"
@@ -1319,7 +1320,7 @@ export default function DirectTab({
                         {restaurant.place_name || restaurant.name}
                       </div>
                       <div style={{ 
-                        fontSize: "1.4vh", 
+                        fontSize: "1.68vh", 
                         color: "#666",
                         marginBottom: "0.4vh"
                       }}>
@@ -1341,7 +1342,7 @@ export default function DirectTab({
                       </div>
                       {restaurant.road_address_name && (
                         <div style={{ 
-                          fontSize: "1.1vh", 
+                          fontSize: "1.32vh", 
                           color: "#999",
                           marginBottom: "0.2vh"
                         }}>
@@ -1350,7 +1351,7 @@ export default function DirectTab({
                       )}
                       {restaurant.address_name && (
                         <div style={{ 
-                          fontSize: "1.1vh", 
+                          fontSize: "1.32vh", 
                           color: "#999",
                           marginBottom: "0.2vh"
                         }}>
@@ -1427,7 +1428,7 @@ export default function DirectTab({
                       border: "none",
                       borderRadius: "2vh",
                       padding: "1vh 3vh",
-                      fontSize: "1.6vh",
+                      fontSize: "1.92vh",
                       fontWeight: "bold",
                       cursor: "pointer"
                     }}
@@ -1454,7 +1455,8 @@ export default function DirectTab({
             fontSize: "1.8vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "1.5vh"
+            marginBottom: "1.5vh",
+            marginTop: "2vh"
           }}>
             음식점 목록
           </h3>
