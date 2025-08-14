@@ -66,11 +66,91 @@ export default function DirectTab({
   // 카페, 디저트 제외 필터 상태
   const [excludeCafeDessert, setExcludeCafeDessert] = useState(false);
 
+  // 세부 필터링 상태
+  const [excludedCategories, setExcludedCategories] = useState<string[]>([]);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+
   // 필터링된 결과 상태
   const [localFilteredResults, setLocalFilteredResults] = useState<any[]>([]);
   
   // 슬롯머신용 필터링된 전체 결과 (검색 결과와 무관하게 카페,디저트 필터만 적용)
   const [slotMachineFilteredResults, setSlotMachineFilteredResults] = useState<any[]>([]);
+
+  // 카테고리 계층 구조 정의
+  const categoryHierarchy = {
+    '한식': ['분식', '고기', '밥류', '찌개', '기타한식'],
+    '중식': ['마라탕', '기타중식'],
+    '일식': ['초밥', '회', '돈까스', '우동', '기타일식'],
+    '양식': ['치킨', '피자', '패스트푸드', '기타양식'],
+    '건강식': ['샐러드', '죽', '샤브샤브'],
+    '기타': ['베트남음식', '동남아음식', '태국음식', '기타식당'],
+    '후식': ['카페,디저트', '제과,베이커리', '간식', '아이스크림', '떡,한과'],
+    '주류': ['술집', '호프', '기타주류']
+  };
+
+  // 모든 하위 카테고리 목록 (필터링용)
+  const allSubCategories = [
+    // 한식
+    '분식', '고기', '밥류',
+    // 중식
+    // 일식
+    '초밥', '회', '돈까스', '우동',
+    // 양식
+    '치킨', '피자', '패스트푸드',
+    // 기타
+    '뷔페', '베트남식', '멕시칸식',
+    // 디저트
+    '카페,디저트', '제과,베이커리', '간식', '아이스크림', '떡,한과',
+    // 회식
+    '술집', '호프'
+  ];
+
+  // 카테고리 매핑 (실제 카카오맵 카테고리와 매칭)
+  const categoryMapping: { [key: string]: string[] } = {
+    // 한식 하위 카테고리
+    '분식': ['분식'],
+    '고기': ['고기'],
+    '밥류': ['밥류'],
+    '찌개': ['찌개'],
+    
+    // 중식
+    '마라탕': ['마라탕'],
+    '기타중식': ['중식'],
+    
+    // 일식 하위 카테고리
+    '초밥': ['일식'],
+    '돈까스': ['일식'],
+    '우동': ['면류'],
+    '회': ['해산물'],
+    
+    // 양식 하위 카테고리
+    '치킨': ['치킨'],
+    '피자': ['피자'],
+    '패스트푸드': ['패스트푸드'],
+    
+    // 건강식 하위 카테고리
+    '샐러드': ['샐러드'],
+    '죽': ['죽'],
+    '샤브샤브': ['샤브샤브'],
+    
+    // 기타 하위 카테고리
+    '베트남음식': ['베트남음식'],
+    '동남아음식': ['동남아음식'],
+    '태국음식': ['태국음식'],
+    '기타식당': ['기타식당'],
+    
+    // 디저트 하위 카테고리
+    '카페,디저트': ['카페,디저트'],
+    '제과,베이커리': ['제과,베이커리'],
+    '간식': ['간식'],
+    '아이스크림': ['아이스크림'],
+    '떡,한과': ['떡,한과'],
+    
+    // 주류 하위 카테고리
+    '술집': ['술집'],
+    '호프': ['호프'],
+    '기타주류': ['기타주류']
+  };
 
   // 스크롤 위치 저장용 ref와 state
   const listRef = useRef<HTMLDivElement>(null);
@@ -84,30 +164,159 @@ export default function DirectTab({
   const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
   // 카페, 디저트 카테고리 필터링 함수
-  const filterCafeDessert = (restaurant: any) => {
-    if (!excludeCafeDessert) return true; // 필터가 꺼져있으면 모든 식당 표시
+
+
+  // 세부 카테고리 필터링 함수
+  const filterByCategory = (restaurant: any) => {
+    if (excludedCategories.length === 0) return true; // 제외된 카테고리가 없으면 모든 식당 표시
     
     if (!restaurant.category_name) return true; // 카테고리 정보가 없으면 표시
     
-    const categories = restaurant.category_name.split('>').map((cat: string) => cat.trim());
-    if (categories.length < 2) return true; // 카테고리가 2개 미만이면 표시
+    const fullCategoryString = restaurant.category_name; // 전체 카테고리 문자열
     
-    const secondCategory = categories[1]; // 음식점 다음 카테고리 (예: "카페,디저트")
+    // 제외된 카테고리와 매칭 확인
+    for (const excludedCategory of excludedCategories) {
+      // '기타' 카테고리 특별 처리
+      if (excludedCategory === '기타한식') {
+        // 한식의 기타: 한식 중 분식, 고기, 밥류가 아닌 것들
+        if (fullCategoryString.includes('한식') || fullCategoryString.includes('해장국') || fullCategoryString.includes('한정식') || fullCategoryString.includes('국밥')) {
+          return false;
+        }
+      } else if (excludedCategory === '기타중식') {
+        // 중식의 기타: 중식 중 마라탕이 아닌 것들
+        if (fullCategoryString.includes('중식')) {
+          return false;
+        }
+      } else if (excludedCategory === '기타일식') {
+        // 일식의 기타: 일식 중 초밥, 회, 돈까스, 우동이 아닌 것들
+        if (fullCategoryString.includes('일식')) {
+          return false;
+        }
+      } else if (excludedCategory === '기타양식') {
+        // 양식의 기타: 양식 중 치킨, 피자, 패스트푸드가 아닌 것들
+        if (fullCategoryString.includes('양식')) {
+          return false;
+        }
+      } else if (excludedCategory === '기타주류') {
+        // 주류의 기타: 주류 중 술집, 호프가 아닌 것들
+        if (fullCategoryString.includes('주류') && 
+            !fullCategoryString.includes('술집') && 
+            !fullCategoryString.includes('호프')) {
+          return false;
+        }
+      } else if (excludedCategory === '기타식당') {
+        // 기타식당: 다른 카테고리에 모두 해당하지 않는 모든 식당
+        const excludedKeywords = [
+          // 한식 관련
+          '분식', '고기', '밥류', '찌개', '한식', '해장국', '한정식', '국밥',
+          // 중식 관련
+          '마라탕', '중식',
+          // 일식 관련
+          '초밥', '회', '돈까스', '우동', '일식',
+          // 양식 관련
+          '치킨', '피자', '패스트푸드', '양식',
+          // 건강식 관련
+          '샐러드', '죽', '샤브샤브',
+          // 기타 관련
+          '베트남음식', '동남아음식', '태국음식',
+          // 후식 관련
+          '카페,디저트', '제과,베이커리', '간식', '아이스크림', '떡,한과',
+          // 주류 관련
+          '술집', '호프', '주류'
+        ];
+        
+        // 다른 카테고리에 해당하지 않는지 확인
+        const hasOtherCategory = excludedKeywords.some(keyword => 
+          fullCategoryString.includes(keyword)
+        );
+        
+        if (!hasOtherCategory) {
+          return false;
+        }
+      } else {
+        // 일반 카테고리 매칭 - 전체 카테고리 문자열에서 키워드 검색
+        const mappedCategories = categoryMapping[excludedCategory] || [excludedCategory];
+        for (const mappedCategory of mappedCategories) {
+          if (fullCategoryString.includes(mappedCategory)) {
+            return false;
+          }
+        }
+      }
+    }
     
-    // 제외할 카테고리 목록
-    const excludeCategories = [
-      '카페,디저트',
-      '제과,베이커리',
-      '간식',
-      '아이스크림',
-      '아이스크림판매점',
-      '떡,한과'
-    ];
-    
-    return !excludeCategories.includes(secondCategory);
+    return true;
   };
 
-  // 카페, 디저트 제외 필터 변경 시 스크롤 맨 위로 이동 및 슬롯머신용 결과 업데이트
+  // 통합 필터링 함수 (세부 카테고리만 사용)
+  const applyFilters = (restaurant: any) => {
+    return filterByCategory(restaurant);
+  };
+
+  // 카테고리 토글 함수
+      const toggleCategory = (category: string) => {
+      setExcludedCategories(prev => {
+        const newExcluded = prev.includes(category) 
+          ? prev.filter(cat => cat !== category)
+          : [...prev, category];
+        
+        // 후식 카테고리의 하위 카테고리 상태 확인
+        const dessertCategories = categoryHierarchy['후식'] || [];
+        const hasDessertCategory = dessertCategories.some(cat => newExcluded.includes(cat));
+        
+        // 후식 하위 카테고리가 하나라도 제외되지 않으면 체크박스 해제
+        if (!hasDessertCategory) {
+          setExcludeCafeDessert(false);
+        } else {
+          // 후식 하위 카테고리가 모두 제외된 경우에만 체크박스 켜기
+          const allDessertExcluded = dessertCategories.every(cat => newExcluded.includes(cat));
+          setExcludeCafeDessert(allDessertExcluded);
+        }
+        
+        return newExcluded;
+      });
+    };
+
+  // 상위 카테고리 토글 함수 (모든 하위 카테고리 포함/제외)
+      const toggleParentCategory = (parentCategory: string) => {
+      const subCategories = categoryHierarchy[parentCategory] || [];
+      const isAllExcluded = subCategories.every(cat => excludedCategories.includes(cat));
+      
+      setExcludedCategories(prev => {
+        let newExcluded;
+        if (isAllExcluded) {
+          // 모든 하위 카테고리가 제외되어 있으면 모두 포함
+          newExcluded = prev.filter(cat => !subCategories.includes(cat));
+        } else {
+          // 일부만 제외되어 있으면 모두 제외
+          newExcluded = [...prev];
+          subCategories.forEach(cat => {
+            if (!newExcluded.includes(cat)) {
+              newExcluded.push(cat);
+            }
+          });
+        }
+        
+        // 후식 카테고리 토글 시 체크박스 동기화
+        if (parentCategory === '후식') {
+          const hasDessertCategory = subCategories.some(cat => newExcluded.includes(cat));
+          setExcludeCafeDessert(hasDessertCategory);
+        }
+        
+        return newExcluded;
+      });
+    };
+
+  // 하위 카테고리 상태 확인 함수
+  const getSubCategoryStatus = (parentCategory: string) => {
+    const subCategories = categoryHierarchy[parentCategory] || [];
+    const excludedCount = subCategories.filter(cat => excludedCategories.includes(cat)).length;
+    
+    if (excludedCount === 0) return 'all-included';
+    if (excludedCount === subCategories.length) return 'all-excluded';
+    return 'partial';
+  };
+
+  // 필터 변경 시 스크롤 맨 위로 이동 및 슬롯머신용 결과 업데이트
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = 0;
@@ -115,7 +324,7 @@ export default function DirectTab({
     
     // 슬롯머신용 필터링된 결과 업데이트
     if (sectorSearchResults.length > 0) {
-      const slotMachineFiltered = sectorSearchResults.filter(filterCafeDessert);
+      const slotMachineFiltered = sectorSearchResults.filter(applyFilters);
       setSlotMachineFilteredResults(slotMachineFiltered);
       
       // 상위 컴포넌트로 슬롯머신용 결과 전달
@@ -125,7 +334,7 @@ export default function DirectTab({
       
       console.log(`🎰 슬롯머신용 필터링 결과 업데이트: ${sectorSearchResults.length}개 → ${slotMachineFiltered.length}개`);
     }
-  }, [excludeCafeDessert, sectorSearchResults]);
+  }, [excludeCafeDessert, excludedCategories, sectorSearchResults]);
 
   // 지도가 준비되면 인스턴스 저장
   const handleMapReady = (mapInstance: any) => {
@@ -351,7 +560,7 @@ export default function DirectTab({
       setSectorSearchResults(allRestaurants); // 부채꼴 검색 결과 저장
       
       // 슬롯머신용 필터링된 결과 업데이트 (카페,디저트 필터만 적용)
-      const slotMachineFiltered = allRestaurants.filter(filterCafeDessert);
+              const slotMachineFiltered = allRestaurants.filter(applyFilters);
       setSlotMachineFilteredResults(slotMachineFiltered);
       
       // 상위 컴포넌트로 슬롯머신용 결과 전달
@@ -362,8 +571,9 @@ export default function DirectTab({
       setHasSectorSearchCompleted(true); // 부채꼴 검색 완료 표시
       setLoading?.(false); // 상위 컴포넌트에 로딩 완료 알림
       
-      // 페이지네이션 초기화
-      const initialDisplay = allRestaurants.slice(0, ITEMS_PER_PAGE);
+      // 페이지네이션 초기화 (필터링 적용)
+      const filteredRestaurants = allRestaurants.filter(applyFilters);
+      const initialDisplay = filteredRestaurants.slice(0, ITEMS_PER_PAGE);
       setDisplayedResults(initialDisplay);
       setCurrentPage(1);
       setHasMoreResults(allRestaurants.length > ITEMS_PER_PAGE);
@@ -380,8 +590,9 @@ export default function DirectTab({
       console.log('🔍 탭 전환 - 저장된 부채꼴 검색 결과 재활용:', sectorSearchResults.length, '개 식당');
       setSearchResults(sectorSearchResults);
       
-      // 페이지네이션 초기화
-      const initialDisplay = sectorSearchResults.slice(0, ITEMS_PER_PAGE);
+      // 페이지네이션 초기화 (필터링 적용)
+      const filteredResults = sectorSearchResults.filter(applyFilters);
+      const initialDisplay = filteredResults.slice(0, ITEMS_PER_PAGE);
       setDisplayedResults(initialDisplay);
       setCurrentPage(1);
       setHasMoreResults(sectorSearchResults.length > ITEMS_PER_PAGE);
@@ -398,7 +609,7 @@ export default function DirectTab({
   // 필터링 효과 적용
   useEffect(() => {
     if (searchResults.length > 0) {
-      const filtered = searchResults.filter(filterCafeDessert);
+      const filtered = searchResults.filter(applyFilters);
       setLocalFilteredResults(filtered);
       
       // 상위 컴포넌트로 필터링된 결과 전달
@@ -412,10 +623,11 @@ export default function DirectTab({
       setDisplayedResults(initialDisplay);
       setCurrentPage(1);
       setHasMoreResults(filtered.length > ITEMS_PER_PAGE);
+      setIsEnd(filtered.length <= ITEMS_PER_PAGE);
       
       console.log(`🔍 필터링 결과: ${searchResults.length}개 → ${filtered.length}개`);
     }
-  }, [searchResults, excludeCafeDessert, setFilteredResults]);
+  }, [searchResults, excludeCafeDessert, excludedCategories, setFilteredResults]);
 
 
 
@@ -456,7 +668,9 @@ export default function DirectTab({
           
           if (resetPage) {
             setSearchResults(data);
-            setDisplayedResults(data);
+            // 필터링 적용
+            const filteredData = data.filter(applyFilters);
+            setDisplayedResults(filteredData);
             setPage(1);
             setCurrentPage(1);
             setHasMoreResults(false); // 키워드 검색은 더보기 없음
@@ -469,7 +683,9 @@ export default function DirectTab({
             setDisplayedResults(prev => {
               const existingIds = new Set(prev.map((item: any) => item.id || item.kakao_id));
               const newData = data.filter((item: any) => !existingIds.has(item.id || item.kakao_id));
-              return [...prev, ...newData];
+              // 새로 추가된 데이터에 필터링 적용
+              const filteredNewData = newData.filter(applyFilters);
+              return [...prev, ...filteredNewData];
             });
             setPage(nextPage);
           }
@@ -498,8 +714,9 @@ export default function DirectTab({
         setLocalLoading(false);
         setSearchResults(sectorSearchResults);
         
-        // 페이지네이션 초기화
-        const initialDisplay = sectorSearchResults.slice(0, ITEMS_PER_PAGE);
+        // 페이지네이션 초기화 (필터링 적용)
+        const filteredResults = sectorSearchResults.filter(applyFilters);
+        const initialDisplay = filteredResults.slice(0, ITEMS_PER_PAGE);
         setDisplayedResults(initialDisplay);
         setCurrentPage(1);
         setHasMoreResults(sectorSearchResults.length > ITEMS_PER_PAGE);
@@ -836,43 +1053,178 @@ export default function DirectTab({
         </button>
       </div>
 
-      {/* 필터 체크박스 */}
+      {/* 필터 영역 - 가로 정렬 */}
       <div style={{ 
-        marginBottom: "15px", 
-        padding: "12px", 
-        background: "#f8f9fa", 
-        borderRadius: "8px",
-        border: "1px solid #e9ecef"
+        marginBottom: "15px",
+        display: "flex",
+        gap: "15px",
+        alignItems: "center"
       }}>
-        <label style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          gap: "8px", 
-          cursor: "pointer",
-          fontSize: "14px",
-          color: "#333"
-        }}>
-          <input
-            type="checkbox"
-            checked={excludeCafeDessert}
-            onChange={(e) => setExcludeCafeDessert(e.target.checked)}
-            style={{
-              width: "16px",
-              height: "16px",
-              cursor: "pointer"
-            }}
-          />
-          <span>☕ 카페, 디저트 제외</span>
-        </label>
+        {/* 카페, 디저트 제외 필터 */}
         <div style={{ 
-          fontSize: "12px", 
-          color: "#666", 
-          marginTop: "4px",
-          marginLeft: "24px"
+          padding: "12px", 
+          background: "#f8f9fa", 
+          borderRadius: "8px",
+          border: "1px solid #e9ecef"
         }}>
-          체크 시 카페, 디저트, 베이커리, 아이스크림 등이 제외됩니다
+          <label style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "8px", 
+            cursor: "pointer",
+            fontSize: "14px",
+            color: "#333"
+          }}>
+            <input
+              type="checkbox"
+              checked={excludeCafeDessert}
+                             onChange={(e) => {
+                 const newExcludeCafeDessert = e.target.checked;
+                 setExcludeCafeDessert(newExcludeCafeDessert);
+                 
+                 // 카페, 디저트 제외가 켜지면 세부 필터링에서도 후식 카테고리 제외
+                 if (newExcludeCafeDessert) {
+                   // 후식 카테고리의 모든 하위 카테고리를 제외 목록에 추가
+                   const dessertCategories = categoryHierarchy['후식'] || [];
+                   setExcludedCategories(prev => {
+                     const newExcluded = [...prev];
+                     dessertCategories.forEach(cat => {
+                       if (!newExcluded.includes(cat)) {
+                         newExcluded.push(cat);
+                       }
+                     });
+                     return newExcluded;
+                   });
+                 } else {
+                   // 카페, 디저트 제외가 꺼지면 세부 필터링에서도 후식 카테고리 포함
+                   const dessertCategories = categoryHierarchy['후식'] || [];
+                   setExcludedCategories(prev => {
+                     return prev.filter(cat => !dessertCategories.includes(cat));
+                   });
+                 }
+               }}
+              style={{
+                width: "16px",
+                height: "16px",
+                cursor: "pointer"
+              }}
+            />
+            <span>☕ 후식 제외</span>
+          </label>
         </div>
+
+        {/* 세부 필터링 버튼 */}
+        <button
+          onClick={() => setShowCategoryModal(true)}
+          style={{
+            padding: "8px 16px",
+            background: "#994d52",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "500"
+          }}
+        >
+          🍽️ 세부 필터링
+        </button>
+
+        {/* 모든 태그 제거 버튼 */}
+        {excludedCategories.length > 0 && (
+          <button
+            onClick={() => {
+              setExcludedCategories([]);
+              setExcludeCafeDessert(false); // 후식 제외 체크박스도 해제
+            }}
+            style={{
+              padding: "8px 16px",
+              background: "#6c757d",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "500"
+            }}
+          >
+            🗑️ 모든 태그 제거
+          </button>
+        )}
       </div>
+
+      {/* 제외된 카테고리 태그들 */}
+      {excludedCategories.length > 0 && (
+        <div style={{ 
+          marginBottom: "15px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px"
+        }}>
+          {(() => {
+            // 상위 카테고리별로 그룹화하여 태그 생성
+            const tagsToShow: string[] = [];
+            
+            // 각 상위 카테고리 확인
+            Object.entries(categoryHierarchy).forEach(([parentCategory, subCategories]) => {
+              const excludedSubCategories = subCategories.filter(cat => excludedCategories.includes(cat));
+              
+              if (excludedSubCategories.length === subCategories.length) {
+                // 모든 하위 카테고리가 제외된 경우 상위 카테고리만 표시
+                tagsToShow.push(parentCategory);
+              } else if (excludedSubCategories.length > 0) {
+                // 일부만 제외된 경우 개별 하위 카테고리 표시
+                excludedSubCategories.forEach(cat => {
+                  if (!tagsToShow.includes(cat)) {
+                    tagsToShow.push(cat);
+                  }
+                });
+              }
+            });
+            
+            return tagsToShow.map((category) => (
+              <span
+                key={category}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "4px 8px",
+                  background: "#ff6b6b",
+                  color: "white",
+                  borderRadius: "12px",
+                  fontSize: "12px",
+                  fontWeight: "500"
+                }}
+              >
+                {category} 제외
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (categoryHierarchy[category]) {
+                      // 상위 카테고리인 경우 모든 하위 카테고리 토글
+                      toggleParentCategory(category);
+                    } else {
+                      // 하위 카테고리인 경우 개별 토글
+                      toggleCategory(category);
+                    }
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "white",
+                    marginLeft: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            ));
+          })()}
+        </div>
+      )}
 
       {/* 검색 결과 목록 */}
       {showSearchResults && (
@@ -891,14 +1243,14 @@ export default function DirectTab({
             marginBottom: "15px"
           }}>
             음식점 목록
-            {excludeCafeDessert && (
+            {excludedCategories.length > 0 && (
               <span style={{ 
                 fontSize: "14px", 
                 fontWeight: "normal", 
                 color: "#666",
                 marginLeft: "8px"
               }}>
-                (카페, 디저트 제외)
+                ({excludedCategories.length}개 카테고리 제외)
               </span>
             )}
           </h3>
@@ -920,7 +1272,7 @@ export default function DirectTab({
             </div>
           ) : displayedResults.length === 0 ? (
             <div style={{ textAlign: "center", color: "#999", fontSize: "16px", padding: "40px 0" }}>
-              {excludeCafeDessert ? "필터링된 검색 결과가 없습니다" : "검색 결과가 없습니다"}
+              {excludedCategories.length > 0 ? "필터링된 검색 결과가 없습니다" : "검색 결과가 없습니다"}
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
@@ -1144,6 +1496,226 @@ export default function DirectTab({
               style={{ width: "100%", height: "calc(100% - 20px)", border: "none", borderRadius: 12, marginTop: "40px" }}
               title="카카오 플레이스"
             />
+          </div>
+        </div>
+      )}
+
+      {/* 세부 필터링 모달 */}
+      {showCategoryModal && (
+        <div
+          onClick={() => setShowCategoryModal(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              width: "90vw",
+              maxWidth: "500px",
+              maxHeight: "80vh",
+              padding: "20px",
+              overflow: "auto"
+            }}
+          >
+            {/* 헤더 */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px",
+              borderBottom: "1px solid #e9ecef",
+              paddingBottom: "15px"
+            }}>
+              <h3 style={{
+                fontSize: "18px",
+                fontWeight: "bold",
+                color: "#333",
+                margin: 0
+              }}>
+                🍽️ 세부 필터링
+              </h3>
+              <button
+                onClick={() => setShowCategoryModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  color: "#666",
+                  padding: "5px"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 설명 */}
+            <div style={{
+              fontSize: "14px",
+              color: "#666",
+              marginBottom: "20px",
+              padding: "12px",
+              background: "#f8f9fa",
+              borderRadius: "8px"
+            }}>
+              상위 카테고리를 클릭하면 모든 하위 카테고리가 제외됩니다. 개별 하위 카테고리도 선택 가능합니다.
+            </div>
+
+            {/* 카테고리 목록 - 테이블 구조 */}
+            <div style={{
+              border: "1px solid #e9ecef",
+              borderRadius: "8px",
+              overflow: "hidden"
+            }}>
+              {Object.entries(categoryHierarchy).map(([parentCategory, subCategories], index) => {
+                const parentStatus = getSubCategoryStatus(parentCategory);
+                const isParentExcluded = parentStatus === 'all-excluded';
+                const isParentPartial = parentStatus === 'partial';
+                
+                return (
+                  <div key={parentCategory} style={{
+                    display: "flex",
+                    borderBottom: index < Object.keys(categoryHierarchy).length - 1 ? "1px solid #e9ecef" : "none"
+                  }}>
+                    {/* 좌측: 상위 카테고리 */}
+                    <div style={{
+                      width: "120px",
+                      padding: "12px",
+                      borderRight: "1px solid #e9ecef",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#f8f9fa"
+                    }}>
+                      <button
+                        onClick={() => toggleParentCategory(parentCategory)}
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px",
+                          background: "#f8f9fa",
+                          color: "#333",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          textAlign: "center",
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        {parentCategory}
+                      </button>
+                    </div>
+                    
+                    {/* 우측: 하위 카테고리들 */}
+                    <div style={{
+                      flex: "1",
+                      padding: "12px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "8px",
+                      alignItems: "center"
+                    }}>
+                      {subCategories.map((subCategory) => {
+                        const isExcluded = excludedCategories.includes(subCategory);
+                        return (
+                          <button
+                            key={subCategory}
+                            onClick={() => toggleCategory(subCategory)}
+                            style={{
+                              padding: "8px 12px",
+                              background: isExcluded ? "#dc3545" : "#28a745",
+                              color: "white",
+                              border: "1px solid #e9ecef",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              textDecoration: isExcluded ? "line-through" : "none",
+                              transition: "all 0.2s ease",
+                              whiteSpace: "nowrap"
+                            }}
+                          >
+                            {subCategory}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 하단 버튼 */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "20px",
+              paddingTop: "15px",
+              borderTop: "1px solid #e9ecef"
+            }}>
+              <div style={{
+                display: "flex",
+                gap: "10px"
+              }}>
+                <button
+                  onClick={() => {
+                    // 모든 하위 카테고리를 제외 목록에 추가
+                    const allSubCategories = Object.values(categoryHierarchy).flat();
+                    setExcludedCategories(allSubCategories);
+                  }}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#dc3545",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px"
+                  }}
+                >
+                  전체 제외
+                </button>
+                <button
+                  onClick={() => setExcludedCategories([])}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px"
+                  }}
+                >
+                  전체 포함
+                </button>
+              </div>
+              <button
+                onClick={() => setShowCategoryModal(false)}
+                style={{
+                  padding: "8px 16px",
+                  background: "#994d52",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "14px"
+                }}
+              >
+                확인
+              </button>
+            </div>
           </div>
         </div>
       )}
