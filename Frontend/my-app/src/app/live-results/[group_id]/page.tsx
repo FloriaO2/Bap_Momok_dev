@@ -201,16 +201,16 @@ export default function LiveResultsPage() {
           >
           {/* 제목 */}
           <h1 style={{ 
-            fontSize: "32px", 
+            fontSize: "3.2vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "30px",
+            marginBottom: "3.6vh",
             textAlign: "center"
           }}>
             🏆 투표 결과 🏆
           </h1>
           {candidates.length === 0 ? (
-            <div style={{ color: "#888", fontSize: "20px", fontWeight: "bold", textAlign: "center", padding: "60px 0" }}>
+            <div style={{ color: "#888", fontSize: "2.2vh", fontWeight: "bold", textAlign: "center", padding: "7.2vh 0" }}>
               후보가 없습니다.
             </div>
           ) : (
@@ -235,7 +235,7 @@ export default function LiveResultsPage() {
                     color: "#222"
                   }}
                 >
-                  <div style={{ fontSize: 24, fontWeight: "bold", width: 32, textAlign: "center", color: "#222" }}>
+                  <div style={{ fontSize: "2.4vh", fontWeight: "bold", width: "3.8vh", textAlign: "center", color: "#222" }}>
                     {c.rank <= 3 ? (
                       <span>{medalEmojis[c.rank - 1]}</span>
                     ) : (
@@ -243,8 +243,8 @@ export default function LiveResultsPage() {
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 18, fontWeight: 600, color: "#222" }}>{c.name}</div>
-                    <div style={{ fontSize: 14, color: "#888", display: 'flex', gap: '12px', marginTop: '4px' }}>
+                    <div style={{ fontSize: "2.03vh", fontWeight: 600, color: "#222" }}>{c.name}</div>
+                    <div style={{ fontSize: "1.5vh", color: "#888", display: 'flex', gap: '1.4vh', marginTop: '0.5vh' }}>
                       <VoteDisplay candidateId={c.id} option="good" emoji="👍" count={c.good || 0} />
                       <VoteDisplay candidateId={c.id} option="soso" emoji="👌" count={c.soso || 0} />
                       <VoteDisplay candidateId={c.id} option="bad" emoji="👎" count={c.bad || 0} />
