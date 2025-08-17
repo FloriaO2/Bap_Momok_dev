@@ -256,23 +256,23 @@ export default function LiveResultsPage() {
             </AnimatePresence>
           )}
           {/* 하단 홈으로 가기 버튼 */}
-          <div style={{ marginTop: "30px", textAlign: "center", display: "flex", gap: "15px", justifyContent: "center" }}>
+          <div style={{ marginTop: "3.6vh", textAlign: "center", display: "flex", gap: "1.8vh", justifyContent: "center" }}>
             <button
               onClick={() => window.location.href = '/'}
               style={{ 
                 background: "#dc3545", 
                 color: "#fff", 
                 border: "none", 
-                borderRadius: "25px", 
-                padding: "12px 24px", 
-                fontSize: "16px", 
+                borderRadius: "3vh", 
+                padding: "1.44vh 2.88vh", 
+                fontSize: "1.8vh", 
                 fontWeight: "bold", 
                 cursor: "pointer",
                 transition: "all 0.3s ease"
               }}
               onMouseOver={e => {
                 e.currentTarget.style.background = "#c82333";
-                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.transform = "translateY(-0.24vh)";
               }}
               onMouseOut={e => {
                 e.currentTarget.style.background = "#dc3545";

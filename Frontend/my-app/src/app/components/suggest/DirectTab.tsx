@@ -1048,7 +1048,7 @@ export default function DirectTab({
             border: "none",
             borderRadius: "0.4vh",
             padding: "0.7vh clamp(1.2vh, 3vw, 2vh)",
-            fontSize: "clamp(1.2vh, 2.5vw, 1.6vh)",
+            fontSize: "clamp(1.4vh, 2.8vw, 1.8vh)",
             fontWeight: "bold",
             cursor: loading ? "not-allowed" : "pointer",
             opacity: loading ? 0.7 : 1,
@@ -1057,7 +1057,7 @@ export default function DirectTab({
             width: "clamp(6vh, 15vw, 8vh)"
           }}
         >
-          {loading ? "검색" : "검색"}
+          {loading ? "검색 중..." : "검색"}
         </button>
       </div>
 
@@ -1250,7 +1250,7 @@ export default function DirectTab({
           }}
         >
           <h3 style={{ 
-            fontSize: "2vh", 
+            fontSize: "2.2vh", 
             fontWeight: "bold", 
             color: "#333", 
             marginBottom: "1.5vh",
@@ -1276,16 +1276,16 @@ export default function DirectTab({
               maxHeight: "40vh",
               overflowY: "auto"
             }}>
-              <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
+              <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
               식당 정보를 불러오고 있습니다...
               </div>
             </div>
           ) : loading ? (
-            <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
-              검색
+            <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
+              검색 중...
             </div>
           ) : displayedResults.length === 0 ? (
-            <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
+            <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
               {excludedCategories.length > 0 ? "필터링된 검색 결과가 없습니다" : "검색 결과가 없습니다"}
             </div>
           ) : (
@@ -1452,7 +1452,7 @@ export default function DirectTab({
           overflowY: "auto"
         }}>
           <h3 style={{ 
-            fontSize: "2vh", 
+            fontSize: "2.2vh", 
             fontWeight: "bold", 
             color: "#333", 
             marginBottom: "1.5vh",
@@ -1461,9 +1461,9 @@ export default function DirectTab({
             음식점 목록
           </h3>
           
-          <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
-            식당 정보를 불러오고 있습니다...
-          </div>
+                      <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
+              식당 정보를 불러오고 있습니다...
+            </div>
         </div>
       )}
       {/* 모달 */}

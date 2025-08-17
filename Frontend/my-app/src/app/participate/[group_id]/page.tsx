@@ -307,36 +307,36 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "20px",
+          padding: "2.4vh",
           fontFamily: "Arial, sans-serif"
         }}>
           <div style={{ 
             background: "#fff", 
-            borderRadius: "20px", 
-            padding: "40px", 
+            borderRadius: "2.4vh", 
+            padding: "4.8vh", 
             textAlign: "center",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            boxShadow: "0 1.2vh 3.6vh rgba(0,0,0,0.2)",
             maxWidth: "400px",
             width: "100%"
           }}>
             <div style={{ 
-              fontSize: "80px", 
-              marginBottom: "20px"
+              fontSize: "9.6vh", 
+              marginBottom: "2.4vh"
             }}>
               🚧
             </div>
             <h1 style={{ 
-              fontSize: "24px", 
+              fontSize: "2.88vh", 
               fontWeight: "bold", 
               color: "#333", 
-              marginBottom: "10px"
+              marginBottom: "1.2vh"
             }}>
               존재하지 않는 페이지입니다!
             </h1>
             <p style={{ 
-              fontSize: "16px", 
+              fontSize: "1.92vh", 
               color: "#666", 
-              marginBottom: "30px"
+              marginBottom: "3.6vh"
             }}>
               입력하신 그룹 ID가 올바르지 않거나<br />
               해당 그룹이 존재하지 않습니다.
@@ -347,16 +347,16 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                 background: "#994d52", 
                 color: "#fff", 
                 border: "none", 
-                borderRadius: "25px", 
-                padding: "15px 30px", 
-                fontSize: "16px", 
+                borderRadius: "3vh", 
+                padding: "1.8vh 3.6vh", 
+                fontSize: "1.92vh", 
                 fontWeight: "bold", 
                 cursor: "pointer",
                 transition: "all 0.3s ease"
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.background = "#8a4449";
-                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.transform = "translateY(-0.24vh)";
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.background = "#994d52";
@@ -400,23 +400,23 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
       <div style={{ 
         minHeight: "100vh", 
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        padding: "20px",
+        padding: "2.4vh",
         fontFamily: "Arial, sans-serif"
       }}>
         {toast && (
           <div style={{
             position: "fixed",
-            bottom: "40px",
+            bottom: "4.8vh",
             left: "50%",
             transform: "translateX(-50%)",
             background: "#333",
             color: "#fff",
-            padding: "16px 32px",
-            borderRadius: "24px",
-            fontSize: "16px",
+            padding: "1.92vh 3.84vh",
+            borderRadius: "2.88vh",
+            fontSize: "1.92vh",
             zIndex: 9999,
-            boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-            minWidth: "280px",
+            boxShadow: "0 0.48vh 1.92vh rgba(0,0,0,0.2)",
+            minWidth: "33.6vh",
             maxWidth: "90vw",
             textAlign: "center",
             wordBreak: "keep-all",
@@ -429,28 +429,28 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
           <div style={{
             position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
           }}>
-            <div style={{ background: "#fff", borderRadius: 12, padding: 32, minWidth: 300, boxShadow: "0 4px 16px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <h2 style={{ marginBottom: 16, color: '#222' }}>닉네임을 입력하세요</h2>
+            <div style={{ background: "#fff", borderRadius: "1.44vh", padding: "3.84vh", minWidth: "36vh", boxShadow: "0 0.48vh 1.92vh rgba(0,0,0,0.15)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <h2 style={{ marginBottom: "1.92vh", color: '#222' }}>닉네임을 입력하세요</h2>
               <input
                 value={nickname}
                 onChange={e => setNickname(e.target.value)}
                 placeholder="닉네임"
                 style={{
-                  fontSize: 18,
-                  padding: "10px 16px",
-                  borderRadius: 8,
-                  border: "1px solid #ccc",
-                  marginBottom: 16,
+                  fontSize: "2.16vh",
+                  padding: "1.2vh 1.92vh",
+                  borderRadius: "0.96vh",
+                  border: "0.12vh solid #ccc",
+                  marginBottom: "1.92vh",
                   width: "100%",
                   color: '#222',
                   outline: 'none',
                 }}
                 onFocus={e => {
-                  e.target.style.border = '2px solid #994d52';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(153,77,82,0.15)';
+                  e.target.style.border = '0.24vh solid #994d52';
+                  e.target.style.boxShadow = '0 0 0 0.24vh rgba(153,77,82,0.15)';
                 }}
                 onBlur={e => {
-                  e.target.style.border = '1px solid #ccc';
+                  e.target.style.border = '0.12vh solid #ccc';
                   e.target.style.boxShadow = 'none';
                 }}
                 onKeyDown={e => { if (e.key === "Enter" && !isSubmitting) handleNicknameSubmit(); }}
@@ -460,7 +460,7 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
               <button
                 onClick={handleNicknameSubmit}
                 disabled={isSubmitting}
-                style={{ background: "#994d52", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 16, fontWeight: 600, cursor: isSubmitting ? "not-allowed" : "pointer" }}
+                style={{ background: "#994d52", color: "#fff", border: "none", borderRadius: "0.96vh", padding: "1.2vh 2.88vh", fontSize: "1.92vh", fontWeight: 600, cursor: isSubmitting ? "not-allowed" : "pointer" }}
               >
                 {isSubmitting ? "등록 중..." : "확인"}
               </button>
@@ -470,36 +470,36 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
         
         {!showNicknameModal && (
           <div style={{ 
-            maxWidth: "400px", 
+            maxWidth: "48vh", 
             margin: "0 auto", 
             background: "#fff", 
-            borderRadius: "20px", 
-            padding: "30px", 
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            borderRadius: "2.4vh", 
+            padding: "3vh", 
+            boxShadow: "0 1.2vh 3.6vh rgba(0,0,0,0.2)",
             textAlign: "center"
           }}>
             {/* 제목 */}
             <h1 style={{ 
-              fontSize: "28px", 
+              fontSize: "3.36vh", 
               fontWeight: "bold", 
               color: "#333", 
-              marginBottom: "30px",
+              marginBottom: "1.8vh",
               marginTop: "0"
             }}>
               Invite
             </h1>
 
             {/* 투표까지 남은 시간 */}
-            <div style={{ marginBottom: "30px" }}>
+            <div style={{ marginBottom: "1.6vh" }}>
               <div style={{ 
-                fontSize: "16px", 
+                fontSize: "1.6vh", 
                 color: "#666", 
-                marginBottom: "10px" 
+                marginBottom: "0vh" 
               }}>
                 {groupData?.timer_mode ? "투표까지 남은시간" : "모든 참가자 완료 시 자동 이동"}
               </div>
               <div style={{ 
-                fontSize: "20px", 
+                fontSize: "2vh", 
                 fontWeight: "bold", 
                 color: timeLeft === "후보 제안 시간 종료" ? "#dc3545" : "#333" 
               }}>
@@ -507,9 +507,9 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
               </div>
               {timeLeft === "후보 제안 시간 종료" && groupData?.timer_mode && (
                 <div style={{ 
-                  fontSize: "14px", 
+                  fontSize: "1.4vh", 
                   color: "#dc3545", 
-                  marginTop: "5px" 
+                  marginTop: "0.5vh" 
                 }}>
                   투표 화면으로 이동합니다.
                 </div>
@@ -517,10 +517,10 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
               {/* 진행바 */}
               <div style={{ 
                 width: "100%", 
-                height: "8px", 
+                height: "0.8vh", 
                 background: "#f0f0f0", 
-                borderRadius: "4px", 
-                marginTop: "10px",
+                borderRadius: "0.4vh", 
+                marginTop: "1vh",
                 overflow: "hidden"
               }}>
                 <div style={{ 
@@ -529,35 +529,36 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                   background: timeLeft === "후보 제안 시간 종료" 
                     ? "linear-gradient(90deg, #dc3545, #c82333)" 
                     : "linear-gradient(90deg, #667eea, #764ba2)", 
-                  borderRadius: "4px",
+                  borderRadius: "0.4vh",
                   transition: "width 0.3s ease"
                 }}></div>
               </div>
             </div>
 
             {/* QR코드 섹션 */}
-            <div style={{ marginBottom: "30px" }}>
+            <div style={{ marginBottom: "3.6vh" }}>
               <h2 style={{ 
-                fontSize: "20px", 
+                fontSize: "2.4vh", 
                 fontWeight: "bold", 
                 color: "#333", 
-                marginBottom: "20px" 
+                marginBottom: "1.2vh",
+                marginTop: "2vh"
               }}>
                 Room
               </h2>
               <div style={{ 
                 display: "flex", 
                 justifyContent: "center", 
-                marginBottom: "20px" 
+                marginBottom: "2.4vh" 
               }}>
                 <img 
                   src={generateQRCode(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/participate/${groupId}`)}
                   alt="QR Code"
                   style={{ 
-                    width: "200px", 
-                    height: "200px", 
-                    borderRadius: "10px",
-                    border: "2px solid #f0f0f0"
+                    width: "24vh", 
+                    height: "24vh", 
+                    borderRadius: "1.2vh",
+                    border: "0.24vh solid #f0f0f0"
                   }}
                 />
               </div>
@@ -565,9 +566,9 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
               {/* 링크 */}
               <div style={{ 
                 background: "#f8f9fa", 
-                borderRadius: "10px", 
-                padding: "15px", 
-                marginBottom: "15px",
+                borderRadius: "1.2vh", 
+                padding: "1.8vh", 
+                marginBottom: "1.8vh",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between"
@@ -581,14 +582,14 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                 }}>
                   {`${process.env.NEXT_PUBLIC_FRONTEND_URL}/participate/${groupId}`}
                 </span>
-                <div style={{ display: "flex", gap: "10px", marginLeft: "10px" }}>
+                <div style={{ display: "flex", gap: "1.2vh", marginLeft: "1.2vh" }}>
                   <button 
                     onClick={copyLink}
                     style={{ 
                       background: "none", 
                       border: "none", 
                       cursor: "pointer",
-                      padding: "5px"
+                      padding: "0.6vh"
                     }}
                   >
                     📋
@@ -599,14 +600,14 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                       background: "#FEE500", 
                       border: "none", 
                       cursor: "pointer",
-                      padding: "0px 6px",
-                      borderRadius: "6px",
-                      fontSize: "10px",
+                      padding: "0vh 0.72vh",
+                      borderRadius: "0.72vh",
+                      fontSize: "1.2vh",
                       fontWeight: "bold",
                       color: "#3C1E1E",
                       display: "flex",
                       alignItems: "center",
-                      gap: "4px",
+                      gap: "0.48vh",
                       transition: "all 0.2s ease"
                     }}
                     onMouseOver={(e) => {
@@ -627,31 +628,31 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
 
             {/* 멤버 리스트 */}
             <div style={{ 
-              marginBottom: "30px",
+              marginBottom: "3.6vh",
               textAlign: "left"
             }}>
               <h3 style={{ 
-                fontSize: "18px", 
+                fontSize: "2.16vh", 
                 fontWeight: "bold", 
                 color: "#333", 
-                marginBottom: "15px",
+                marginBottom: "1.8vh",
                 textAlign: "center"
               }}>
                 참여자 목록 ({Object.keys(participants).length}명)
               </h3>
               <div style={{ 
-                maxHeight: "150px", 
+                maxHeight: "18vh", 
                 overflowY: "auto",
                 background: "#f8f9fa",
-                borderRadius: "10px",
-                padding: "15px"
+                borderRadius: "1.2vh",
+                padding: "1.8vh"
               }}>
                 {Object.values(participants).length > 0 ? (
                   Object.values(participants).map((p: any, idx) => (
                     <div key={idx} style={{ 
-                      padding: "8px 0", 
-                      borderBottom: idx < Object.values(participants).length - 1 ? "1px solid #e9ecef" : "none",
-                      fontSize: "14px",
+                      padding: "0.96vh 0", 
+                      borderBottom: idx < Object.values(participants).length - 1 ? "0.12vh solid #e9ecef" : "none",
+                      fontSize: "1.68vh",
                       color: "#333"
                     }}>
                       👤 {p.nickname}
@@ -661,8 +662,8 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                   <div style={{ 
                     textAlign: "center", 
                     color: "#999", 
-                    fontSize: "14px",
-                    padding: "20px 0"
+                    fontSize: "1.68vh",
+                    padding: "2.4vh 0"
                   }}>
                     아직 참여자가 없습니다
                   </div>
@@ -674,12 +675,12 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
             {voteMessage && (
               <div style={{
                 background: "#e8f5e8",
-                border: "1px solid #4caf50",
-                borderRadius: "12px",
-                padding: "15px",
-                marginBottom: "15px",
+                border: "0.12vh solid #4caf50",
+                borderRadius: "1.44vh",
+                padding: "1.8vh",
+                marginBottom: "1.8vh",
                 textAlign: "center",
-                fontSize: "14px",
+                fontSize: "1.68vh",
                 color: "#2e7d32",
                 lineHeight: "1.5",
                 whiteSpace: "pre-line"
@@ -706,9 +707,9 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
                 background: shouldGoToVote ? "#28a745" : "#dc3545", 
                 color: "#fff", 
                 border: "none", 
-                borderRadius: "25px", 
-                padding: "15px 30px", 
-                fontSize: "16px", 
+                borderRadius: "3vh", 
+                padding: "1.8vh 3.6vh", 
+                fontSize: "1.92vh", 
                 fontWeight: "bold", 
                 cursor: "pointer",
                 width: "100%",
@@ -717,7 +718,7 @@ export default function ParticipatePage({ params }: { params: Promise<{ group_id
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.background = shouldGoToVote ? "#218838" : "#c82333";
-                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.transform = "translateY(-0.24vh)";
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.background = shouldGoToVote ? "#28a745" : "#dc3545";

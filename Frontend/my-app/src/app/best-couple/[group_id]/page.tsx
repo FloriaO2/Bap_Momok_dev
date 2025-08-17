@@ -40,7 +40,8 @@ export default function BestCouplePage() {
       .then(async res => {
         if (!res.ok) {
           const errorText = await res.text();
-          throw new Error(`best_couple API 호출 실패: ${res.status} - ${errorText}`);
+          //throw new Error(`best_couple API 호출 실패: ${res.status} - ${errorText}`);
+          throw new Error(`정보가 충분하지 않습니다.`);
         }
         return res.json();
       })
@@ -160,7 +161,7 @@ export default function BestCouplePage() {
         onClick={(e) => e.stopPropagation()}
         style={{background: "#fff", borderRadius: 20, padding: 40, textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", color:'#994d52'}}
       >
-        <div style={{marginBottom: 20}}>{error}</div>
+        <div style={{marginBottom: 20, whiteSpace: "pre-line"}}>{error}</div>
         <div style={{fontSize: 14, color: '#666'}}>3초 후 홈으로 이동합니다...</div>
       </div>
     </div>
@@ -207,8 +208,8 @@ export default function BestCouplePage() {
       >
         <div style={{marginBottom: 15}}>
           {!bestCouple.best_couple || bestCouple.best_couple.length === 0 
-            ? "후보가 2명 이상이어야 Best Couple을 찾을 수 있습니다." 
-            : "비교할 참가자가 충분하지 않습니다."}
+            ? "참여자가 2명 이상이거나 결과가 반영된 후보가 2개 이상이어야 Best Couple을 찾을 수 있습니다." 
+            : "정보가 충분하지 않습니다."}
         </div>
         <div style={{fontSize: 14, color: '#666'}}>
           5초 후 홈으로 이동합니다...

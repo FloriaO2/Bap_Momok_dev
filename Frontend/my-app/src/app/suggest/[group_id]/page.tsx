@@ -444,7 +444,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
           textAlign: "center",
           boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
         }}>
-          <div style={{ color: "#333", fontSize: "18px" }}>그룹 정보를 불러오는 중...</div>
+          <div style={{ color: "#333", fontSize: "2.2vh" }}>그룹 정보를 불러오는 중...</div>
         </div>
       </div>
     );
@@ -507,18 +507,18 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
             fontSize: "3.2vh", 
             fontWeight: "bold", 
             color: "#333", 
-            marginBottom: "3vh",
+            marginBottom: "1.8vh",
             textAlign: "center"
           }}>
             투표 후보 선택
           </h1>
           
           {/* 투표 시간 */}
-          <div style={{ marginBottom: "3vh", textAlign: "center" }}>
+          <div style={{ marginBottom: "1.6vh", textAlign: "center" }}>
             <div style={{ 
               fontSize: "1.6vh", 
               color: "#666", 
-              marginBottom: "1vh" 
+              marginBottom: "0vh" 
             }}>
               {groupData?.timer_mode ? "투표까지 남은시간" : "모든 참가자 완료 시 자동 이동"}
             </div>
@@ -573,9 +573,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
                   padding: "1.2vh",
                   background: "none",
                   border: "none",
-                  fontSize: "1.6vh",
-                  fontWeight: "600",
-                  color: activeTab === 'direct' ? "#333" : "#999",
+                                  fontSize: "1.8vh",
+                fontWeight: "600",
+                color: activeTab === 'direct' ? "#333" : "#999",
                   borderBottom: activeTab === 'direct' ? "0.2vh solid #994d52" : "none",
                   cursor: "pointer"
                 }}
@@ -589,9 +589,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
                   padding: "1.2vh",
                   background: "none",
                   border: "none",
-                  fontSize: "1.6vh",
-                  fontWeight: "600",
-                  color: activeTab === 'delivery' ? "#333" : "#999",
+                                  fontSize: "1.8vh",
+                fontWeight: "600",
+                color: activeTab === 'delivery' ? "#333" : "#999",
                   borderBottom: activeTab === 'delivery' ? "0.2vh solid #994d52" : "none",
                   cursor: "pointer"
                 }}
@@ -728,7 +728,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
               border: "none",
               borderRadius: "2.5vh", 
               padding: "1.5vh 3vh", 
-              fontSize: "1.6vh",
+              fontSize: "1.8vh",
               fontWeight: "bold",
               cursor: !participantId ? "not-allowed" : "pointer",
               transition: "all 0.3s ease"

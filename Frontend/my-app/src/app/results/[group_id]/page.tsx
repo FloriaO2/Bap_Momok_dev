@@ -96,7 +96,7 @@ export default function ResultsPage({ params }: { params: Promise<{ group_id: st
         maxWidth: "72vh", 
         margin: "0 auto", 
         background: "#fff", 
-                borderRadius: "2.4vh",
+        borderRadius: "2.4vh",
         padding: "3.6vh",
         boxShadow: "0 1.2vh 3.6vh rgba(0,0,0,0.2)"
       }}>
