@@ -11,6 +11,7 @@ interface SuggestCompleteWaitScreenProps {
   timeLeft: string;
   start_votingtime: number;
   group_creation_time: string;
+  timer_mode?: boolean;
 }
 
 interface Participant {
@@ -39,7 +40,7 @@ const getEmojiForCandidate = (candidate: Candidate): string => {
   return '🍽️'; // 기본값
 };
 
-const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ groupId, router, timeLeft, start_votingtime, group_creation_time }) => {
+const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ groupId, router, timeLeft, start_votingtime, group_creation_time, timer_mode = false }) => {
   const [participants, setParticipants] = useState<{ [id: string]: Participant }>({});
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [allComplete, setAllComplete] = useState(false);
@@ -74,17 +75,18 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
   }, [groupId]);
 
   useEffect(() => {
-    // 타이머가 끝나면 자동으로 투표 화면으로 이동
-    if (timeLeft === "후보 제안 시간 종료") {
+    // 타이머 모드일 때만 시간 제한에 따른 자동 이동
+    if (timer_mode && timeLeft === "후보 제안 시간 종료") {
       setTimeout(() => {
         router.push(`/tinder?group_id=${groupId}`);
       }, 1000);
     }
-  }, [timeLeft, groupId, router]);
+  }, [timeLeft, groupId, router, timer_mode]);
 
   useEffect(() => {
     // 게이지 퍼센트 계산
-    if (start_votingtime && group_creation_time) {
+    if (timer_mode && start_votingtime && group_creation_time) {
+      // 타이머 모드일 때만 시간 기반 게이지 계산
       const timer = setInterval(() => {
         const now = new Date().getTime();
         const creationTime = new Date(group_creation_time).getTime();
@@ -99,8 +101,18 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
         setProgressPercent(Math.max(0, Math.min(100, percent)));
       }, 1000);
       return () => clearInterval(timer);
+    } else if (!timer_mode) {
+      // 일반모드일 때는 참가자 완료 상태에 따른 게이지 계산
+      const totalParticipants = Object.keys(participants).length;
+      if (totalParticipants > 0) {
+        const completedParticipants = Object.values(participants).filter(
+          (participant: any) => participant.suggest_complete
+        ).length;
+        const percent = (completedParticipants / totalParticipants) * 100;
+        setProgressPercent(Math.max(0, Math.min(100, percent)));
+      }
     }
-  }, [start_votingtime, group_creation_time]);
+  }, [start_votingtime, group_creation_time, timer_mode, participants]);
 
   return (
     <div style={{
@@ -126,20 +138,20 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
         {/* 남은 시간 게이지 */}
         <div style={{ width: "100%", marginBottom: "2.4vh" }}>
           <div style={{ fontSize: "1.6vh", color: "#666", marginBottom: "0.8vh" }}>
-            투표까지 남은시간
+            {timer_mode ? "투표까지 남은시간" : "모든 참가자 완료 시 자동 이동"}
           </div>
           <div style={{ fontSize: "2vh", fontWeight: "bold", color: timeLeft === "후보 제안 시간 종료" ? "#dc3545" : "#333" }}>
-            {timeLeft}
+            {timer_mode ? timeLeft : `${Object.values(participants).filter((p: any) => p.suggest_complete).length}/${Object.keys(participants).length}`}
           </div>
-          {timeLeft === "후보 제안 시간 종료" && (
-            <div style={{ 
-              fontSize: "1.4vh", 
-              color: "#dc3545", 
-              marginTop: "0.5vh" 
-            }}>
-              투표 화면으로 이동합니다.
-            </div>
-          )}
+                      {timeLeft === "후보 제안 시간 종료" && timer_mode && (
+              <div style={{ 
+                fontSize: "1.4vh", 
+                color: "#dc3545", 
+                marginTop: "0.5vh" 
+              }}>
+                투표 화면으로 이동합니다.
+              </div>
+            )}
           <div style={{ width: "100%", height: "0.8vh", background: "#f0f0f0", borderRadius: "0.4vh", marginTop: "1vh", overflow: "hidden" }}>
             <div style={{
               width: `${progressPercent}%`,
@@ -196,13 +208,14 @@ const SuggestCompleteWaitScreen: React.FC<SuggestCompleteWaitScreenProps> = ({ g
             textAlign: 'center' 
           }}>
             {candidates.length === 0 ? (
-              <div style={{ color: "#999", textAlign: 'center' }}>아직 추가된 후보가 없습니다.</div>
+              <div style={{ color: "#999", textAlign: 'center', fontSize: "1.6vh" }}>아직 추가된 후보가 없습니다.</div>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '1vh' }}>
                 {candidates.map((candidate, index) => (
                   <li key={index} style={{
                     paddingBottom: index < candidates.length - 1 ? '1vh' : '0',
-                    borderBottom: index < candidates.length - 1 ? '0.1vh solid #e9ecef' : 'none'
+                    borderBottom: index < candidates.length - 1 ? '0.1vh solid #e9ecef' : 'none',
+                    fontSize: "1.6vh"
                   }}>
                     {`${getEmojiForCandidate(candidate)} ${candidate.name || '이름 없음'}`}
                   </li>

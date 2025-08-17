@@ -194,6 +194,7 @@ export default function DeliveryTab({
 
   // 카테고리 선택 시
   const handleCategory = (category: string) => {
+    isUserAction.current = true; // 사용자 액션 플래그 설정
     setParams(prev => ({ ...prev, category, page: 1 }));
   };
 
@@ -207,12 +208,14 @@ export default function DeliveryTab({
     const value = e.target.value;
     setSearchInput(value);
     if (value === '') {
+      isUserAction.current = true; // 사용자 액션 플래그 설정
       setParams(prev => ({ ...prev, searchTerm: '', page: 1 }));
     }
   };
 
   // 검색 버튼 클릭 시
   const handleSearch = () => {
+    isUserAction.current = true; // 사용자 액션 플래그 설정
     // 검색 시 카테고리를 '전체'로 변경
     setParams(prev => ({ ...prev, searchTerm: searchInput, category: '', page: 1 }));
     setIsLoadMore(false);
@@ -235,6 +238,7 @@ export default function DeliveryTab({
 
   // 검색어 초기화 (X 버튼 클릭 시)
   const handleClearSearch = () => {
+    isUserAction.current = true; // 사용자 액션 플래그 설정
     setSearchInput('');
     setParams(prev => ({ ...prev, searchTerm: '', page: 1 }));
     // 검색어 초기화 시에도 카테고리는 유지 (사용자가 선택한 카테고리 그대로)
@@ -242,11 +246,21 @@ export default function DeliveryTab({
 
   // 스크롤 맨 위로 이동용 ref
   const listRef = useRef<HTMLDivElement>(null);
+  
+  // 스크롤 위치 저장용 ref
+  const savedScrollTop = useRef(0);
+  
+  // 사용자 액션으로 인한 리렌더링인지 추적
+  const isUserAction = useRef(false);
 
   // 리스트 변동 시(더보기가 아닐 때) 스크롤 맨 위로 이동
   useEffect(() => {
     if (!isLoadMore && listRef.current) {
-      listRef.current.scrollTop = 0;
+      // 사용자 액션(검색, 카테고리 변경)으로 인한 리렌더링인 경우에만 스크롤 리셋
+      if (isUserAction.current) {
+        listRef.current.scrollTop = 0;
+        isUserAction.current = false; // 리셋 후 플래그 초기화
+      }
     }
     // 더보기 이후에는 다시 false로 초기화
     if (isLoadMore) setIsLoadMore(false);
@@ -417,7 +431,7 @@ export default function DeliveryTab({
           }}
           ref={listRef}
         >
-        <h3 style={{ fontSize: "2.16vh", fontWeight: "bold", color: "#333", marginBottom: "1.5vh" }}>
+        <h3 style={{ fontSize: "2vh", fontWeight: "bold", color: "#333", marginBottom: "1.5vh" }}>
           배달 음식점 목록
         </h3>
         {loading && restaurants.length === 0 ? (

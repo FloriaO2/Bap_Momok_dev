@@ -18,6 +18,8 @@ import threading
 from firebase_admin import db
 from queue import Queue, Empty
 from threading import Thread
+from datetime import datetime, timedelta
+import time
 
 # 전역 락 객체 생성
 vote_lock = threading.Lock()
@@ -340,6 +342,15 @@ def set_suggest_complete(group_id: str, participant_id: str):
         if participant is None:
             raise HTTPException(status_code=404, detail="참가자를 찾을 수 없습니다")
         participant.suggest_complete = True
+        
+        # 일반모드일 때 모든 참가자가 완료 상태인지 체크
+        if not group.timer_mode:
+            all_complete = all(p.suggest_complete for p in group.participants.values())
+            if all_complete:
+                # 모든 참가자가 완료 상태이면 그룹 상태를 voting으로 변경
+                group.state = "voting"
+                print(f"🎯 일반모드: 모든 참가자 완료 - 그룹 {group_id} 상태를 voting으로 변경")
+        
         update_group(group_id, GroupUpdate(data=group))
         return {"message": "제안 완료 처리됨", "participant_id": participant_id}
 
@@ -562,7 +573,53 @@ def get_best_couple(group_id: str):
     nickname2 = get_nickname(best_pair[1])
     return {"best_couple": [nickname1, nickname2], "best_couple_ids": list(best_pair), "max_inner_product": max_score}
 
+def check_timer_mode_groups():
+    """타이머 모드 그룹들의 시간을 체크하고 시간이 끝나면 모든 참가자를 완료 상태로 만드는 함수"""
+    try:
+        groups = get_all_groups()
+        current_time = datetime.now()
+        
+        for group_id, group in groups.items():
+            if group.timer_mode and group.state == "suggestion":
+                # 그룹 생성 시간과 start_votingtime을 이용해 투표 시작 시간 계산
+                creation_time = datetime.fromisoformat(group.group_creation_time.replace('Z', '+00:00'))
+                voting_start_time = creation_time + timedelta(minutes=group.start_votingtime)
+                
+                # 현재 시간이 투표 시작 시간을 지났으면 모든 참가자를 완료 상태로 변경
+                if current_time >= voting_start_time:
+                    print(f"⏰ 타이머 모드: 그룹 {group_id} 시간 종료 - 모든 참가자를 완료 상태로 변경")
+                    
+                    # 모든 참가자를 완료 상태로 변경
+                    for participant in group.participants.values():
+                        participant.suggest_complete = True
+                    
+                    # 그룹 상태를 voting으로 변경
+                    group.state = "voting"
+                    
+                    # 그룹 업데이트
+                    update_group(group_id, GroupUpdate(data=group))
+    except Exception as e:
+        print(f"❌ 타이머 모드 체크 중 오류: {e}")
+
+# 주기적으로 타이머 모드 그룹들을 체크하는 스레드
+def start_timer_checker():
+    """타이머 모드 그룹들을 주기적으로 체크하는 스레드를 시작합니다"""
+    def timer_checker():
+        while True:
+            try:
+                check_timer_mode_groups()
+                time.sleep(30)  # 30초마다 체크
+            except Exception as e:
+                print(f"❌ 타이머 체커 스레드 오류: {e}")
+                time.sleep(30)
+    
+    timer_thread = Thread(target=timer_checker, daemon=True)
+    timer_thread.start()
+    print("⏰ 타이머 모드 체커 스레드 시작됨")
+
 # Vercel 배포를 위한 실행 코드
 if __name__ == "__main__":
     import uvicorn
+    # 타이머 체커 스레드 시작
+    start_timer_checker()
     uvicorn.run(app, host="0.0.0.0", port=8000)

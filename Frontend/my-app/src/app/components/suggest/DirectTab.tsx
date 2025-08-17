@@ -1125,7 +1125,7 @@ export default function DirectTab({
         <button
           onClick={() => setShowCategoryModal(true)}
           style={{
-            padding: "0.8vh 1.6vh",
+            padding: "1.2vh 1.6vh",
             background: "#994d52",
             color: "white",
             border: "none",
@@ -1250,7 +1250,7 @@ export default function DirectTab({
           }}
         >
           <h3 style={{ 
-            fontSize: "2.16vh", 
+            fontSize: "2vh", 
             fontWeight: "bold", 
             color: "#333", 
             marginBottom: "1.5vh",
@@ -1276,7 +1276,7 @@ export default function DirectTab({
               maxHeight: "40vh",
               overflowY: "auto"
             }}>
-              <div style={{ textAlign: "center", color: "#999", fontSize: "1.92vh", padding: "4vh 0" }}>
+              <div style={{ textAlign: "center", color: "#999", fontSize: "1.6vh", padding: "4vh 0" }}>
               식당 정보를 불러오고 있습니다...
               </div>
             </div>
@@ -1452,7 +1452,7 @@ export default function DirectTab({
           overflowY: "auto"
         }}>
           <h3 style={{ 
-            fontSize: "1.8vh", 
+            fontSize: "2vh", 
             fontWeight: "bold", 
             color: "#333", 
             marginBottom: "1.5vh",

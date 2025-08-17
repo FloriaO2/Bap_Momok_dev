@@ -285,6 +285,50 @@
   vertical-align: middle;
 }
 
+.radio {
+  width: 1.8vh;
+  height: 1.8vh;
+  margin-right: 1vh;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 0.2vh solid #ccc;
+  border-radius: 50%;
+  background-color: white;
+  box-sizing: border-box;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.radio:checked {
+  background-color: #994d52;
+  border-color: #994d52;
+}
+
+.radio:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.8vh;
+  height: 0.8vh;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.radioLabel {
+  font-size: 1.6vh;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  height: 4vh;
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
 .timeSelect {
   width: 100%;
   height: 4vh;

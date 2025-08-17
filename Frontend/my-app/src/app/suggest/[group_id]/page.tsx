@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ref, onValue, off } from "firebase/database";
 import { database, checkFirebaseConnection } from "../../../firebase";
@@ -42,10 +42,14 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   const [showSuggestCompleteScreen, setShowSuggestCompleteScreen] = useState(false);
   const [participantId, setParticipantId] = useState<string | null>(null);
   const [showRandomModal, setShowRandomModal] = useState(false);
+  const [participants, setParticipants] = useState<{ [id: string]: any }>({});
   
   // 이미 등록된 후보 ID 목록을 실시간으로 관리하기 위한 상태
   const [registeredYogiyoIds, setRegisteredYogiyoIds] = useState<number[]>([]);
   const [registeredKakaoIds, setRegisteredKakaoIds] = useState<number[]>([]);
+  
+  // 초기 탭 설정이 완료되었는지 추적
+  const isInitialTabSet = useRef(false);
 
   // URL 정규화 함수 - 끝에 슬래시 제거
   const normalizeUrl = (url: string) => {
@@ -189,7 +193,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   
   // 초기 탭 설정 (그룹 데이터 로드 후)
   useEffect(() => {
-    if (groupData) {
+    if (groupData && !isInitialTabSet.current) {
       if (hasOffline && !hasDelivery) {
         setActiveTab('direct');
       } else if (hasDelivery && !hasOffline) {
@@ -197,50 +201,92 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
       } else if (hasDelivery && hasOffline) {
         setActiveTab('direct'); // 둘 다 있으면 기본값
       }
+      isInitialTabSet.current = true; // 초기 설정 완료 표시
     }
   }, [groupData, hasDelivery, hasOffline]);
 
-  // 게이지 퍼센트 계산
-  const getProgressPercentage = () => {
-    if (!groupData?.start_votingtime || !groupData?.group_creation_time) {
-      return 100;
-    }
+  // 참가자 완료 상태 텍스트 계산
+  const getParticipantStatusText = () => {
+    if (!participants || Object.keys(participants).length === 0) return "0/0";
     
-    const now = new Date().getTime();
-    const creationTime = new Date(groupData.group_creation_time).getTime();
+    const totalParticipants = Object.keys(participants).length;
+    const completedParticipants = Object.values(participants).filter(
+      (participant: any) => participant.suggest_complete
+    ).length;
     
-    const votingDurationMinutes = groupData.start_votingtime;
-    const votingTime = creationTime + (votingDurationMinutes * 60 * 1000);
-    
-    const totalDuration = votingTime - creationTime;
-    const remainingTime = votingTime - now;
-    
-    if (remainingTime <= 0) return 0;
-    
-    const remainingPercentage = (remainingTime / totalDuration) * 100;
-    
-    return Math.max(0, Math.min(100, remainingPercentage));
+    return `${completedParticipants}/${totalParticipants}`;
   };
 
-  // 그룹 데이터 가져오기
+  // 게이지 퍼센트 계산
+  const getProgressPercentage = () => {
+    // 타이머 모드일 때만 시간 기반 게이지 계산
+    if (groupData?.timer_mode && groupData?.start_votingtime && groupData?.group_creation_time) {
+      const now = new Date().getTime();
+      const creationTime = new Date(groupData.group_creation_time).getTime();
+      
+      const votingDurationMinutes = groupData.start_votingtime;
+      const votingTime = creationTime + (votingDurationMinutes * 60 * 1000);
+      
+      const totalDuration = votingTime - creationTime;
+      const remainingTime = votingTime - now;
+      
+      if (remainingTime <= 0) return 0;
+      
+      const remainingPercentage = (remainingTime / totalDuration) * 100;
+      
+      return Math.max(0, Math.min(100, remainingPercentage));
+    } else if (!groupData?.timer_mode) {
+      // 일반모드일 때는 참가자 완료 상태에 따른 게이지 계산
+      if (!groupData?.participants) return 100;
+      
+      const totalParticipants = Object.keys(groupData.participants).length;
+      if (totalParticipants === 0) return 100;
+      
+      const completedParticipants = Object.values(groupData.participants).filter(
+        (participant: any) => participant.suggest_complete
+      ).length;
+      
+      return Math.max(0, Math.min(100, (completedParticipants / totalParticipants) * 100));
+    }
+    
+    return 100;
+  };
+
+  // 그룹 데이터 실시간 업데이트
   useEffect(() => {
-    const fetchGroupData = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/groups/${groupId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setGroupData(data);
+    const groupRef = ref(database, `groups/${groupId}`);
+    const unsubscribe = onValue(groupRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setGroupData(data);
+        
+        // 그룹 상태가 voting이면 투표 화면으로 이동
+        if (data.state === "voting") {
+          setTimeout(() => {
+            router.push(`/tinder?group_id=${groupId}`);
+          }, 2000);
         }
-      } catch (error) {
-        console.error("그룹 데이터 가져오기 실패:", error);
       }
-    };
-    fetchGroupData();
-  }, [groupId, BACKEND_URL]);
+    });
+    
+    return () => off(groupRef, "value", unsubscribe);
+  }, [groupId, router]);
+
+  // 참가자 데이터 실시간 업데이트
+  useEffect(() => {
+    const participantsRef = ref(database, `groups/${groupId}/participants`);
+    const unsubscribe = onValue(participantsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setParticipants(data);
+    });
+    
+    return () => off(participantsRef, "value", unsubscribe);
+  }, [groupId]);
 
   // 투표 시간 계산
   useEffect(() => {
-    if (groupData?.start_votingtime && groupData?.group_creation_time) {
+    // 타이머 모드일 때만 시간 제한 적용
+    if (groupData?.timer_mode && groupData?.start_votingtime && groupData?.group_creation_time) {
       const timer = setInterval(() => {
         const now = new Date().getTime();
         const creationTime = new Date(groupData.group_creation_time).getTime();
@@ -270,6 +316,9 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
       }, 1000);
       
       return () => clearInterval(timer);
+    } else if (!groupData?.timer_mode) {
+      // 일반모드일 때는 시간 제한 없음
+      setTimeLeft("모든 참가자 완료 시 자동 이동");
     }
   }, [groupData, groupId, router]);
 
@@ -410,6 +459,7 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
         timeLeft={timeLeft}
         start_votingtime={groupData?.start_votingtime}
         group_creation_time={groupData?.group_creation_time}
+        timer_mode={groupData?.timer_mode}
       />
     );
   }
@@ -470,16 +520,16 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
               color: "#666", 
               marginBottom: "1vh" 
             }}>
-              투표까지 남은시간
+              {groupData?.timer_mode ? "투표까지 남은시간" : "모든 참가자 완료 시 자동 이동"}
             </div>
             <div style={{ 
               fontSize: "2vh", 
               fontWeight: "bold", 
               color: timeLeft === "후보 제안 시간 종료" ? "#dc3545" : "#333" 
             }}>
-              {timeLeft}
+              {groupData?.timer_mode ? timeLeft : getParticipantStatusText()}
             </div>
-            {timeLeft === "후보 제안 시간 종료" && (
+            {timeLeft === "후보 제안 시간 종료" && groupData?.timer_mode && (
               <div style={{ 
                 fontSize: "1.4vh", 
                 color: "#dc3545", 

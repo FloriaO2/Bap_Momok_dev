@@ -230,9 +230,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 식당 목록 새로고침 함수 (API 호출 없이 기존 데이터에서만 랜덤 선택)
   const refreshRestaurants = () => {
-    // 필터링된 데이터가 있으면 우선 사용
-    if (filteredRestaurants && filteredRestaurants.length > 0) {
-      console.log('필터링된 데이터에서 새로운 후보를 선택합니다.');
+    // 직접가기 탭이고 필터링된 데이터가 있으면 우선 사용
+    if (activeTab === 'direct' && filteredRestaurants && filteredRestaurants.length > 0) {
+      console.log('직접가기 탭: 필터링된 데이터에서 새로운 후보를 선택합니다.');
       setIsRefreshing(true);
       setShowResult(false);
       setSelectedRestaurant(null);
@@ -496,14 +496,16 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
 
   // 식당 정보 가져오기 (초기 로드)
   useEffect(() => {
+    if (!groupData) return;
+    
     console.log('🎰 슬롯머신 초기화 시작');
     console.log('🔍 filteredRestaurants:', filteredRestaurants);
     console.log('🔍 activeTab:', activeTab);
     console.log('🔍 groupData:', groupData);
     
-    // 필터링된 데이터가 있으면 우선 사용
-    if (filteredRestaurants && filteredRestaurants.length > 0) {
-      console.log('✅ 필터링된 데이터를 사용하여 슬롯머신 초기화');
+    // 직접가기 탭이고 필터링된 데이터가 있으면 우선 사용
+    if (activeTab === 'direct' && filteredRestaurants && filteredRestaurants.length > 0) {
+      console.log('✅ 직접가기 탭: 필터링된 데이터를 사용하여 슬롯머신 초기화');
       console.log('📊 필터링된 데이터 개수:', filteredRestaurants.length);
       console.log('📊 필터링된 데이터 샘플:', filteredRestaurants.slice(0, 3));
       
@@ -534,9 +536,9 @@ const SlotMachineRoulette: React.FC<SlotMachineRouletteProps> = ({
       return;
     }
 
-    console.log('⚠️ 필터링된 데이터가 없어서 전체 데이터를 가져옵니다.');
+    console.log('⚠️ 필터링된 데이터가 없거나 배달 탭이어서 전체 데이터를 가져옵니다.');
     fetchAllRestaurants();
-  }, [groupData, BACKEND_URL, activeTab, filteredRestaurants]); // filteredRestaurants를 의존성 배열에 추가
+  }, [groupData, BACKEND_URL]); // activeTab과 filteredRestaurants를 의존성 배열에서 제거
 
     // 슬롯머신 돌리기
   const handleSpin = () => {

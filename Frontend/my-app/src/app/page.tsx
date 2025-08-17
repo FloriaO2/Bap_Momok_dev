@@ -61,6 +61,7 @@ export default function HomePage() {
   const [createRoomData, setCreateRoomData] = useState({
     location: '',
     startTime: '',
+    timerMode: false, // false: 일반모드, true: 타이머 모드
     delivery: false,
     deliveryTime: '',
     visit: false,
@@ -166,6 +167,7 @@ export default function HomePage() {
     setCreateRoomData({
       location: '',
       startTime: '',
+      timerMode: false,
       delivery: false,
       deliveryTime: '',
       visit: false,
@@ -215,7 +217,8 @@ export default function HomePage() {
   const createRoom = async () => {
     console.log('방 생성 데이터:', createRoomData);
     
-    if (!createRoomData.startTime) {
+    // 타이머 모드일 때만 후보 추천 시간이 필수
+    if (createRoomData.timerMode && !createRoomData.startTime) {
       showToast('후보 추천 시간을 선택해주세요.');
       return;
     }
@@ -250,7 +253,8 @@ export default function HomePage() {
     const radius = offline ? 70 * visit_time : 0; // 방문(오프라인)일 때만 radius 계산
     const x = locationLat;
     const y = locationLng;
-    const start_votingtime = createRoomData.startTime;
+    const start_votingtime = createRoomData.timerMode ? Number(createRoomData.startTime) : 0; // 타이머 모드일 때만 시간 설정
+    const timer_mode = createRoomData.timerMode;
 
     const body = {
       data: {
@@ -258,7 +262,8 @@ export default function HomePage() {
         delivery_time,
         offline,
         radius,
-        start_votingtime: Number(start_votingtime),
+        start_votingtime,
+        timer_mode,
         state: 'suggestion',
         x,
         y
@@ -522,19 +527,119 @@ export default function HomePage() {
               pinButtonType="gps"
             />
 
-            {/* 후보 추천 시간 */}
+            {/* 모드 선택 */}
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>⏰ 후보 추천 시간</label>
-              <select
-                className={styles.timeSelect}
-                value={createRoomData.startTime}
-                onChange={(e) => updateCreateRoomData('startTime', e.target.value)}
-              >
-                <option value="">시간 선택</option>
-                {[...Array(10)].map((_, i) => (
-                  <option key={i+1} value={String(i+1)}>{i+1}분</option>
-                ))}
-              </select>
+              <label className={styles.inputLabel}>🎯 모드 선택</label>
+              <div className={styles.optionGroup}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2vh' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vh'}}>
+                    <input
+                      type="radio"
+                      id="normal-mode"
+                      name="timerMode"
+                      checked={!createRoomData.timerMode}
+                      onChange={() => updateCreateRoomData('timerMode', false)}
+                      className={styles.radio}
+                    />
+                    <label htmlFor="normal-mode" className={styles.radioLabel}>일반모드</label>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vh' }}>
+                    <input
+                      type="radio"
+                      id="timer-mode"
+                      name="timerMode"
+                      checked={createRoomData.timerMode}
+                      onChange={() => updateCreateRoomData('timerMode', true)}
+                      className={styles.radio}
+                    />
+                    <label htmlFor="timer-mode" className={styles.radioLabel}>타이머 모드</label>
+                  </div>
+                </div>
+                
+                {/* 일반모드 설명 */}
+                {!createRoomData.timerMode && (
+                  <div style={{ 
+                    backgroundColor: '#fff',
+                    paddingTop: '1vh',
+                    paddingLeft: '1.2vh',
+                    paddingRight: '1.2vh',
+                    paddingBottom: '1.2vh',
+                    marginTop: '1.2vh',
+                    marginBottom: '1.2vh',
+                    borderRadius: '0.6vh',
+                    border: '0.1vh solid #e0e0e0'
+                  }}>
+                    <div style={{ 
+                      fontSize: '1.6vh', 
+                      fontWeight: 'bold',
+                      color: '#333', 
+                      marginBottom: '0.5vh',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5vh'
+                    }}>
+                      👥 일반모드
+                    </div>
+                    <div style={{ 
+                      fontSize: '1.3vh', 
+                      color: '#666', 
+                      lineHeight: '1.4'
+                    }}>
+                      모든 참가자가 후보 추천을 완료하면 자동으로 투표가 시작됩니다.
+                    </div>
+                  </div>
+                )}
+                
+                {/* 후보 추천 시간 (타이머 모드일 때만 표시) */}
+                {createRoomData.timerMode && (
+                  <div style={{ 
+                    marginTop: '1.2vh',
+                    marginBottom: '1.2vh',  
+                    width: '100%'
+                  }}>
+                    <div style={{ 
+                      backgroundColor: '#fff',
+                      paddingTop: '1vh',
+                      paddingLeft: '1vh',
+                      paddingRight: '1vh',
+                      paddingBottom: '1.2vh',
+                      marginBottom: '1.2vh',
+                      borderRadius: '0.6vh',
+                      border: '0.1vh solid #e0e0e0'
+                    }}>
+                      <div style={{ 
+                        fontSize: '1.6vh', 
+                        fontWeight: 'bold',
+                        color: '#333', 
+                        marginBottom: '0.5vh',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5vh'
+                      }}>
+                        ⏱️ 타이머 모드
+                      </div>
+                      <div style={{ 
+                        fontSize: '1.3vh', 
+                        color: '#666', 
+                        lineHeight: '1.4'
+                      }}>
+                        후보 추천 시간이 끝나면 자동으로 투표가 시작됩니다.
+                      </div>
+                    </div>
+                    <label className={styles.inputLabel} style={{ fontSize: '1.4vh', marginBottom: '0.8vh' }}>⏰ 후보 추천 시간</label>
+                    <select
+                      className={styles.timeSelect}
+                      value={createRoomData.startTime}
+                      onChange={(e) => updateCreateRoomData('startTime', e.target.value)}
+                    >
+                      <option value="">시간 선택</option>
+                      {[...Array(10)].map((_, i) => (
+                        <option key={i+1} value={String(i+1)}>{i+1}분</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Delivery 옵션 */}
