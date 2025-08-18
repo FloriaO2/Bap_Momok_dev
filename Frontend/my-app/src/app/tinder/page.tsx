@@ -211,8 +211,8 @@ function TinderPageContent() {
     console.log('[자동이동 useEffect] loading:', loading, 'candidates.length:', candidates.length, 'groupId:', groupId);
     if (!loading && candidates.length === 0 && groupId) {
       // 후보가 하나도 없으면 바로 live-results로 이동
-      console.log('[자동이동 useEffect] 후보가 없으므로 live-results로 이동');
-      router.push(`/live-results/${groupId}`);
+             console.log('[자동이동 useEffect] 후보가 없으므로 live-results로 이동');
+       window.location.href = `/live-results/${groupId}`;
       return;
     }
     console.log('[자동이동 useEffect] 조건 확인 및 자동이동 로직 실행');
@@ -237,8 +237,8 @@ function TinderPageContent() {
     if (currentCardIndex >= candidates.length && candidates.length > 0) {
       console.log('[투표완료 화면] 5초 타이머 시작');
       const timer = setTimeout(() => {
-        console.log('[투표완료 화면] 5초 경과, 결과 화면으로 이동');
-        router.push(`/live-results/${groupId}`);
+               console.log('[투표완료 화면] 5초 경과, 결과 화면으로 이동');
+       window.location.href = `/live-results/${groupId}`;
       }, 3000);
       
       return () => {
@@ -249,16 +249,16 @@ function TinderPageContent() {
   }, [currentCardIndex, candidates.length, groupId, router]);
 
   useEffect(() => {
-    // 3초마다 투표 완료 여부 확인 후 true면 바로 live-results로 이동
+    // 타이머 모드에서만 3초마다 투표 완료 여부 확인 후 true면 바로 live-results로 이동
     const participantId = groupId ? sessionStorage.getItem(`participant_id_${groupId}`) : null;
-    if (groupId && participantId) {
+    if (groupId && participantId && groupData?.timer_mode) {
       const interval = setInterval(() => {
         fetch(`${BACKEND_URL}/groups/${groupId}/participants/${participantId}/vote_complete`)
           .then(res => res.json())
           .then(data => {
-            if (data.vote_complete) {
-              router.push(`/live-results/${groupId}`);
-            }
+                         if (data.vote_complete) {
+               window.location.href = `/live-results/${groupId}`;
+             }
           })
           .catch(err => {
             console.error('vote_complete API 확인 실패:', err);
@@ -266,11 +266,11 @@ function TinderPageContent() {
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [groupId]);
+  }, [groupId, groupData?.timer_mode]);
 
-  // 후보 실시간 감지 (Firebase)
+  // 후보 실시간 감지 (Firebase) - 타이머 모드에서만 실행
   useEffect(() => {
-    if (!groupId) return;
+    if (!groupId || !groupData || !groupData.timer_mode) return;
     const candidatesRef = ref(database, `groups/${groupId}/candidates`);
     const candidatesCallback = (snapshot: any) => {
       const data = snapshot.val() || {};
@@ -282,7 +282,7 @@ function TinderPageContent() {
     };
     onValue(candidatesRef, candidatesCallback);
     return () => off(candidatesRef, "value", candidatesCallback);
-  }, [groupId]);
+  }, [groupId, groupData]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

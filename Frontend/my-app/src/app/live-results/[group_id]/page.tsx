@@ -37,6 +37,7 @@ export default function LiveResultsPage() {
       arr.sort((a, b) => b.score - a.score);
       arr.forEach((c, i) => (c.rank = i + 1));
       setCandidates(arr);
+      setLoading(false); // 데이터를 받아온 후 로딩 상태 해제
     };
     onValue(candidatesRef, candidatesCallback);
     // 투표 정보(votes, participants)도 실시간 반영
@@ -209,7 +210,11 @@ export default function LiveResultsPage() {
           }}>
             🏆 투표 결과 🏆
           </h1>
-          {candidates.length === 0 ? (
+          {loading ? (
+            <div style={{ color: "#888", fontSize: "2.2vh", fontWeight: "bold", textAlign: "center", padding: "7.2vh 0" }}>
+              결과를 불러오는 중...
+            </div>
+          ) : candidates.length === 0 ? (
             <div style={{ color: "#888", fontSize: "2.2vh", fontWeight: "bold", textAlign: "center", padding: "7.2vh 0" }}>
               후보가 없습니다.
             </div>
