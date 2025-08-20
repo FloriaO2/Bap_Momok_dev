@@ -55,6 +55,7 @@ export default function DirectTab({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalUrl, setModalUrl] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
   const [isEnd, setIsEnd] = useState(false);
   const [placeholder, setPlaceholder] = useState("음식점 검색 (예: 이태원 맛집)");
   const [initialLoading, setInitialLoading] = useState(false);
@@ -153,6 +154,7 @@ export default function DirectTab({
   // 스크롤 위치 저장용 ref와 state
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollPos, setScrollPos] = useState<number | null>(null);
+  const prevSearchResultsRef = useRef<any[]>([]);
 
   // URL 정규화 함수 - 끝에 슬래시 제거
   const normalizeUrl = (url: string) => {
@@ -591,8 +593,11 @@ export default function DirectTab({
     }
   };
 
-  // 부채꼴 검색 실행: 최초 groupData 변경 시 1회만 실행
+  // 부채꼴 검색 실행: 최초 groupData 로드 시 1회만 실행
   useEffect(() => {
+    // groupData가 없으면 실행하지 않음
+    if (!groupData) return;
+    
     // 저장된 결과가 있으면 재활용
     if (hasSectorSearchCompleted && sectorSearchResults.length > 0) {
       console.log('🔍 탭 전환 - 저장된 부채꼴 검색 결과 재활용:', sectorSearchResults.length, '개 식당');
@@ -612,9 +617,9 @@ export default function DirectTab({
     // 저장된 결과가 없으면 부채꼴 검색 실행
     console.log('🔍 최초 부채꼴 검색 실행');
     loadAllRestaurantsBySectors();
-  }, [groupData]);
+  }, [groupData?.x, groupData?.y, groupData?.radius]); // groupData의 핵심 속성만 의존성으로 사용
 
-  // 필터링 효과 적용
+  // 필터링 효과 적용 - searchResults 길이만 의존성으로 사용
   useEffect(() => {
     if (searchResults.length > 0) {
       const filtered = searchResults.filter(applyFilters);
@@ -626,7 +631,7 @@ export default function DirectTab({
         setFilteredResults(filtered);
       }
       
-      // 페이지네이션 초기화
+      // 필터링이 변경된 경우에만 페이지네이션 초기화
       const initialDisplay = filtered.slice(0, ITEMS_PER_PAGE);
       setDisplayedResults(initialDisplay);
       setCurrentPage(1);
@@ -635,7 +640,7 @@ export default function DirectTab({
       
       console.log(`🔍 필터링 결과: ${searchResults.length}개 → ${filtered.length}개`);
     }
-  }, [searchResults, excludeCafeDessert, excludedCategories, setFilteredResults]);
+  }, [searchResults.length, excludeCafeDessert, excludedCategories, setFilteredResults]);
 
 
 
@@ -895,24 +900,30 @@ export default function DirectTab({
 
   // 후보 추가 함수 (+버튼 클릭 시)
   const handleAddCandidate = async (restaurant: any) => {
-    const added_by = typeof window !== 'undefined' ? (sessionStorage.getItem('participant_id') || 'unknown') : 'unknown';
-    const body = {
-      added_by,
-      kakao_data: restaurant
-    };
-    try {
-      const res = await fetch(`${BACKEND_URL}/groups/${groupId}/candidates/kakao`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      if (res.ok) {
-        alert(`${restaurant.place_name || restaurant.name}이(가) 후보에 추가되었습니다!`);
-      } else {
-        alert('후보 추가에 실패했습니다.');
+    // 상위 컴포넌트의 onAddCandidate 함수를 사용하여 일관성 유지
+    if (onAddCandidate) {
+      onAddCandidate(restaurant);
+    } else {
+      // fallback: 직접 API 호출
+      const added_by = typeof window !== 'undefined' ? (sessionStorage.getItem('participant_id') || 'unknown') : 'unknown';
+      const body = {
+        added_by,
+        kakao_data: restaurant
+      };
+      try {
+        const res = await fetch(`${BACKEND_URL}/groups/${groupId}/candidates/kakao`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          alert(`${restaurant.place_name || restaurant.name}이(가) 후보에 추가되었습니다!`);
+        } else {
+          alert('후보 추가에 실패했습니다.');
+        }
+      } catch (e) {
+        alert('후보 추가 중 오류가 발생했습니다.');
       }
-    } catch (e) {
-      alert('후보 추가 중 오류가 발생했습니다.');
     }
   };
 
@@ -925,9 +936,12 @@ export default function DirectTab({
   };
 
   const handleCardClick = (id: string, restaurant: any) => {
-    setSelectedId(selectedId === id ? null : id);
-    // 활성화 시 지도 이동
-    if (selectedId !== id && mapRef.current && typeof window !== 'undefined' && window.kakao && window.kakao.maps) {
+    // ref를 사용하여 선택 상태를 관리하여 컴포넌트 리렌더링을 방지
+    selectedIdRef.current = selectedIdRef.current === id ? null : id;
+    setSelectedId(selectedIdRef.current);
+    
+    // 지도 이동
+    if (selectedIdRef.current && mapRef.current && typeof window !== 'undefined' && window.kakao && window.kakao.maps) {
       const x = Number(restaurant.y);
       const y = Number(restaurant.x);
       if (!isNaN(x) && !isNaN(y)) {
