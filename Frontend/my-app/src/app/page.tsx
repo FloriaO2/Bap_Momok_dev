@@ -62,6 +62,7 @@ export default function HomePage() {
     location: '',
     startTime: '',
     timerMode: false, // false: 일반모드, true: 타이머 모드
+    anonymousMode: false, // false: 공개모드, true: 익명모드
     delivery: false,
     deliveryTime: '',
     visit: false,
@@ -168,6 +169,7 @@ export default function HomePage() {
       location: '',
       startTime: '',
       timerMode: false,
+      anonymousMode: false,
       delivery: false,
       deliveryTime: '',
       visit: false,
@@ -255,6 +257,7 @@ export default function HomePage() {
     const y = locationLng;
     const start_votingtime = createRoomData.timerMode ? Number(createRoomData.startTime) : 0; // 타이머 모드일 때만 시간 설정
     const timer_mode = createRoomData.timerMode;
+    const anonymous_mode = createRoomData.anonymousMode;
 
     const body = {
       data: {
@@ -264,6 +267,7 @@ export default function HomePage() {
         radius,
         start_votingtime,
         timer_mode,
+        anonymous_mode,
         state: 'suggestion',
         x,
         y
@@ -528,10 +532,10 @@ export default function HomePage() {
             />
 
             {/* 모드 선택 */}
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>🎯 모드 선택</label>
-              <div className={styles.optionGroup}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2vh' }}>
+            <div className={`${styles.inputGroup} ${styles.modeSelection}`}>
+              <label className={styles.inputLabel}>⏱️🕵️ 모드 선택</label>
+              <div className={`${styles.optionGroup} ${styles.modeSelection1}`}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4vh'}}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vh'}}>
                     <input
                       type="radio"
@@ -556,89 +560,126 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                {/* 일반모드 설명 */}
-                {!createRoomData.timerMode && (
-                  <div style={{ 
-                    backgroundColor: '#fff',
-                    paddingTop: '1vh',
-                    paddingLeft: '1.2vh',
-                    paddingRight: '1.2vh',
-                    paddingBottom: '1.2vh',
-                    marginTop: '1.2vh',
-                    marginBottom: '1.2vh',
-                    borderRadius: '0.6vh',
-                    border: '0.1vh solid #e0e0e0'
-                  }}>
-                    <div style={{ 
-                      fontSize: '1.6vh', 
-                      fontWeight: 'bold',
-                      color: '#333', 
-                      marginBottom: '0.5vh',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5vh'
-                    }}>
-                      👥 일반모드
-                    </div>
-                    <div style={{ 
-                      fontSize: '1.3vh', 
-                      color: '#666', 
-                      lineHeight: '1.4'
-                    }}>
-                      모든 참가자가 후보 추천을 완료하면 자동으로 투표가 시작됩니다.
-                    </div>
+                                 {/* 타이머 모드 설명 */}
+                 <div style={{ 
+                   backgroundColor: '#fff',
+                   paddingTop: '1vh',
+                   paddingLeft: '1.2vh',
+                   paddingRight: '1.2vh',
+                   paddingBottom: '1.2vh',
+                   marginTop: '0.5vh',
+                   marginBottom: '1.2vh',
+                   borderRadius: '0.6vh',
+                   border: '0.1vh solid #e0e0e0'
+                 }}>
+                   <div style={{ 
+                     fontSize: '1.6vh', 
+                     fontWeight: 'bold',
+                     color: '#333', 
+                     marginBottom: '0.5vh',
+                     display: 'flex',
+                     alignItems: 'center',
+                     gap: '0.5vh'
+                   }}>
+                     {!createRoomData.timerMode ? '👥 일반모드' : '⏱️ 타이머 모드'}
+                   </div>
+                   <div style={{ 
+                     fontSize: '1.3vh', 
+                     color: '#666', 
+                     lineHeight: '1.4'
+                   }}>
+                     {!createRoomData.timerMode 
+                       ? '모든 참가자가 후보 추천을 완료하면 자동으로 투표가 시작됩니다.'
+                       : '후보 추천 시간이 끝나면 자동으로 투표가 시작됩니다.'
+                     }
+                   </div>
+                 </div>
+                 
+                 {/* 후보 추천 시간 (타이머 모드일 때만 표시) */}
+                 {createRoomData.timerMode && (
+                   <div style={{ 
+                     marginTop: '1.2vh',
+                     marginBottom: '1.2vh',  
+                     width: '100%'
+                   }}>
+                     <label className={styles.inputLabel} style={{ fontSize: '1.4vh', marginBottom: '0.8vh' }}>⏰ 후보 추천 시간</label>
+                     <select
+                       className={styles.timeSelect}
+                       value={createRoomData.startTime}
+                       onChange={(e) => updateCreateRoomData('startTime', e.target.value)}
+                     >
+                       <option value="">시간 선택</option>
+                       {[...Array(10)].map((_, i) => (
+                         <option key={i+1} value={String(i+1)}>{i+1}분</option>
+                       ))}
+                     </select>
+                   </div>
+                 )}
+              </div>
+            </div>
+
+            {/* 익명 모드 선택 */}
+            <div className={styles.inputGroup}>
+              <div className={`${styles.optionGroup} ${styles.modeSelection2}`}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4vh' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vh'}}>
+                    <input
+                      type="radio"
+                      id="public-mode"
+                      name="anonymousMode"
+                      checked={!createRoomData.anonymousMode}
+                      onChange={() => updateCreateRoomData('anonymousMode', false)}
+                      className={styles.radio}
+                    />
+                    <label htmlFor="public-mode" className={styles.radioLabel}>공개모드</label>
                   </div>
-                )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vh' }}>
+                    <input
+                      type="radio"
+                      id="anonymous-mode"
+                      name="anonymousMode"
+                      checked={createRoomData.anonymousMode}
+                      onChange={() => updateCreateRoomData('anonymousMode', true)}
+                      className={styles.radio}
+                    />
+                    <label htmlFor="anonymous-mode" className={styles.radioLabel}>익명모드</label>
+                  </div>
+                </div>
                 
-                {/* 후보 추천 시간 (타이머 모드일 때만 표시) */}
-                {createRoomData.timerMode && (
+                {/* 익명 모드 설명 */}
+                <div style={{ 
+                  backgroundColor: '#fff',
+                  paddingTop: '1vh',
+                  paddingLeft: '1.2vh',
+                  paddingRight: '1.2vh',
+                  paddingBottom: '1.2vh',
+                  marginTop: '0.5vh',
+                  marginBottom: '1.2vh',
+                  borderRadius: '0.6vh',
+                  border: '0.1vh solid #e0e0e0'
+                }}>
                   <div style={{ 
-                    marginTop: '1.2vh',
-                    marginBottom: '1.2vh',  
-                    width: '100%'
+                    fontSize: '1.6vh', 
+                    fontWeight: 'bold',
+                    color: '#333', 
+                    marginBottom: '0.5vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5vh'
                   }}>
-                    <div style={{ 
-                      backgroundColor: '#fff',
-                      paddingTop: '1vh',
-                      paddingLeft: '1vh',
-                      paddingRight: '1vh',
-                      paddingBottom: '1.2vh',
-                      marginBottom: '1.2vh',
-                      borderRadius: '0.6vh',
-                      border: '0.1vh solid #e0e0e0'
-                    }}>
-                      <div style={{ 
-                        fontSize: '1.6vh', 
-                        fontWeight: 'bold',
-                        color: '#333', 
-                        marginBottom: '0.5vh',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5vh'
-                      }}>
-                        ⏱️ 타이머 모드
-                      </div>
-                      <div style={{ 
-                        fontSize: '1.3vh', 
-                        color: '#666', 
-                        lineHeight: '1.4'
-                      }}>
-                        후보 추천 시간이 끝나면 자동으로 투표가 시작됩니다.
-                      </div>
-                    </div>
-                    <label className={styles.inputLabel} style={{ fontSize: '1.4vh', marginBottom: '0.8vh' }}>⏰ 후보 추천 시간</label>
-                    <select
-                      className={styles.timeSelect}
-                      value={createRoomData.startTime}
-                      onChange={(e) => updateCreateRoomData('startTime', e.target.value)}
-                    >
-                      <option value="">시간 선택</option>
-                      {[...Array(10)].map((_, i) => (
-                        <option key={i+1} value={String(i+1)}>{i+1}분</option>
-                      ))}
-                    </select>
+                    {!createRoomData.anonymousMode ? '👤 공개모드' : '🕵️ 익명모드'}
                   </div>
-                )}
+                  <div style={{ 
+                    fontSize: '1.3vh', 
+                    color: '#666', 
+                    lineHeight: '1.4'
+                  }}>
+                    {!createRoomData.anonymousMode 
+                      ? '투표 결과에서 누가 어떤 식당에 투표했는지 확인할 수 있습니다.'
+                      : '투표 결과에서 투표자 정보가 숨겨집니다.'
+                    }
+                  </div>
+                </div>
               </div>
             </div>
 

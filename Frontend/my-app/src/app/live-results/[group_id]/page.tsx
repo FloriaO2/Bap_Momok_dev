@@ -121,6 +121,12 @@ export default function LiveResultsPage() {
   // 후보별로 옵션별 투표자 닉네임 목록 반환 함수
   const getVoteMembersByOption = (candidateId: string | number, option: string): string[] => {
     if (!groupData?.votes) return [];
+    
+    // 익명모드인 경우 빈 배열 반환
+    if (groupData.anonymous_mode) {
+      return [];
+    }
+    
     return Object.entries(groupData.votes as Record<string, Record<string, string>>)
       .filter(([participantId, votes]) => votes[String(candidateId)] === option)
       .map(([participantId]) => groupData.participants?.[participantId]?.nickname || participantId);
@@ -157,15 +163,16 @@ export default function LiveResultsPage() {
   const VoteDisplay = ({ candidateId, option, emoji, count }: { candidateId: string, option: string, emoji: string, count: number }) => {
     const tooltipId = `${candidateId}-${option}`;
     const members = getVoteMembersByOption(candidateId, option);
+    const isAnonymousMode = groupData?.anonymous_mode;
 
     return (
       <span
-        style={{ position: 'relative', cursor: 'pointer' }}
-        onMouseEnter={() => setActiveTooltip(tooltipId)}
-        onMouseLeave={() => setActiveTooltip(null)}
+        style={{ position: 'relative', cursor: isAnonymousMode ? 'default' : 'pointer' }}
+        onMouseEnter={isAnonymousMode ? undefined : () => setActiveTooltip(tooltipId)}
+        onMouseLeave={isAnonymousMode ? undefined : () => setActiveTooltip(null)}
       >
         {emoji} {count}
-        {activeTooltip === tooltipId && (
+        {!isAnonymousMode && activeTooltip === tooltipId && (
           <div style={tooltipStyle}>
             {members.length > 0
               ? members.map(name => <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '2px 0' }}>👤<span>{name}</span></div>)
@@ -209,8 +216,7 @@ export default function LiveResultsPage() {
           minHeight: "100vh", 
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           padding: "20px",
-          fontFamily: "Arial, sans-serif",
-          cursor: "pointer"
+          fontFamily: "Arial, sans-serif"
         }}
         onClick={handleSecretClick}
         onTouchStart={handleSecretClick}

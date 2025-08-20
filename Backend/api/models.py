@@ -54,6 +54,7 @@ class GroupData(BaseModel):
         default=None, description="참가자 목록. 입력하지 않으면 빈 객체로 자동 처리됩니다.", example={})
     start_votingtime: int = Field(description="투표 시작까지 남은 시간(분)")
     timer_mode: bool = Field(default=False, description="타이머 모드 여부. true면 시간 제한, false면 모든 참가자 완료 시 자동 이동")
+    anonymous_mode: bool = Field(default=False, description="익명 모드 여부. true면 투표자 정보 숨김, false면 투표자 정보 공개")
     group_creation_time: Optional[str] = Field(default_factory=get_kst_now_str, description="그룹 생성 시간. 입력하지 않으면 현재 시간으로 자동 처리됩니다.")
     state: str = Field(default="suggestion", description="그룹 상태. 입력하지 않으면 suggestion으로 자동 처리됩니다.")
     votes: Optional[Dict[str, dict]] = Field(

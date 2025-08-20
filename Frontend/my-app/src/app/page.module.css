@@ -219,6 +219,19 @@
   margin-bottom: 2vh;
 }
 
+.modeSelection {
+  margin-bottom: 0vh !important;
+}
+
+.modeSelection1  {
+  border-bottom-left-radius: 0vh !important;
+  border-bottom-right-radius: 0vh !important;
+}
+.modeSelection2 {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
 .inputLabel {
   display: block;
   font-size: 1.6vh;
@@ -234,6 +247,10 @@
   border: 0.1vh solid #e0e0e0;
   border-radius: 0.8vh;
   background-color: #f9f9f9;
+}
+
+.optionGroup:first-of-type {
+  margin-bottom: 0vh !important;
 }
 
 .checkboxGroup {
