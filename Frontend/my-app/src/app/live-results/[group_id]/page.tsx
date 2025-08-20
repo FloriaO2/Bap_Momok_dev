@@ -230,13 +230,13 @@ export default function LiveResultsPage() {
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   style={{
                     background: idx < 3 ? medalColors[idx] : "#fff",
-                    borderRadius: 12,
-                    marginBottom: 16,
-                    padding: 20,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    borderRadius: "1.2vh",
+                    marginBottom: "1.6vh",
+                    padding: "2.4vh 2.6vh",
+                    boxShadow: "0 0.2vh 0.8vh rgba(0,0,0,0.08)",
                     display: "flex",
                     alignItems: "center",
-                    gap: 16,
+                    gap: "1.6vh",
                     color: "#222"
                   }}
                 >
