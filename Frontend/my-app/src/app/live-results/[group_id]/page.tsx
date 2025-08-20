@@ -35,7 +35,26 @@ export default function LiveResultsPage() {
           (c.never || 0) * -10,
       }));
       arr.sort((a, b) => b.score - a.score);
-      arr.forEach((c, i) => (c.rank = i + 1));
+      
+      // 동점 처리 로직
+      let currentRank = 1;
+      let currentScore = arr[0]?.score;
+      
+      arr.forEach((c, i) => {
+        if (i === 0) {
+          c.rank = 1;
+        } else {
+          if (c.score === currentScore) {
+            // 동점인 경우 같은 등수
+            c.rank = currentRank;
+          } else {
+            // 점수가 다른 경우 다음 등수
+            currentRank = i + 1;
+            currentScore = c.score;
+            c.rank = currentRank;
+          }
+        }
+      });
       setCandidates(arr);
       setLoading(false); // 데이터를 받아온 후 로딩 상태 해제
     };
@@ -159,11 +178,18 @@ export default function LiveResultsPage() {
     );
   };
 
-  const medalColors = [
-    'linear-gradient(90deg, #FFD700 0%, #FFEF8A 100%)', // 금
-    'linear-gradient(90deg, #C0C0C0 0%, #E0E0E0 100%)', // 은
-    'linear-gradient(90deg, #CD7F32 0%, #E3B778 100%)', // 동
-  ];
+  const getBackgroundColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return 'linear-gradient(90deg, rgb(255, 215, 0) 0%, rgb(255, 239, 138) 100%)'; // 금
+      case 2:
+        return 'linear-gradient(90deg, rgb(192, 192, 192) 0%, rgb(224, 224, 224) 100%)'; // 은
+      case 3:
+        return 'linear-gradient(90deg, rgb(205, 127, 50) 0%, rgb(227, 183, 120) 100%)'; // 동
+      default:
+        return 'rgb(255, 255, 255)'; // 흰색
+    }
+  };
 
   const medalEmojis = ['🥇', '🥈', '🥉'];
 
@@ -229,7 +255,7 @@ export default function LiveResultsPage() {
                   exit={{ opacity: 0, y: -30 }}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   style={{
-                    background: idx < 3 ? medalColors[idx] : "#fff",
+                    background: getBackgroundColor(c.rank),
                     borderRadius: "1.2vh",
                     marginBottom: "1.6vh",
                     padding: "2.4vh 2.6vh",
