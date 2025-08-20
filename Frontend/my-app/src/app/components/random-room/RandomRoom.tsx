@@ -11,13 +11,14 @@ const Wheel = dynamic(() => import('react-custom-roulette').then(mod => ({ defau
 
 // Wheel 마운트/언마운트 추적용 HOC
 const DebugWheel = (props: any) => {
+  const { wheelKey, ...wheelProps } = props;
   useEffect(() => {
-    console.log('[DebugWheel] 마운트됨', props.key);
+    console.log('[DebugWheel] 마운트됨, wheelKey:', wheelKey);
     return () => {
-      console.log('[DebugWheel] 언마운트됨', props.key);
+      console.log('[DebugWheel] 언마운트됨, wheelKey:', wheelKey);
     };
-  }, []);
-  return <Wheel {...props} />;
+  }, [wheelKey]);
+  return <Wheel {...wheelProps} />;
 };
 
 interface Restaurant {
@@ -49,7 +50,8 @@ interface RandomRoomProps {
 
 export default function RandomRoom({ groupId, isModal = false, onAddCandidate }: RandomRoomProps) {
   const [groupData, setGroupData] = useState<GroupData | null>(null);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]); // 모든 식당 데이터 저장
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // 현재 표시할 식당들
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
@@ -64,6 +66,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
   const [wheelKey, setWheelKey] = useState('default');
   const [showWheel, setShowWheel] = useState(false);
   const wheelRef = useRef<any>(null);
+  const [hasInitialDataLoaded, setHasInitialDataLoaded] = useState(false); // 초기 데이터 로드 여부
 
   useEffect(() => {
     console.log('[RandomRoom] isModal 변경:', isModal);
@@ -297,12 +300,9 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
     });
   };
 
-  // 식당 데이터 가져오기 함수
-    const fetchRestaurants = async () => {
-      // 랜덤 시드 추가 (매번 다른 결과를 위해)
-      console.log('랜덤 시드:', Date.now());
-      
-    console.log('fetchRestaurants 시작');
+  // 모든 식당 데이터 가져오기 함수 (초기 로드용)
+  const fetchAllRestaurants = async () => {
+    console.log('fetchAllRestaurants 시작');
     console.log('groupData:', groupData);
     
     if (!groupData) {
@@ -317,7 +317,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           return url.endsWith('/') ? url.slice(0, -1) : url;
         };
         const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
-      const allRestaurants: Restaurant[] = [];
+      const allRestaurantsData: Restaurant[] = [];
 
       // 1. 직접가기 설정된 경우 카카오맵 API 호출
       console.log('카카오맵 API 호출 조건 확인:', { offline: groupData.offline, window: typeof window });
@@ -329,9 +329,9 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           const ps = new window.kakao.maps.services.Places();
           const allKakaoResults: any[] = [];
           
-          // categorySearch로 7페이지만 검색
-          for (let page = 1; page <= 3; page++) { // 페이지 수 줄이기
-            await new Promise(res => setTimeout(res, 300)); // 300ms 딜레이
+          // categorySearch로 2페이지만 검색 (요청 제한 방지)
+          for (let page = 1; page <= 2; page++) { // 페이지 수 줄이기
+            await new Promise(res => setTimeout(res, 800)); // 800ms 딜레이 (요청 제한 방지)
             try {
               const searchOptions = {
                 location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
@@ -354,6 +354,20 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
                   if (status === window.kakao.maps.services.Status.OK) {
                     console.log(`카카오맵 검색 성공 (페이지 ${page})`);
                     resolve(data);
+                  } else if (status === window.kakao.maps.services.Status.TOO_MANY_REQUESTS) {
+                    console.log(`카카오맵 요청 제한 (페이지 ${page}):`, status);
+                    // 요청 제한 시 더 긴 대기 시간 후 재시도
+                    setTimeout(() => {
+                      ps.categorySearch('FD6', (retryData: any, retryStatus: any) => {
+                        if (retryStatus === window.kakao.maps.services.Status.OK) {
+                          console.log(`카카오맵 재시도 성공 (페이지 ${page})`);
+                          resolve(retryData);
+                        } else {
+                          console.log(`카카오맵 재시도 실패 (페이지 ${page}):`, retryStatus);
+                          resolve([]); // 재시도 실패 시 빈 배열 반환
+                        }
+                      }, searchOptions);
+                    }, 2000); // 2초 대기 후 재시도
                   } else {
                     console.log(`카카오맵 검색 실패 (페이지 ${page}):`, status);
                     resolve([]); // 실패해도 빈 배열 반환
@@ -370,6 +384,32 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               }
             } catch (err) {
               console.error(`카카오맵 API 호출 오류 (페이지 ${page}):`, err);
+              // 요청 제한 오류인 경우 더 긴 대기 시간 후 재시도
+              const errString = String(err);
+              if (errString.includes('429') || errString.includes('Too Many Requests')) {
+                console.log(`요청 제한 감지, 3초 대기 후 재시도 (페이지 ${page})`);
+                await new Promise(res => setTimeout(res, 3000));
+                try {
+                  const retryResults = await new Promise((resolve, reject) => {
+                    ps.categorySearch('FD6', (data: any, status: any) => {
+                      if (status === window.kakao.maps.services.Status.OK) {
+                        resolve(data);
+                      } else {
+                        resolve([]);
+                      }
+                    }, {
+                      location: new window.kakao.maps.LatLng(groupData.x, groupData.y),
+                      radius: groupData.radius,
+                      category_group_code: 'FD6',
+                      size: 15,
+                      page: page
+                    });
+                  });
+                  allKakaoResults.push(...(retryResults as any[]));
+                } catch (retryErr) {
+                  console.error(`카카오맵 재시도 실패 (페이지 ${page}):`, retryErr);
+                }
+              }
               break; // 오류 발생 시 검색 중단
             }
           }
@@ -400,7 +440,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               type: 'kakao' as const,
               detail: restaurant
             }));
-          allRestaurants.push(...filteredKakao);
+          allRestaurantsData.push(...filteredKakao);
         } catch (error) {
           console.error('카카오맵 API 초기화 실패:', error);
           // 카카오맵 API 실패 시에도 계속 진행 (요기요 API만 사용)
@@ -416,7 +456,6 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           if (yogiyoResponse.ok) {
             const yogiyoData = await yogiyoResponse.json();
             const filteredYogiyo = yogiyoData.restaurants
-              .filter((restaurant: any) => restaurant.review_avg >= 4.7)
               .map((restaurant: any) => ({
                 id: restaurant.id.toString(),
                 name: restaurant.name,
@@ -426,7 +465,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
                 type: 'yogiyo' as const,
                 detail: restaurant
               }));
-            allRestaurants.push(...filteredYogiyo);
+            allRestaurantsData.push(...filteredYogiyo);
           }
         } catch (err) {
           console.error('요기요 API 호출 오류:', err);
@@ -437,18 +476,23 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
       let finalRestaurants: Restaurant[] = [];
       
       if (groupData.offline && groupData.delivery) {
-        const kakaoRestaurants = allRestaurants.filter(r => r.type === 'kakao');
-        const yogiyoRestaurants = allRestaurants.filter(r => r.type === 'yogiyo');
+        const kakaoRestaurants = allRestaurantsData.filter(r => r.type === 'kakao');
+        const yogiyoRestaurants = allRestaurantsData.filter(r => r.type === 'yogiyo');
         
         const selectByCategory = (restaurants: Restaurant[], maxCount: number): Restaurant[] => {
           const selected: Restaurant[] = [];
           
-          // 1단계: 카테고리별로 분류 (카페 제외)
+          // 새로고침 시 재사용 방지: 이미 사용된 식당 ID들 가져오기
+          const usedRestaurantsKey = getUsedRestaurantsKey();
+          const usedRestaurantIds = JSON.parse(localStorage.getItem(usedRestaurantsKey) || '[]');
+          console.log('이미 사용된 식당 ID들:', usedRestaurantIds);
+          
+          // 1단계: 카테고리별로 분류 (카페 제외, 이미 사용된 식당 제외)
           const categoryGroups = new Map<string, Restaurant[]>();
           restaurants.forEach(restaurant => {
             const category = normalizeCategory(restaurant.category);
-            // 카페 카테고리 제외
-            if (category === '카페') {
+            // 카페 카테고리 제외, 이미 사용된 식당 제외
+            if (category === '카페' || usedRestaurantIds.includes(restaurant.id)) {
               return;
             }
             if (!categoryGroups.has(category)) {
@@ -479,9 +523,9 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
             // 이미 선택된 식당 ID 집합
             const selectedIds = new Set(selected.map(r => r.id));
             
-            // 모든 식당을 하나의 배열로 합치고 랜덤하게 섞기
-            const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id));
-            const shuffledRemaining = remainingRestaurants.sort(() => Math.random() - 0.5);
+            // 모든 식당을 하나의 배열로 합치고 랜덤하게 섞기 (이미 사용된 식당 제외)
+            const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id) && !usedRestaurantIds.includes(r.id));
+            const shuffledRemaining = shuffleArray(remainingRestaurants);
             
             // 남은 자리만큼 추가 선택
             for (const restaurant of shuffledRemaining) {
@@ -503,12 +547,22 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
                   const selectByCategory = (restaurants: Restaurant[], maxCount: number): Restaurant[] => {
             const selected: Restaurant[] = [];
             
-            // 1단계: 카테고리별로 분류 (카페 제외)
+            // 새로고침 시 재사용 방지: 이미 사용된 식당 ID들 가져오기
+            const usedRestaurantsKey = getUsedRestaurantsKey();
+            const usedRestaurantIds = JSON.parse(localStorage.getItem(usedRestaurantsKey) || '[]');
+            console.log('이미 사용된 식당 ID들:', usedRestaurantIds);
+            
+            // 실제로 존재하는 식당 ID만 필터링
+            const existingRestaurantIds = restaurants.map(r => r.id);
+            const validUsedIds = usedRestaurantIds.filter((id: string) => existingRestaurantIds.includes(id));
+            console.log('실제 존재하는 사용된 ID들:', validUsedIds);
+            
+            // 1단계: 카테고리별로 분류 (카페 제외, 이미 사용된 식당 제외)
             const categoryGroups = new Map<string, Restaurant[]>();
             restaurants.forEach(restaurant => {
               const category = normalizeCategory(restaurant.category);
-              // 카페 카테고리 제외
-              if (category === '카페') {
+              // 카페 카테고리 제외, 이미 사용된 식당 제외
+              if (category === '카페' || validUsedIds.includes(restaurant.id)) {
                 return;
               }
               if (!categoryGroups.has(category)) {
@@ -548,8 +602,8 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               // 이미 선택된 식당 ID 집합
               const selectedIds = new Set(selected.map(r => r.id));
               
-              // 모든 식당을 하나의 배열로 합치고 랜덤하게 섞기
-              const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id) && !selectedNames.has(r.name));
+              // 모든 식당을 하나의 배열로 합치고 랜덤하게 섞기 (이미 사용된 식당 제외)
+              const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id) && !selectedNames.has(r.name) && !validUsedIds.includes(r.id));
               const shuffledRemaining = shuffleArray(remainingRestaurants);
               
               // 남은 자리만큼 추가 선택
@@ -566,19 +620,32 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
             return selected;
           };
         
-        finalRestaurants = selectByCategory(allRestaurants, 10);
+        finalRestaurants = selectByCategory(allRestaurantsData, 10);
       }
 
-      // 4. 최종 결과 설정
-      console.log('최종 식당 개수:', finalRestaurants.length);
-      console.log('최종 식당 목록:', finalRestaurants);
+      // 4. 모든 식당 데이터 저장 및 초기 선택
+      console.log('전체 식당 개수:', allRestaurantsData.length);
+      console.log('전체 식당 목록:', allRestaurantsData);
       
-      if (finalRestaurants.length === 0) {
+      if (allRestaurantsData.length === 0) {
         console.log('조건에 맞는 식당이 없음');
         setError('조건에 맞는 식당을 찾을 수 없습니다.');
       } else {
-        console.log('식당 목록 설정 완료');
-        setRestaurants(finalRestaurants);
+        console.log('전체 식당 데이터 저장 완료');
+        setAllRestaurants(allRestaurantsData);
+        setHasInitialDataLoaded(true);
+        
+        // 초기 랜덤 선택
+        const initialSelection = selectInitialRestaurants(allRestaurantsData);
+        setRestaurants(initialSelection);
+        
+        // 선택된 식당들을 localStorage에 저장 (새로고침 시 재사용 방지)
+        const usedRestaurantsKey = getUsedRestaurantsKey();
+        const existingUsedIds = JSON.parse(localStorage.getItem(usedRestaurantsKey) || '[]');
+        const newUsedIds = initialSelection.map(r => r.id);
+        const updatedUsedIds = [...new Set([...existingUsedIds, ...newUsedIds])];
+        localStorage.setItem(usedRestaurantsKey, JSON.stringify(updatedUsedIds));
+        console.log('초기 선택된 식당들을 localStorage에 저장:', updatedUsedIds);
       }
       } catch (err) {
       console.error('식당 정보 가져오기 오류:', err);
@@ -588,12 +655,303 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
       }
     };
 
-  // groupData가 설정되면 자동으로 새로운 식당 데이터 가져오기
+  // groupData가 설정되면 자동으로 모든 식당 데이터 가져오기
   useEffect(() => {
-    if (groupData) {
-    fetchRestaurants();
+    if (groupData && !hasInitialDataLoaded) {
+      fetchAllRestaurants();
     }
-  }, [groupData]);
+  }, [groupData, hasInitialDataLoaded]);
+
+  // 새로고침 시 재사용 방지를 위한 localStorage 키 생성
+  const getUsedRestaurantsKey = () => `used_restaurants_${groupId}`;
+
+  // 초기 식당 선택 함수 (전체 데이터에서 첫 번째 선택)
+  const selectInitialRestaurants = (allRestaurantsData: Restaurant[]): Restaurant[] => {
+    console.log('초기 식당 선택 시작');
+    
+    // 카테고리별 선택 로직 적용
+    let finalRestaurants: Restaurant[] = [];
+    
+    if (groupData?.offline && groupData?.delivery) {
+      const kakaoRestaurants = allRestaurantsData.filter(r => r.type === 'kakao');
+      const yogiyoRestaurants = allRestaurantsData.filter(r => r.type === 'yogiyo');
+      
+      const selectByCategory = (restaurants: Restaurant[], maxCount: number): Restaurant[] => {
+        const selected: Restaurant[] = [];
+        
+        // 1단계: 카테고리별로 분류 (카페 제외)
+        const categoryGroups = new Map<string, Restaurant[]>();
+        restaurants.forEach(restaurant => {
+          const category = normalizeCategory(restaurant.category);
+          if (category === '카페') return;
+          if (!categoryGroups.has(category)) {
+            categoryGroups.set(category, []);
+          }
+          categoryGroups.get(category)!.push(restaurant);
+        });
+        
+        // 2단계: 각 카테고리에서 최대 2개씩 선택
+        const categories = Array.from(categoryGroups.keys());
+        
+        categories.forEach(category => {
+          const restaurantsInCategory = categoryGroups.get(category)!;
+          let selectedFromCategory = 0;
+          const maxFromCategory = 2;
+          
+          // 각 카테고리에서 최대 2개 선택
+          for (let i = 0; i < Math.min(restaurantsInCategory.length, maxFromCategory); i++) {
+            if (selected.length >= maxCount) break;
+            const randomIndex = Math.floor(Math.random() * restaurantsInCategory.length);
+            selected.push(restaurantsInCategory[randomIndex]);
+            restaurantsInCategory.splice(randomIndex, 1);
+            selectedFromCategory++;
+          }
+        });
+        
+        // 3단계: 남은 자리를 랜덤으로 채우기
+        const remainingCount = maxCount - selected.length;
+        if (remainingCount > 0) {
+          const selectedIds = new Set(selected.map(r => r.id));
+          const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id));
+          const shuffledRemaining = shuffleArray(remainingRestaurants);
+          
+          // 남은 자리만큼 추가 선택
+          for (let i = 0; i < Math.min(remainingCount, shuffledRemaining.length); i++) {
+            selected.push(shuffledRemaining[i]);
+          }
+        }
+        
+        return selected;
+      };
+      
+      const selectedKakao = selectByCategory(kakaoRestaurants, 5);
+      const selectedYogiyo = selectByCategory(yogiyoRestaurants, 5);
+      finalRestaurants = [...selectedKakao, ...selectedYogiyo];
+    } else {
+      const selectByCategory = (restaurants: Restaurant[], maxCount: number): Restaurant[] => {
+        const selected: Restaurant[] = [];
+        const selectedNames = new Set<string>();
+        
+        // 1단계: 카테고리별로 분류 (카페 제외)
+        const categoryGroups = new Map<string, Restaurant[]>();
+        restaurants.forEach(restaurant => {
+          const category = normalizeCategory(restaurant.category);
+          if (category === '카페') return;
+          if (!categoryGroups.has(category)) {
+            categoryGroups.set(category, []);
+          }
+          categoryGroups.get(category)!.push(restaurant);
+        });
+        
+        // 2단계: 각 카테고리에서 최대 2개씩 선택 (중복 이름 제외)
+        const categories = Array.from(categoryGroups.keys());
+        
+        categories.forEach(category => {
+          const restaurantsInCategory = categoryGroups.get(category)!;
+          let selectedFromCategory = 0;
+          const maxFromCategory = 2;
+          
+          // 각 카테고리에서 최대 2개 선택 (중복 이름 제외)
+          for (let i = 0; i < Math.min(restaurantsInCategory.length, maxFromCategory); i++) {
+            if (selected.length >= maxCount) break;
+            const shuffledRestaurants = shuffleArray(restaurantsInCategory);
+            
+            for (const restaurant of shuffledRestaurants) {
+              if (!selectedNames.has(restaurant.name)) {
+                selected.push(restaurant);
+                selectedNames.add(restaurant.name);
+                selectedFromCategory++;
+                break;
+              }
+            }
+          }
+        });
+        
+        // 3단계: 남은 자리를 랜덤으로 채우기
+        const remainingCount = maxCount - selected.length;
+        if (remainingCount > 0) {
+          const selectedIds = new Set(selected.map(r => r.id));
+          const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id) && !selectedNames.has(r.name));
+          const shuffledRemaining = shuffleArray(remainingRestaurants);
+          
+          // 남은 자리만큼 추가 선택
+          for (let i = 0; i < Math.min(remainingCount, shuffledRemaining.length); i++) {
+            selected.push(shuffledRemaining[i]);
+            selectedNames.add(shuffledRemaining[i].name);
+          }
+        }
+        
+        return selected;
+      };
+      
+      finalRestaurants = selectByCategory(allRestaurantsData, 10);
+    }
+    
+    console.log('초기 식당 선택 완료:', finalRestaurants.length, '개');
+    return finalRestaurants;
+  };
+
+  // 이미 로드된 데이터에서 랜덤하게 식당 선택하는 함수
+  const selectRandomRestaurants = () => {
+    if (!hasInitialDataLoaded || allRestaurants.length === 0) {
+      console.log('데이터가 로드되지 않았거나 식당이 없습니다.');
+      return;
+    }
+
+    console.log('이미 로드된 데이터에서 랜덤 선택 시작');
+    
+    // 새로고침 시 재사용 방지: 이미 사용된 식당 ID들 가져오기
+    const usedRestaurantsKey = getUsedRestaurantsKey();
+    const usedRestaurantIds = JSON.parse(localStorage.getItem(usedRestaurantsKey) || '[]');
+    console.log('이미 사용된 식당 ID들:', usedRestaurantIds);
+    
+    // 실제로 존재하는 식당 ID만 필터링
+    const existingRestaurantIds = allRestaurants.map(r => r.id);
+    const validUsedIds = usedRestaurantIds.filter((id: string) => existingRestaurantIds.includes(id));
+    console.log('실제 존재하는 사용된 ID들:', validUsedIds);
+    
+    // 사용되지 않은 식당들만 필터링
+    const availableRestaurants = allRestaurants.filter(r => !validUsedIds.includes(r.id));
+    console.log(`사용 가능한 식당: ${availableRestaurants.length}개`);
+    
+    if (availableRestaurants.length === 0) {
+      console.log('사용 가능한 식당이 없습니다. localStorage 초기화');
+      localStorage.removeItem(usedRestaurantsKey);
+      setRestaurants(allRestaurants);
+      return;
+    }
+    
+    // 카테고리별 선택 로직 적용
+    let finalRestaurants: Restaurant[] = [];
+    
+    if (groupData?.offline && groupData?.delivery) {
+      const kakaoRestaurants = availableRestaurants.filter(r => r.type === 'kakao');
+      const yogiyoRestaurants = availableRestaurants.filter(r => r.type === 'yogiyo');
+      
+      const selectByCategory = (restaurants: Restaurant[], maxCount: number): Restaurant[] => {
+        const selected: Restaurant[] = [];
+        
+        // 1단계: 카테고리별로 분류 (카페 제외)
+        const categoryGroups = new Map<string, Restaurant[]>();
+        restaurants.forEach(restaurant => {
+          const category = normalizeCategory(restaurant.category);
+          if (category === '카페') return;
+          if (!categoryGroups.has(category)) {
+            categoryGroups.set(category, []);
+          }
+          categoryGroups.get(category)!.push(restaurant);
+        });
+        
+        // 2단계: 각 카테고리에서 최대 2개씩 선택
+        const categories = Array.from(categoryGroups.keys());
+        
+        categories.forEach(category => {
+          const restaurantsInCategory = categoryGroups.get(category)!;
+          let selectedFromCategory = 0;
+          const maxFromCategory = 2;
+          
+          // 각 카테고리에서 최대 2개 선택
+          for (let i = 0; i < Math.min(restaurantsInCategory.length, maxFromCategory); i++) {
+            if (selected.length >= maxCount) break;
+            const randomIndex = Math.floor(Math.random() * restaurantsInCategory.length);
+            selected.push(restaurantsInCategory[randomIndex]);
+            restaurantsInCategory.splice(randomIndex, 1);
+            selectedFromCategory++;
+          }
+        });
+        
+        // 3단계: 남은 자리를 랜덤으로 채우기
+        const remainingCount = maxCount - selected.length;
+        if (remainingCount > 0) {
+          const selectedIds = new Set(selected.map(r => r.id));
+          const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id));
+          const shuffledRemaining = shuffleArray(remainingRestaurants);
+          
+          // 남은 자리만큼 추가 선택
+          for (let i = 0; i < Math.min(remainingCount, shuffledRemaining.length); i++) {
+            selected.push(shuffledRemaining[i]);
+          }
+        }
+        
+        return selected;
+      };
+      
+      const selectedKakao = selectByCategory(kakaoRestaurants, 5);
+      const selectedYogiyo = selectByCategory(yogiyoRestaurants, 5);
+      finalRestaurants = [...selectedKakao, ...selectedYogiyo];
+    } else {
+      const selectByCategory = (restaurants: Restaurant[], maxCount: number): Restaurant[] => {
+        const selected: Restaurant[] = [];
+        const selectedNames = new Set<string>();
+        
+        // 1단계: 카테고리별로 분류 (카페 제외)
+        const categoryGroups = new Map<string, Restaurant[]>();
+        restaurants.forEach(restaurant => {
+          const category = normalizeCategory(restaurant.category);
+          if (category === '카페') return;
+          if (!categoryGroups.has(category)) {
+            categoryGroups.set(category, []);
+          }
+          categoryGroups.get(category)!.push(restaurant);
+        });
+        
+        // 2단계: 각 카테고리에서 최대 2개씩 선택 (중복 이름 제외)
+        const categories = Array.from(categoryGroups.keys());
+        
+        categories.forEach(category => {
+          const restaurantsInCategory = categoryGroups.get(category)!;
+          let selectedFromCategory = 0;
+          const maxFromCategory = 2;
+          
+          // 각 카테고리에서 최대 2개 선택 (중복 이름 제외)
+          for (let i = 0; i < Math.min(restaurantsInCategory.length, maxFromCategory); i++) {
+            if (selected.length >= maxCount) break;
+            const shuffledRestaurants = shuffleArray(restaurantsInCategory);
+            
+            for (const restaurant of shuffledRestaurants) {
+              if (!selectedNames.has(restaurant.name)) {
+                selected.push(restaurant);
+                selectedNames.add(restaurant.name);
+                selectedFromCategory++;
+                break;
+              }
+            }
+          }
+        });
+        
+        // 3단계: 남은 자리를 랜덤으로 채우기
+        const remainingCount = maxCount - selected.length;
+        if (remainingCount > 0) {
+          const selectedIds = new Set(selected.map(r => r.id));
+          const remainingRestaurants = restaurants.filter(r => !selectedIds.has(r.id));
+          const shuffledRemaining = shuffleArray(remainingRestaurants);
+          
+          // 남은 자리만큼 추가 선택
+          for (let i = 0; i < Math.min(remainingCount, shuffledRemaining.length); i++) {
+            selected.push(shuffledRemaining[i]);
+            selectedNames.add(shuffledRemaining[i].name);
+          }
+        }
+        
+        console.log(`최종 선택된 식당 개수: ${selected.length}/${maxCount}`);
+        
+        return selected;
+      };
+      
+      // 사용 가능한 모든 식당을 선택하되, 최대 10개까지만
+      const maxCount = Math.min(10, availableRestaurants.length);
+      finalRestaurants = selectByCategory(availableRestaurants, maxCount);
+    }
+    
+    // 선택된 식당들을 localStorage에 저장
+    const existingUsedIds = JSON.parse(localStorage.getItem(usedRestaurantsKey) || '[]');
+    const newUsedIds = finalRestaurants.map(r => r.id);
+    const updatedUsedIds = [...new Set([...existingUsedIds, ...newUsedIds])];
+    localStorage.setItem(usedRestaurantsKey, JSON.stringify(updatedUsedIds));
+    
+    console.log('새로운 랜덤 선택 완료:', finalRestaurants.length, '개');
+    setRestaurants(finalRestaurants);
+  };
 
   // 텍스트를 자동으로 줄바꿈하는 함수
   const formatTextForRoulette = (text: string): string => {
@@ -690,8 +1048,9 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
     setSelectedRestaurant(null);
     setMustSpin(false);
     setPrizeNumber(0);
-    if (groupData) {
-      fetchRestaurants();
+    // 새로고침 시에는 이미 로드된 데이터에서 새로운 랜덤 선택
+    if (hasInitialDataLoaded && allRestaurants.length > 0) {
+      selectRandomRestaurants();
     }
   };
 
@@ -882,6 +1241,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           {showWheel && (
             <DebugWheel
               key={wheelKey}
+              wheelKey={wheelKey}
               mustStartSpinning={mustSpin}
               prizeNumber={prizeNumber}
               data={rouletteData}
