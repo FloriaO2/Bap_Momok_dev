@@ -122,27 +122,41 @@ def vote_worker_batch():
                 if group is None:
                     print(f"[vote_worker_batch] 그룹을 찾을 수 없습니다: {group_id}")
                     continue
+                
+                # 배치의 모든 투표를 먼저 적용
                 for _, user_id, vote in batch:
-                    # 기존 process_vote의 투표 반영 로직을 인라인으로 작성
                     candidate_id = list(vote.keys())[0]
                     vote_value = vote[candidate_id]
                     participant_nickname = group.participants.get(user_id, Participant(nickname="알 수 없는 사용자", suggest_complete=False)).nickname
                     print(f"✅ 투표 기록: [{participant_nickname}({user_id})]님이 [{candidate_id}]에 [{vote_value}] 투표함")
+                    
+                    # 기존 투표 데이터 가져오기
                     prev_vote = group.votes.get(user_id, {})
                     prev_vote.update(vote)
                     group.votes[user_id] = prev_vote
-                    print(f"[vote_worker_batch] votes after update: {group.votes}")
-                    update_candidate_vote_counts(group)
-                    print(f"[vote_worker_batch] candidates after 집계: {group.candidates}")
-                    group.calculate_ranks()
-                    print(f"[vote_worker_batch] candidates after rank calculation: {group.candidates}")
+                
+                # 모든 투표 적용 후 한 번에 집계 및 순위 계산
+                print(f"[vote_worker_batch] votes after all updates: {group.votes}")
+                update_candidate_vote_counts(group)
+                print(f"[vote_worker_batch] candidates after 집계: {group.candidates}")
+                group.calculate_ranks()
+                print(f"[vote_worker_batch] candidates after rank calculation: {group.candidates}")
+                
+                # 참가자들의 투표 완료 상태 업데이트
+                for _, user_id, _ in batch:
                     participant = group.participants.get(user_id)
                     if participant:
                         participant.voted_count = len([v for v in group.votes[user_id].values() if v in ("good", "bad", "never", "soso")])
                         print(f"[vote_worker_batch] participant {user_id} voted_count: {participant.voted_count}")
+                
+                # 그룹 업데이트
                 update_group(group_id, GroupUpdate(data=group))
+                print(f"[vote_worker_batch] 그룹 {group_id} 업데이트 완료")
+                
             except Exception as e:
                 print(f"🚨 vote_worker_batch 처리 중 오류 발생: {e}")
+                import traceback
+                print(f"🚨 상세 오류: {traceback.format_exc()}")
             finally:
                 for _ in batch:
                     vote_queue.task_done()
@@ -190,14 +204,25 @@ def get_groups():
 @app.get("/groups/{group_id}")
 def get_group_by_id(group_id: str):
     """특정 그룹 ID의 데이터를 조회합니다."""
-    group = get_group(group_id)
-    if group is None:
-        raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
-    
-    # 순위 계산
-    group.calculate_ranks()
-    
-    return group
+    try:
+        group = get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
+        
+        # 투표 집계 및 순위 계산
+        update_candidate_vote_counts(group)
+        group.calculate_ranks()
+        
+        print(f"📋 그룹 조회: group_id={group_id}")
+        print(f"📋 후보 수: {len(group.candidates)}")
+        print(f"📋 투표 수: {len(group.votes)}")
+        
+        return group
+    except Exception as e:
+        print(f"❌ 그룹 조회 중 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"그룹 조회 중 오류가 발생했습니다: {str(e)}")
 
 @app.post("/groups")
 def create_new_group(group_create: GroupCreate):
@@ -313,8 +338,21 @@ def add_yogiyo_candidate(
 
 @app.post("/groups/{group_id}/votes/{user_id}")
 def add_or_update_vote(group_id: str, user_id: str, vote: dict = Body(...)):
-    vote_queue.put((group_id, user_id, vote))
-    return {"message": "투표가 큐에 등록되었습니다."}
+    try:
+        print(f"📊 투표 요청 받음: group_id={group_id}, user_id={user_id}, vote={vote}")
+        
+        # 투표 데이터 검증
+        if not vote or not isinstance(vote, dict):
+            raise HTTPException(status_code=400, detail="투표 데이터가 올바르지 않습니다")
+        
+        # 큐에 투표 추가
+        vote_queue.put((group_id, user_id, vote))
+        print(f"✅ 투표가 큐에 등록됨: {group_id}, {user_id}")
+        
+        return {"message": "투표가 큐에 등록되었습니다."}
+    except Exception as e:
+        print(f"❌ 투표 등록 중 오류: {e}")
+        raise HTTPException(status_code=500, detail=f"투표 등록 중 오류가 발생했습니다: {str(e)}")
 
 @app.post("/groups/{group_id}/participants")
 def join_group(group_id: str, join: ParticipantJoin):
@@ -357,33 +395,48 @@ def set_suggest_complete(group_id: str, participant_id: str):
 @app.get("/groups/{group_id}/results")
 def get_voting_results(group_id: str):
     """투표 결과와 순위를 조회합니다."""
-    group = get_group(group_id)
-    if group is None:
-        raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
-    
-    # 순위 계산
-    group.calculate_ranks()
-    
-    # 전체 결과 (순위순으로 정렬)
-    all_candidates = []
-    for candidate_id, candidate in group.candidates.items():
-        all_candidates.append({
-            "id": candidate_id,
-            "name": candidate.name,
-            "type": candidate.type,
-            "rank": candidate.rank,
-            "good": candidate.good,
-            "soso": candidate.soso,
-            "bad": candidate.bad,
-            "never": candidate.never
-        })
-    all_candidates.sort(key=lambda x: x["rank"])
-    # top3는 never 여부와 상관없이 상위 3개
-    top3 = all_candidates[:3]
-    return {
-        "top3": top3,
-        "all_results": all_candidates
-    }
+    try:
+        group = get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
+        
+        # 투표 집계 및 순위 계산
+        update_candidate_vote_counts(group)
+        group.calculate_ranks()
+        
+        print(f"📊 투표 결과 조회: group_id={group_id}")
+        print(f"📊 후보 수: {len(group.candidates)}")
+        print(f"📊 투표 수: {len(group.votes)}")
+        
+        # 전체 결과 (순위순으로 정렬)
+        all_candidates = []
+        for candidate_id, candidate in group.candidates.items():
+            all_candidates.append({
+                "id": candidate_id,
+                "name": candidate.name,
+                "type": candidate.type,
+                "rank": candidate.rank,
+                "good": candidate.good,
+                "soso": candidate.soso,
+                "bad": candidate.bad,
+                "never": candidate.never
+            })
+        all_candidates.sort(key=lambda x: x["rank"])
+        
+        # top3는 never 여부와 상관없이 상위 3개
+        top3 = all_candidates[:3]
+        
+        print(f"📊 Top 3: {[c['name'] for c in top3]}")
+        
+        return {
+            "top3": top3,
+            "all_results": all_candidates
+        }
+    except Exception as e:
+        print(f"❌ 투표 결과 조회 중 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"투표 결과 조회 중 오류가 발생했습니다: {str(e)}")
 
 @app.get("/groups/{group_id}/yogiyo-restaurants")
 def get_yogiyo_restaurants(
@@ -506,18 +559,32 @@ def get_yogiyo_menu_summary(
 
 @app.get("/groups/{group_id}/participants/{participant_id}/vote_complete")
 def check_vote_complete(group_id: str, participant_id: str):
-    group_ref = db.reference(f"groups/{group_id}")
-    group_data = group_ref.get()
-    if not group_data:
-        raise HTTPException(status_code=404, detail="Group not found")
-    participants = group_data.get("participants", {})
-    participant = participants.get(participant_id)
-    if not participant:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    voted_count = participant.get("voted_count", 0)
-    candidates = group_data.get("candidates", {})
-    candidate_count = len(candidates)
-    return {"vote_complete": voted_count == candidate_count}
+    try:
+        group = get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
+        
+        participant = group.participants.get(participant_id)
+        if participant is None:
+            raise HTTPException(status_code=404, detail="참가자를 찾을 수 없습니다")
+        
+        # 투표 집계 업데이트
+        update_candidate_vote_counts(group)
+        
+        # 참가자의 투표 완료 상태 재계산
+        user_votes = group.votes.get(participant_id, {})
+        voted_count = len([v for v in user_votes.values() if v in ("good", "bad", "never", "soso")])
+        candidate_count = len(group.candidates)
+        
+        print(f"📊 투표 완료 체크: group_id={group_id}, participant_id={participant_id}")
+        print(f"📊 투표한 후보 수: {voted_count}/{candidate_count}")
+        
+        return {"vote_complete": voted_count == candidate_count}
+    except Exception as e:
+        print(f"❌ 투표 완료 체크 중 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"투표 완료 체크 중 오류가 발생했습니다: {str(e)}")
 
 @app.get("/groups/{group_id}/best_couple")
 def get_best_couple(group_id: str):
