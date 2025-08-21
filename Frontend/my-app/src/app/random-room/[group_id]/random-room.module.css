@@ -1,7 +1,7 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  padding: 4vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11,20 +11,20 @@
 
 .header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 8vh;
   color: white;
 }
 
 .header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 5vh;
+  margin-bottom: 2vh;
+  text-shadow: 0.4vh 0.4vh 0.8vh rgba(0, 0, 0, 0.3);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   font-weight: 700;
 }
 
 .header p {
-  font-size: 1.2rem;
+  font-size: 2.4vh;
   opacity: 0.9;
 }
 
@@ -32,17 +32,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 40px;
-  margin-top: 30px;
+  margin-bottom: 8vh;
+  margin-top: 6vh;
   width: 100%;
   justify-content: center;
 }
 
 .wheelWrapper {
   position: relative;
-  width: 400px;
-  height: 400px;
-  margin-bottom: 70px;
+  width: 60vh;
+  height: 60vh;
+  margin-bottom: 14vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -50,44 +50,44 @@
 
 /* react-custom-roulette 내부 스타일 오버라이드 - 고정 크기 강제 */
 .wheelWrapper :global(.wheel-container) {
-  width: 400px !important;
-  height: 400px !important;
-  max-width: 400px !important;
-  max-height: 400px !important;
-  min-width: 400px !important;
-  min-height: 400px !important;
+  width: 60vh !important;
+  height: 60vh !important;
+  max-width: 60vh !important;
+  max-height: 60vh !important;
+  min-width: 60vh !important;
+  min-height: 60vh !important;
 }
 
 .wheelWrapper :global(.wheel) {
-  width: 400px !important;
-  height: 400px !important;
-  max-width: 400px !important;
-  max-height: 400px !important;
-  min-width: 400px !important;
-  min-height: 400px !important;
+  width: 60vh !important;
+  height: 60vh !important;
+  max-width: 60vh !important;
+  max-height: 60vh !important;
+  min-width: 60vh !important;
+  min-height: 60vh !important;
 }
 
 .wheelWrapper :global(svg) {
-  width: 400px !important;
-  height: 400px !important;
-  max-width: 400px !important;
-  max-height: 400px !important;
-  min-width: 400px !important;
-  min-height: 400px !important;
+  width: 60vh !important;
+  height: 60vh !important;
+  max-width: 60vh !important;
+  max-height: 60vh !important;
+  min-width: 60vh !important;
+  min-height: 60vh !important;
 }
 
 /* 얘는 룰렛 계산 기준, 아래는 룰렛핀 이미지 이동 */
 /* 테스트용 ! 수정하려면 얘부터 */
 /* react-custom-roulette 핀 위치 조정 */
 .wheelWrapper :global(.wheel-pointer) {
-  top: -20px !important;
+  top: -4vh !important;
   left: 48% !important;
   transform: translateX(-50%) rotate(90deg) !important;
 }
 
 /* gTLZXx 클래스 (룰렛 포인터) 위치 조정 - 살짝 오른쪽으로 */
 .wheelWrapper :global(.gTLZXx) {
-  top: -20px !important;
+  top: -4vh !important;
   left: 53% !important;
   transform: translateX(-50%) rotate(-45deg) !important;
   position: absolute !important;
@@ -140,14 +140,14 @@
 .segmentText {
   color: white;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 2.8vh;
   text-align: center;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0.2vh 0.2vh 0.4vh rgba(0, 0, 0, 0.5);
   position: absolute;
-  width: 120px;
+  width: 18vh;
   transform-origin: center;
   line-height: 1.4;
-  letter-spacing: 2px;
+  letter-spacing: 0.4vh;
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
@@ -157,44 +157,44 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
+  width: 12vh;
+  height: 12vh;
   background: white;
   border-radius: 50%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0.8vh 2vh rgba(0, 0, 0, 0.3);
   z-index: 2;
 }
 
 .wheelPointer {
   position: absolute;
-  top: -50px;
+  top: -10vh;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 30px solid #ff4757;
+  border-left: 3vh solid transparent;
+  border-right: 3vh solid transparent;
+  border-top: 6vh solid #ff4757;
   z-index: 3;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 0.4vh 0.8vh rgba(0, 0, 0, 0.3));
 }
 
 .spinButton {
   background: linear-gradient(45deg, #ff6b6b, #ee5a24);
   color: white;
   border: none;
-  padding: 15px 40px;
-  border-radius: 50px;
-  font-size: 1.2rem;
+  padding: 3vh 8vh;
+  border-radius: 10vh;
+  font-size: 2.4vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 1.2vh 4vh rgba(255, 107, 107, 0.4);
 }
 
 .spinButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+  transform: translateY(-0.4vh);
+  box-shadow: 0 1.6vh 5vh rgba(255, 107, 107, 0.5);
 }
 
 .spinButton:disabled {
@@ -216,120 +216,120 @@
   background: linear-gradient(45deg, #74b9ff, #0984e3);
   color: white;
   border: none;
-  padding: 10px 25px;
-  border-radius: 25px;
-  font-size: 1rem;
+  padding: 1vh 2.5vh;
+  border-radius: 2.5vh;
+  font-size: 1vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4);
+  box-shadow: 0 0.4vh 1.5vh rgba(116, 185, 255, 0.4);
 }
 
 .resetButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(116, 185, 255, 0.5);
+  transform: translateY(-0.1vh);
+  box-shadow: 0 0.6vh 2vh rgba(116, 185, 255, 0.5);
 }
 
 .resultContainer {
   background: white;
-  border-radius: 20px;
-  padding: 30px;
-  margin-bottom: 50px;
-  margin-top: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 4vh;
+  padding: 6vh;
+  margin-bottom: 10vh;
+  margin-top: 4vh;
+  box-shadow: 0 2vh 6vh rgba(0, 0, 0, 0.2);
   text-align: center;
-  max-width: 500px;
+  max-width: 80vh;
   width: 100%;
 }
 
 .resultContainer h2 {
   color: #2d3436;
-  margin-bottom: 20px;
-  font-size: 1.4rem;
+  margin-bottom: 4vh;
+  font-size: 2.8vh;
   font-weight: 600;
 }
 
 .resultCard {
   background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-  border-radius: 15px;
-  padding: 25px;
-  margin-top: 20px;
+  border-radius: 3vh;
+  padding: 5vh;
+  margin-top: 4vh;
 }
 
 .resultCard h3 {
   color: #2d3436;
-  font-size: 1.3rem;
-  margin-bottom: 10px;
+  font-size: 2.6vh;
+  margin-bottom: 2vh;
   font-weight: 700;
 }
 
 .rating {
-  font-size: 1.2rem;
+  font-size: 2.4vh;
   color: #e17055;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 1.6vh;
 }
 
 .category {
   color: #636e72;
-  margin-bottom: 8px;
+  margin-bottom: 1.6vh;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 1.7vh;
 }
 
 .address {
   color: #636e72;
-  font-size: 0.8rem;
+  font-size: 1.6vh;
   line-height: 1.4;
 }
 
 .restaurantList {
   background: white;
-  border-radius: 20px;
-  padding: 30px;
-  margin-top: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  max-width: 600px;
+  border-radius: 4vh;
+  padding: 6vh;
+  margin-top: 4vh;
+  box-shadow: 0 2vh 6vh rgba(0, 0, 0, 0.2);
+  max-width: 90vh;
   width: 100%;
 }
 
 .restaurantList h3 {
   color: #2d3436;
-  margin-bottom: 20px;
+  margin-bottom: 4vh;
   text-align: center;
-  font-size: 1.3rem;
+  font-size: 2.6vh;
 }
 
 .listContainer {
   display: grid;
-  gap: 15px;
+  gap: 3vh;
 }
 
 .restaurantItem {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 3vh;
   background: #f8f9fa;
-  border-radius: 10px;
+  border-radius: 2vh;
   transition: all 0.3s ease;
 }
 
 .restaurantItem:hover {
   background: #e9ecef;
-  transform: translateX(5px);
+  transform: translateX(1vh);
 }
 
 .itemNumber {
   background: linear-gradient(45deg, #ff6b6b, #ee5a24);
   color: white;
-  width: 30px;
-  height: 30px;
+  width: 6vh;
+  height: 6vh;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  margin-right: 15px;
+  margin-right: 3vh;
   flex-shrink: 0;
 }
 
@@ -339,33 +339,33 @@
 
 .itemInfo h4 {
   color: #2d3436;
-  margin-bottom: 5px;
-  font-size: 1.1rem;
+  margin-bottom: 1vh;
+  font-size: 2.2vh;
   font-weight: 600;
 }
 
 .itemInfo p {
   color: #636e72;
-  font-size: 0.9rem;
+  font-size: 1.8vh;
   margin: 0;
 }
 
 .loadingMessage {
   text-align: center;
   color: white;
-  margin-top: 100px;
+  margin-top: 10vh;
 }
 
 .loadingMessage h2 {
-  margin-bottom: 30px;
-  font-size: 1.5rem;
+  margin-bottom: 3vh;
+  font-size: 1.5vh;
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid white;
+  width: 5vh;
+  height: 5vh;
+  border: 0.4vh solid rgba(255, 255, 255, 0.3);
+  border-top: 0.4vh solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto;
@@ -379,24 +379,24 @@
 .errorMessage {
   text-align: center;
   color: white;
-  margin-top: 100px;
+  margin-top: 10vh;
   background: rgba(255, 255, 255, 0.1);
-  padding: 30px;
-  border-radius: 15px;
+  padding: 3vh;
+  border-radius: 1.5vh;
   backdrop-filter: blur(10px);
-  max-width: 500px;
+  max-width: 50vh;
   width: 100%;
 }
 
 .errorMessage h2 {
-  margin-bottom: 15px;
+  margin-bottom: 1.5vh;
   color: #ff6b6b;
 }
 
 .errorMessage p {
-  font-size: 1.1rem;
+  font-size: 1.1vh;
   opacity: 0.9;
-  margin-bottom: 10px;
+  margin-bottom: 1vh;
 }
 
 .errorMessage ul {
@@ -405,81 +405,7 @@
 }
 
 .errorMessage li {
-  margin-bottom: 8px;
-  font-size: 1rem;
+  margin-bottom: 0.8vh;
+  font-size: 1vh;
   opacity: 0.9;
 }
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .container {
-    padding: 15px;
-  }
-  
-  .header h1 {
-    font-size: 2rem;
-  }
-  
-  .wheelContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 10vw;
-    margin-bottom: 10vw;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .wheelWrapper {
-    width: 300px;
-    height: 300px;
-    margin-bottom: 15vw;
-  }
-  
-  .segmentText {
-    font-size: 12px;
-    max-width: 60px;
-  }
-  
-  .wheelCenter {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .wheelPointer {
-    top: -30px;
-    border-left: 12px solid transparent;
-    border-right: 12px solid transparent;
-    border-top: 25px solid #ff4757;
-  }
-  
-  .resultContainer,
-  .restaurantList {
-    padding: 20px;
-  }
-  
-  .spinButton {
-    padding: 12px 30px;
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .wheelWrapper {
-    width: 300px;
-    height: 300px;
-  }
-  
-  .segmentText {
-    font-size: 10px;
-    max-width: 50px;
-  }
-  
-  .header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .header p {
-    font-size: 1rem;
-  }
-} 

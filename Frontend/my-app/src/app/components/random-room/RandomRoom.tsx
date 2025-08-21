@@ -1118,17 +1118,17 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               background: "#dc3545", 
               color: "#fff", 
               border: "none", 
-              borderRadius: "25px", 
-              padding: "12px 24px", 
-              fontSize: "16px", 
+              borderRadius: "5vh", 
+              padding: "2.4vh 4.8vh", 
+              fontSize: "3.2vh", 
               fontWeight: "bold", 
               cursor: "pointer",
               transition: "all 0.3s ease",
-              marginTop: "20px"
+              marginTop: "4vh"
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.background = "#c82333";
-              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.transform = "translateY(-0.4vh)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.background = "#dc3545";
@@ -1159,7 +1159,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
         <div className={styles.errorMessage}>
           <h2>😔 조건에 맞는 식당을 찾을 수 없어요</h2>
           <p>다음 중 하나를 시도해보세요:</p>
-          <ul style={{ textAlign: 'left', marginTop: '15px' }}>
+          <ul style={{ textAlign: 'left', marginTop: '3vh' }}>
             <li>• 배달 시간을 늘려보세요</li>
             <li>• 방문 가능 거리를 늘려보세요</li>
             <li>• 다른 위치를 선택해보세요</li>
@@ -1170,17 +1170,17 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               background: "#dc3545", 
               color: "#fff", 
               border: "none", 
-              borderRadius: "25px", 
-              padding: "12px 24px", 
-              fontSize: "16px", 
+              borderRadius: "5vh", 
+              padding: "2.4vh 4.8vh", 
+              fontSize: "3.2vh", 
               fontWeight: "bold", 
               cursor: "pointer",
               transition: "all 0.3s ease",
-              marginTop: "20px"
+              marginTop: "4vh"
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.background = "#c82333";
-              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.transform = "translateY(-0.4vh)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.background = "#dc3545";
@@ -1198,7 +1198,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>🍽️ 랜덤 식당 룰렛 🍽️</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6vh', justifyContent: 'center' }}>
           <p>무엇을 먹을까요?</p>
           <button
             onClick={handleRefresh}
@@ -1206,8 +1206,8 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               background: "transparent", 
               color: "#fff", 
               border: "none", 
-              borderRadius: "25px", 
-              fontSize: "14px", 
+              borderRadius: "5vh", 
+              fontSize: "2.8vh", 
               fontWeight: "bold", 
               cursor: "pointer",
               transition: "all 0.3s ease",
@@ -1215,7 +1215,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               alignItems: "center"
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.transform = "translateY(-0.4vh)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
@@ -1226,10 +1226,10 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
         </div>
         {restaurants.length < 10 && restaurants.length > 0 && (
           <>
-          <p style={{ color: '#ffd700', fontSize: '0.9rem', marginTop: '10px'}}>
+          <p style={{ color: '#ffd700', fontSize: '1.8vh', marginTop: '2vh'}}>
             ⚠️ 조건에 맞는 식당이 {restaurants.length}개만 있어요.
           </p>
-          <p style={{ color: '#ffd700', fontSize: '0.8rem', marginTop: '0px' }}>
+          <p style={{ color: '#ffd700', fontSize: '1.6vh', marginTop: '0vh' }}>
           더 많은 식당을 찾기 위해 조건을 조정해보세요!
         </p>
         </>
@@ -1298,13 +1298,13 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           {isModal && (
             <button
               style={{
-                marginTop: '18px',
+                marginTop: '3.6vh',
                 background: '#4ecdc4',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '25px',
-                padding: '12px 24px',
-                fontSize: '16px',
+                borderRadius: '5vh',
+                padding: '2.4vh 4.8vh',
+                fontSize: '3.2vh',
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 transition: 'all 0.3s',
@@ -1344,23 +1344,23 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
       </div>
 
       {!isModal && (
-        <div style={{ marginTop: "30px", marginBottom: "30px", textAlign: "center", display: "flex", gap: "15px", justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ marginTop: "6vh", marginBottom: "6vh", textAlign: "center", display: "flex", gap: "3vh", justifyContent: "center", flexWrap: "wrap" }}>
           <button
             onClick={handleGoHome}
             style={{ 
               background: "#dc3545", 
               color: "#fff", 
               border: "none", 
-              borderRadius: "25px", 
-              padding: "12px 24px", 
-              fontSize: "16px", 
+              borderRadius: "5vh", 
+              padding: "2.4vh 4.8vh", 
+              fontSize: "3.2vh", 
               fontWeight: "bold", 
               cursor: "pointer",
               transition: "all 0.3s ease"
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.background = "#c82333";
-              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.transform = "translateY(-0.4vh)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.background = "#dc3545";
@@ -1383,7 +1383,7 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: 12, width: "90vw", maxWidth: 600, height: "80vh", position: "relative", padding: 0, textAlign: 'center', overflow: 'hidden'
+              background: "#fff", borderRadius: "2.4vh", width: "90vw", maxWidth: "80vh", height: "80vh", position: "relative", padding: 0, textAlign: 'center', overflow: 'hidden'
             }}
           >
             {/* 헤더 */}
@@ -1392,32 +1392,32 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
               top: 0,
               left: 0,
               right: 0,
-              height: "40px",
+              height: "8vh",
               background: "#f8f9fa",
-              borderBottom: "1px solid #e9ecef",
+              borderBottom: "0.2vh solid #e9ecef",
               display: "flex",
               alignItems: "center",
               justifyContent: "end",
-              padding: "0 20px",
+              padding: "0 4vh",
               zIndex: 3,
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12
+              borderTopLeftRadius: "2.4vh",
+              borderTopRightRadius: "2.4vh"
             }}>
 
               <button
                 onClick={() => setModalOpen(false)}
                 style={{
-                  background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#666", padding: "5px"
+                  background: "none", border: "none", fontSize: "4vh", cursor: "pointer", color: "#666", padding: "1vh"
                 }}
               >✕</button>
             </div>
-            <div style={{ marginTop: "20px", height: "calc(100% - 20px)", padding: "20px" }}>
+            <div style={{ marginTop: "4vh", height: "calc(100% - 4vh)", padding: "4vh" }}>
               {modalInfo.type === 'kakao' ? (
-                <iframe
-                  src={modalInfo.url}
-                  style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
-                  title="카카오 플레이스"
-                />
+                                  <iframe
+                    src={modalInfo.url}
+                    style={{ width: "100%", height: "100%", border: "none", borderRadius: "2.4vh" }}
+                    title="카카오 플레이스"
+                  />
               ) : modalInfo.type === 'yogiyo' ? (
                 <>
                   <div style={{fontWeight:'bold', marginBottom:8}}>요기요</div>
@@ -1429,15 +1429,15 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
                   <a href={modalInfo.url} target="_blank" rel="noopener noreferrer" style={{color:'#994d52', wordBreak:'break-all'}}>{modalInfo.label}</a>
                 </>
               ) : (
-                <div style={{ 
-                  padding: '20px', 
-                  whiteSpace: 'pre-line', 
-                  textAlign: 'left',
-                  fontSize: '16px',
-                  lineHeight: '1.6'
-                }}>
-                  {modalInfo.label}
-                </div>
+                                  <div style={{ 
+                    padding: '4vh', 
+                    whiteSpace: 'pre-line', 
+                    textAlign: 'left',
+                    fontSize: '3.2vh',
+                    lineHeight: '1.6'
+                  }}>
+                    {modalInfo.label}
+                  </div>
               )}
             </div>
           </div>
@@ -1455,34 +1455,34 @@ export default function RandomRoom({ groupId, isModal = false, onAddCandidate }:
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: 12, width: "90vw", maxWidth: 500, maxHeight: '80vh', overflowY: 'auto', position: "relative", padding: 24, textAlign: 'center'
+              background: "#fff", borderRadius: "2.4vh", width: "90vw", maxWidth: "70vh", maxHeight: '80vh', overflowY: 'auto', position: "relative", padding: "4.8vh", textAlign: 'center'
             }}
           >
             <button
               onClick={() => setMenuModalOpen(false)}
               style={{
-                position: "absolute", top: 20, right: 20, background: "none", border: "none", fontSize: 24, cursor: "pointer", color: '#222'
+                position: "absolute", top: "4vh", right: "4vh", background: "none", border: "none", fontSize: "4.8vh", cursor: "pointer", color: '#222'
               }}
             >✕</button>
-            <h3 style={{fontWeight:'bold', marginBottom:16, fontSize:20, color:'#222'}}>메뉴</h3>
+            <h3 style={{fontWeight:'bold', marginBottom:"3.2vh", fontSize:"4vh", color:'#222'}}>메뉴</h3>
             {menuLoading ? (
-              <div style={{color:'#999', padding:40}}>메뉴 불러오는 중...</div>
+              <div style={{color:'#999', padding:"8vh"}}>메뉴 불러오는 중...</div>
             ) : menuError ? (
-              <div style={{color:'#e57373', padding:40}}>{menuError}</div>
+              <div style={{color:'#e57373', padding:"8vh"}}>{menuError}</div>
             ) : menuList.length === 0 ? (
-              <div style={{color:'#999', padding:40}}>메뉴가 없습니다</div>
+              <div style={{color:'#999', padding:"8vh"}}>메뉴가 없습니다</div>
             ) : (
-              <div style={{display:'flex', flexWrap:'wrap', gap:20, justifyContent:'center'}}>
+              <div style={{display:'flex', flexWrap:'wrap', gap:"4vh", justifyContent:'center'}}>
                 {menuList.map((menu, idx) => (
-                  <div key={menu.name + '-' + idx} style={{width:120, textAlign:'center'}}>
+                  <div key={menu.name + '-' + idx} style={{width:"20vh", textAlign:'center'}}>
                     {menu.image ? (
-                      <img src={menu.image} alt={menu.name} style={{width:100, height:80, objectFit:'cover', borderRadius:8, marginBottom:8}} />
+                      <img src={menu.image} alt={menu.name} style={{width:"16vh", height:"12vh", objectFit:'cover', borderRadius:"1.6vh", marginBottom:"1.6vh"}} />
                     ) : (
-                      <div style={{width:100, height:80, background:'#eee', borderRadius:8, marginBottom:8, display:'flex', alignItems:'center', justifyContent:'center', color:'#aaa', fontSize:13}}>
+                      <div style={{width:"16vh", height:"12vh", background:'#eee', borderRadius:"1.6vh", marginBottom:"1.6vh", display:'flex', alignItems:'center', justifyContent:'center', color:'#aaa', fontSize:"2.6vh"}}>
                         이미지 없음
                       </div>
                     )}
-                    <div style={{fontSize:14, color:'#222', fontWeight:500}}>{menu.name}</div>
+                    <div style={{fontSize:"2.8vh", color:'#222', fontWeight:500}}>{menu.name}</div>
                   </div>
                 ))}
               </div>
