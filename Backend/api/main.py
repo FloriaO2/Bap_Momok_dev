@@ -60,25 +60,43 @@ def get_next_candidate_id(group):
     return f"candidate_{next_num}"
 
 def update_candidate_vote_counts(group):
+    print(f"[update_candidate_vote_counts] 시작 - 후보 수: {len(group.candidates)}, 투표 수: {len(group.votes)}")
+    
     # 후보별 집계 초기화
-    for candidate in group.candidates.values():
+    for candidate_id, candidate in group.candidates.items():
         candidate.good = 0
         candidate.bad = 0
         candidate.never = 0
         candidate.soso = 0
+    
     # votes 순회하며 집계
-    for user_vote in group.votes.values():
+    total_votes_counted = 0
+    for user_id, user_vote in group.votes.items():
+        user_vote_count = 0
         for candidate_id, vote_value in user_vote.items():
             candidate = group.candidates.get(candidate_id)
             if candidate:
                 if vote_value == "good":
                     candidate.good += 1
+                    user_vote_count += 1
                 elif vote_value == "bad":
                     candidate.bad += 1
+                    user_vote_count += 1
                 elif vote_value == "never":
                     candidate.never += 1
+                    user_vote_count += 1
                 elif vote_value == "soso":
                     candidate.soso += 1
+                    user_vote_count += 1
+        total_votes_counted += user_vote_count
+        print(f"[update_candidate_vote_counts] 사용자 {user_id}: {user_vote_count}개 투표 집계됨")
+    
+    print(f"[update_candidate_vote_counts] 총 {total_votes_counted}개 투표 집계 완료")
+    
+    # 각 후보별 집계 결과 출력
+    for candidate_id, candidate in group.candidates.items():
+        total_votes = candidate.good + candidate.bad + candidate.never + candidate.soso
+        print(f"[update_candidate_vote_counts] 후보 {candidate_id} ({candidate.name}): good={candidate.good}, bad={candidate.bad}, never={candidate.never}, soso={candidate.soso}, 총={total_votes}")
 
 YOGIYO_AUTH = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTI4Mzc3OTUsImV4cCI6MTc1Mjg0NDk5NSwicGxhdGZvcm0iOiJZR1kiLCJyb2xlIjoidXNlciIsInN1Yl9pZCI6IjkwMjIxNTQyOSIsImJhc2VfdXJsIjoiaHR0cHM6Ly93d3cueW9naXlvLmNvLmtyIn0.nQzYafM-w33dP5Pc8uRQsbk3CQwQmM4zxuHPRYIF2JSnihhl7PwChpcc7KZuM6y9MRgelIjg3OPjSGFpPrwdMi4AzYA5EYph0mLn0rpWi6T_fLTRsRnso3IUc5EGZSNHoC1UXPopBUEMQi7tNLrDbaxRFtcAc-Q5L3GPP0M3438Xick7DZ648JPtk2nAYKNp-uGhLoYG1VFZw3sIl7dgSyoZhzyvD6pmOhNc1GzhXRFtUdTv8WqAr3aKjmjWq6xpzrzmXu7AHkaMifi1N-lm0-Wi25M6XRukWUI4YIgPd7RmyAadRQh7sJm9pQYxPMVnhfdgthxSmTLsSkomn2izqg"
 YOGIYO_APISECRET = "fe5183cc3dea12bd0ce299cf110a75a2"
@@ -146,8 +164,11 @@ def vote_worker_batch():
                 for _, user_id, _ in batch:
                     participant = group.participants.get(user_id)
                     if participant:
-                        participant.voted_count = len([v for v in group.votes[user_id].values() if v in ("good", "bad", "never", "soso")])
-                        print(f"[vote_worker_batch] participant {user_id} voted_count: {participant.voted_count}")
+                        user_votes = group.votes.get(user_id, {})
+                        participant.voted_count = len([v for v in user_votes.values() if v in ("good", "bad", "never", "soso")])
+                        participant_nickname = participant.nickname if participant else user_id
+                        print(f"[vote_worker_batch] 참가자 {participant_nickname}({user_id}): {participant.voted_count}/{len(group.candidates)} 투표 완료")
+                        print(f"[vote_worker_batch] 투표 데이터: {user_votes}")
                 
                 # 그룹 업데이트
                 update_group(group_id, GroupUpdate(data=group))
@@ -216,6 +237,13 @@ def get_group_by_id(group_id: str):
         print(f"📋 그룹 조회: group_id={group_id}")
         print(f"📋 후보 수: {len(group.candidates)}")
         print(f"📋 투표 수: {len(group.votes)}")
+        
+        # 각 참가자별 투표 상태 출력
+        for user_id, user_votes in group.votes.items():
+            voted_count = len([v for v in user_votes.values() if v in ("good", "bad", "never", "soso")])
+            participant = group.participants.get(user_id)
+            nickname = participant.nickname if participant else user_id
+            print(f"📋 참가자 {nickname}({user_id}): {voted_count}/{len(group.candidates)} 투표 완료")
         
         return group
     except Exception as e:
@@ -408,6 +436,13 @@ def get_voting_results(group_id: str):
         print(f"📊 후보 수: {len(group.candidates)}")
         print(f"📊 투표 수: {len(group.votes)}")
         
+        # 각 참가자별 투표 상태 출력
+        for user_id, user_votes in group.votes.items():
+            voted_count = len([v for v in user_votes.values() if v in ("good", "bad", "never", "soso")])
+            participant = group.participants.get(user_id)
+            nickname = participant.nickname if participant else user_id
+            print(f"📊 참가자 {nickname}({user_id}): {voted_count}/{len(group.candidates)} 투표 완료")
+        
         # 전체 결과 (순위순으로 정렬)
         all_candidates = []
         for candidate_id, candidate in group.candidates.items():
@@ -568,23 +603,85 @@ def check_vote_complete(group_id: str, participant_id: str):
         if participant is None:
             raise HTTPException(status_code=404, detail="참가자를 찾을 수 없습니다")
         
-        # 투표 집계 업데이트
-        update_candidate_vote_counts(group)
-        
-        # 참가자의 투표 완료 상태 재계산
+        # 참가자의 투표 완료 상태 재계산 (집계 업데이트 없이)
         user_votes = group.votes.get(participant_id, {})
         voted_count = len([v for v in user_votes.values() if v in ("good", "bad", "never", "soso")])
         candidate_count = len(group.candidates)
         
         print(f"📊 투표 완료 체크: group_id={group_id}, participant_id={participant_id}")
+        print(f"📊 사용자 투표 데이터: {user_votes}")
         print(f"📊 투표한 후보 수: {voted_count}/{candidate_count}")
+        print(f"📊 후보 목록: {list(group.candidates.keys())}")
         
-        return {"vote_complete": voted_count == candidate_count}
+        # 투표 완료 여부 확인
+        vote_complete = voted_count == candidate_count
+        
+        # 디버깅을 위한 상세 정보 출력
+        if not vote_complete:
+            missing_candidates = []
+            for candidate_id in group.candidates.keys():
+                if candidate_id not in user_votes:
+                    missing_candidates.append(candidate_id)
+            print(f"📊 누락된 후보: {missing_candidates}")
+        
+        return {"vote_complete": vote_complete}
     except Exception as e:
         print(f"❌ 투표 완료 체크 중 오류: {e}")
         import traceback
         print(f"❌ 상세 오류: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"투표 완료 체크 중 오류가 발생했습니다: {str(e)}")
+
+@app.get("/groups/{group_id}/debug/votes")
+def debug_votes(group_id: str):
+    """투표 디버깅을 위한 상세 정보를 조회합니다."""
+    try:
+        group = get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="그룹을 찾을 수 없습니다")
+        
+        # 투표 집계
+        update_candidate_vote_counts(group)
+        
+        # 상세 정보 수집
+        debug_info = {
+            "group_id": group_id,
+            "total_candidates": len(group.candidates),
+            "total_participants": len(group.participants),
+            "total_votes": len(group.votes),
+            "candidates": {},
+            "participants": {},
+            "votes": {}
+        }
+        
+        # 후보 정보
+        for candidate_id, candidate in group.candidates.items():
+            debug_info["candidates"][candidate_id] = {
+                "name": candidate.name,
+                "good": candidate.good,
+                "bad": candidate.bad,
+                "never": candidate.never,
+                "soso": candidate.soso,
+                "total": candidate.good + candidate.bad + candidate.never + candidate.soso
+            }
+        
+        # 참가자 정보
+        for user_id, participant in group.participants.items():
+            user_votes = group.votes.get(user_id, {})
+            voted_count = len([v for v in user_votes.values() if v in ("good", "bad", "never", "soso")])
+            debug_info["participants"][user_id] = {
+                "nickname": participant.nickname,
+                "voted_count": voted_count,
+                "total_candidates": len(group.candidates),
+                "is_complete": voted_count == len(group.candidates)
+            }
+            debug_info["votes"][user_id] = user_votes
+        
+        return debug_info
+    except Exception as e:
+        print(f"❌ 투표 디버깅 중 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"투표 디버깅 중 오류가 발생했습니다: {str(e)}")
 
 @app.get("/groups/{group_id}/best_couple")
 def get_best_couple(group_id: str):

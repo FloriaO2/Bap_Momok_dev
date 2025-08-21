@@ -70,7 +70,7 @@ class GroupData(BaseModel):
         candidate_scores = []
         for candidate_id, candidate in self.candidates.items():
             # 점수 계산: good(+1), soso(0), bad(-2), never(-100)
-            score = candidate.good * 1 + candidate.soso * 0 + candidate.bad * (-2) + (candidate.never or 0) * (-100)
+            score = candidate.good * 2 + candidate.soso * 1 + candidate.bad * (-1) + (candidate.never or 0) * (-10)
             candidate_scores.append({
                 'id': candidate_id,
                 'candidate': candidate,

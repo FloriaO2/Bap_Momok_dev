@@ -206,13 +206,13 @@ function TinderPageContent() {
     }
   };
 
-  // 투표 완료 후 최소 5초 대기 후 자동 이동
+  // 투표 완료 후 서버 반영 확인 후 자동 이동
   useEffect(() => {
     console.log('[자동이동 useEffect] loading:', loading, 'candidates.length:', candidates.length, 'groupId:', groupId);
     if (!loading && candidates.length === 0 && groupId) {
       // 후보가 하나도 없으면 바로 live-results로 이동
-             console.log('[자동이동 useEffect] 후보가 없으므로 live-results로 이동');
-       window.location.href = `/live-results/${groupId}`;
+      console.log('[자동이동 useEffect] 후보가 없으므로 live-results로 이동');
+      window.location.href = `/live-results/${groupId}`;
       return;
     }
     console.log('[자동이동 useEffect] 조건 확인 및 자동이동 로직 실행');
@@ -223,30 +223,86 @@ function TinderPageContent() {
     ) {
       console.log('[자동이동 useEffect] 조건 만족! Promise.all 시작');
       Promise.all(votePromises).then(() => {
-        console.log('[자동이동 useEffect] 모든 POST 요청 완료! 5초 대기 후 이동');
+        console.log('[자동이동 useEffect] 모든 POST 요청 완료! 서버 반영 확인 시작');
         setShowResultButton(true);
+        // 서버 반영 확인 시작
+        checkServerReflection();
       }).catch((err) => {
         console.error('[자동이동 useEffect] Promise.all 에러:', err);
         setShowResultButton(true);
+        // 에러가 있어도 서버 반영 확인 시도
+        checkServerReflection();
       });
     }
   }, [currentCardIndex, candidates.length, votePromises, groupId, loading, router]);
 
-  // 투표 완료 화면이 렌더링된 후 5초 대기
-  useEffect(() => {
-    if (currentCardIndex >= candidates.length && candidates.length > 0) {
-      console.log('[투표완료 화면] 5초 타이머 시작');
-      const timer = setTimeout(() => {
-               console.log('[투표완료 화면] 5초 경과, 결과 화면으로 이동');
-       window.location.href = `/live-results/${groupId}`;
-      }, 3000);
-      
-      return () => {
-        console.log('[투표완료 화면] 타이머 정리');
-        clearTimeout(timer);
-      };
+  // 서버 반영 확인 함수
+  const checkServerReflection = () => {
+    if (!groupId) return;
+    
+    const participantId = sessionStorage.getItem(`participant_id_${groupId}`);
+    if (!participantId) {
+      console.error('참가자 정보가 없습니다.');
+      return;
     }
-  }, [currentCardIndex, candidates.length, groupId, router]);
+
+    console.log('[checkServerReflection] 서버 반영 확인 시작');
+    
+    // 최대 30초 동안 2초마다 서버 반영 확인
+    let checkCount = 0;
+    const maxChecks = 15; // 30초 (15 * 2초)
+    
+    const checkInterval = setInterval(async () => {
+      checkCount++;
+      console.log(`[checkServerReflection] ${checkCount}번째 확인 시도`);
+      
+      try {
+        // 1. 투표 완료 상태 확인
+        const voteCompleteResponse = await fetch(`${BACKEND_URL}/groups/${groupId}/participants/${participantId}/vote_complete`);
+        const voteCompleteData = await voteCompleteResponse.json();
+        
+        if (voteCompleteData.vote_complete) {
+          console.log('[checkServerReflection] 투표 완료 상태 확인됨');
+          
+          // 2. 실제 투표 데이터 확인 (선택적)
+          try {
+            const groupResponse = await fetch(`${BACKEND_URL}/groups/${groupId}`);
+            const groupData = await groupResponse.json();
+            const userVotes = groupData.votes?.[participantId] || {};
+            const voteCount = Object.keys(userVotes).length;
+            
+            console.log(`[checkServerReflection] 실제 투표 수: ${voteCount}/${candidates.length}`);
+            
+            if (voteCount >= candidates.length) {
+              console.log('[checkServerReflection] 서버 반영 완료! live-results로 이동');
+              clearInterval(checkInterval);
+              window.location.href = `/live-results/${groupId}`;
+              return;
+            }
+          } catch (groupError) {
+            console.error('[checkServerReflection] 그룹 데이터 확인 실패:', groupError);
+          }
+        }
+        
+        // 최대 시도 횟수 초과 시 강제 이동
+        if (checkCount >= maxChecks) {
+          console.log('[checkServerReflection] 최대 확인 횟수 초과, 강제 이동');
+          clearInterval(checkInterval);
+          window.location.href = `/live-results/${groupId}`;
+        }
+        
+      } catch (error) {
+        console.error('[checkServerReflection] 확인 중 오류:', error);
+        
+        // 오류 발생 시에도 최대 시도 횟수 초과하면 강제 이동
+        if (checkCount >= maxChecks) {
+          console.log('[checkServerReflection] 오류로 인한 강제 이동');
+          clearInterval(checkInterval);
+          window.location.href = `/live-results/${groupId}`;
+        }
+      }
+    }, 2000); // 2초마다 확인
+  };
 
   useEffect(() => {
     // 타이머 모드에서만 3초마다 투표 완료 여부 확인 후 true면 바로 live-results로 이동
@@ -323,6 +379,7 @@ function TinderPageContent() {
     return null;
   }
   const totalVotes = candidates.length;
+  // 서버 반영 진행률 계산 (voteDoneCount는 POST 요청 완료 수, 실제 서버 반영은 별도 확인)
   const percent = totalVotes > 0 ? Math.round((voteDoneCount / totalVotes) * 100) : 0;
   if (currentCardIndex >= candidates.length) {
     console.log('[렌더] 모든 후보 투표 완료! 완료 메시지 표시');
@@ -386,7 +443,7 @@ function TinderPageContent() {
                     color: '#6c757d',
                     marginBottom: '0.8vh'
                   }}>
-                    서버 반영 진행률
+                    투표 전송 진행률
                   </div>
                   <div style={{
                     fontSize: '2.4vh',
@@ -415,9 +472,11 @@ function TinderPageContent() {
                     fontSize: '1.4vh',
                     color: '#6c757d'
                   }}>
-                    {percent}% 완료
+                    {percent}% 전송 완료
                   </div>
                 </div>
+
+
                 
                 <p style={{
                   fontSize: '1.4vh',
@@ -425,7 +484,6 @@ function TinderPageContent() {
                   lineHeight: '1.5',
                   marginBottom: '2.4vh'
                 }}>
-                  모든 투표가 서버에 반영되면<br/>
                   잠시 후 자동으로 결과 화면으로 이동합니다.
                 </p>
               </div>
