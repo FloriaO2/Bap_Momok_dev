@@ -29,11 +29,11 @@ export const database = getDatabase(app);
 console.log('✅ Firebase Database 인스턴스 생성 완료');
 
 // Firebase 연결 상태 확인 함수
-export const checkFirebaseConnection = async () => {
+export const checkFirebaseConnection = async (groupId: string) => {
   try {
     console.log('🔍 Firebase 연결 상태 확인 중...');
     // 간단한 테스트 경로로 연결 확인
-    const testRef = ref(database, 'test_connection');
+    const testRef = ref(database, `groups/${groupId}`);
     await get(testRef);
     console.log('✅ Firebase 연결 성공');
     return true;

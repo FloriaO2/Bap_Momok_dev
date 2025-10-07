@@ -1284,15 +1284,8 @@ export default function DirectTab({
           </h3>
           
           {initialLoading ? (
-            <div style={{ 
-              height: "calc(100vh - 80vh)",
-              minHeight: "20vh",
-              maxHeight: "40vh",
-              overflowY: "auto"
-            }}>
-              <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
+            <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
               식당 정보를 불러오고 있습니다...
-              </div>
             </div>
           ) : loading ? (
             <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
@@ -1460,8 +1453,7 @@ export default function DirectTab({
       {/* 기존 식당 목록 (검색 결과가 없을 때만 표시) */}
       {!showSearchResults && (
         <div style={{ 
-          height: "calc(100vh - 80vh)",
-          minHeight: "20vh",
+          marginBottom: "2vh",
           maxHeight: "40vh",
           overflowY: "auto"
         }}>
@@ -1475,9 +1467,9 @@ export default function DirectTab({
             음식점 목록
           </h3>
           
-                      <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
-              식당 정보를 불러오고 있습니다...
-            </div>
+          <div style={{ textAlign: "center", color: "#999", fontSize: "1.8vh", padding: "4vh 0" }}>
+            식당 정보를 불러오고 있습니다...
+          </div>
         </div>
       )}
       {/* 모달 */}

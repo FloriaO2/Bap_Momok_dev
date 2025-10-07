@@ -59,19 +59,26 @@ export default function SuggestPage({ params }: { params: Promise<{ group_id: st
   const BACKEND_URL = normalizeUrl(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
 
   // Firebase 연결 상태 확인
-  useEffect(() => {
-    const checkConnection = async () => {
-      console.log('🔍 Firebase 연결 상태 확인 시작...');
-      const isConnected = await checkFirebaseConnection();
-      console.log('📊 Firebase 연결 상태:', isConnected);
-      
-      if (!isConnected) {
-        console.warn('⚠️ Firebase 연결이 되지 않았습니다. 실시간 업데이트가 작동하지 않을 수 있습니다.');
-      }
-    };
-    
-    checkConnection();
-  }, []);
+useEffect(() => {
+  const checkConnection = async () => {
+    console.log('🔍 Firebase 연결 상태 확인 시작...');
+
+    // ✅ 현재 URL에서 groupId 추출
+    const pathParts = window.location.pathname.split('/');
+    const groupId = pathParts[pathParts.length - 1];
+    console.log('📍 현재 groupId:', groupId);
+
+    // ✅ groupId를 인자로 전달
+    const isConnected = await checkFirebaseConnection(groupId);
+
+    console.log('📊 Firebase 연결 상태:', isConnected);
+    if (!isConnected) {
+      console.warn('⚠️ Firebase 연결이 되지 않았습니다. 실시간 업데이트가 작동하지 않을 수 있습니다.');
+    }
+  };
+
+  checkConnection();
+}, []);
 
   // 실시간으로 후보 목록 감지
   useEffect(() => {
