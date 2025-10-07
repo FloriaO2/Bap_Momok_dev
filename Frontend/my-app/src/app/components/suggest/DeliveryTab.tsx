@@ -325,10 +325,15 @@ export default function DeliveryTab({
 
   return (
     <div>
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       {/* 카테고리 탭 */}
       <div
         ref={scrollRef}
-        className="category-scroll"
+        className="category-scroll hide-scrollbar"
         style={{
           display: "flex",
           gap: "2vh",
@@ -424,12 +429,16 @@ export default function DeliveryTab({
         </button>
       </div>
               {/* 식당 목록 */}
-        <div style={{ 
+        <div 
+          style={{ 
             marginBottom: "2vh",
             maxHeight: "40vh",
-            overflowY: "auto"
+            overflowY: "auto",
+            scrollbarWidth: "none", /* Firefox */
+            msOverflowStyle: "none", /* IE and Edge */
           }}
           ref={listRef}
+          className="hide-scrollbar"
         >
         <h3 style={{ fontSize: "2vh", fontWeight: "bold", color: "#333", marginBottom: "1.5vh" }}>
           배달 음식점 목록
@@ -561,8 +570,11 @@ export default function DeliveryTab({
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: "1.2vh", width: "90vw", maxWidth: "50vh", maxHeight: '80vh', overflowY: 'auto', position: "relative", padding: "2.4vh", textAlign: 'center'
+              background: "#fff", borderRadius: "1.2vh", width: "90vw", maxWidth: "50vh", maxHeight: '80vh', overflowY: 'auto', position: "relative", padding: "2.4vh", textAlign: 'center',
+              scrollbarWidth: "none", /* Firefox */
+              msOverflowStyle: "none", /* IE and Edge */
             }}
+            className="hide-scrollbar"
           >
             <button
               onClick={() => setMenuModalOpen(false)}

@@ -974,6 +974,11 @@ export default function DirectTab({
 
   return (
     <div>
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       {/* 지도 표시 */}
              {groupData && (
          <div style={{ 
@@ -1260,8 +1265,11 @@ export default function DirectTab({
           style={{ 
             marginBottom: "2vh",
             maxHeight: "40vh",
-            overflowY: "auto"
+            overflowY: "auto",
+            scrollbarWidth: "none", /* Firefox */
+            msOverflowStyle: "none", /* IE and Edge */
           }}
+          className="hide-scrollbar"
         >
           <h3 style={{ 
             fontSize: "2.2vh", 
@@ -1452,11 +1460,16 @@ export default function DirectTab({
 
       {/* 기존 식당 목록 (검색 결과가 없을 때만 표시) */}
       {!showSearchResults && (
-        <div style={{ 
-          marginBottom: "2vh",
-          maxHeight: "40vh",
-          overflowY: "auto"
-        }}>
+        <div 
+          style={{ 
+            marginBottom: "2vh",
+            maxHeight: "40vh",
+            overflowY: "auto",
+            scrollbarWidth: "none", /* Firefox */
+            msOverflowStyle: "none", /* IE and Edge */
+          }}
+          className="hide-scrollbar"
+        >
           <h3 style={{ 
             fontSize: "2.2vh", 
             fontWeight: "bold", 
