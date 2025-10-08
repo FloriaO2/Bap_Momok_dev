@@ -33,34 +33,35 @@
 
 .guideButton {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 1.3889vw;
+  right: 1.3889vw;
+  left: auto;
   background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(102, 126, 234, 0.8);
-  border-radius: 25px;
+  border: 0.1389vw solid rgba(102, 126, 234, 0.8);
+  border-radius: 1.7361vw;
   width: auto;
-  height: 40px;
-  font-size: 14px;
+  height: 2.7778vw;
+  font-size: 0.9722vw;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 0.4167vw 1.3889vw rgba(0, 0, 0, 0.4), 0 0.1389vw 0.5556vw rgba(102, 126, 234, 0.3);
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(10px);
   line-height: 1;
-  padding: 0 15px;
-  gap: 5px;
+  padding: 0 1.0417vw;
+  gap: 0.3472vw;
   color: #333;
-  padding-right: 20px;
+  padding-right: 1.3889vw;
 }
 
 .guideButton:hover {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0.5556vw 1.7361vw rgba(0, 0, 0, 0.5), 0 0.2778vw 0.8333vw rgba(102, 126, 234, 0.4);
   border-color: rgba(102, 126, 234, 1);
 }
 
@@ -69,26 +70,25 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 2.7778vw;
   width: 100%;
-  max-width: 600px;
+  max-width: 41.6667vw;
 }
 
 .title {
-  font-size: 48px;
+  font-size: 3.3333vw;
   font-weight: bold;
   color: white;
   text-align: center;
-  margin-bottom: 60px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  margin: 0 0 60px 0;
+  margin: 0 0 4.1667vw 0;
+  text-shadow: 0.1389vw 0.1389vw 0.2778vw rgba(0, 0, 0, 0.5);
 }
 
 .buttonContainer {
   display: flex;
-  gap: 20px;
+  gap: 1.3889vw;
   width: 100%;
-  max-width: 400px;
+  max-width: 27.7778vw;
 }
 
 .createButton {
@@ -96,19 +96,19 @@
   background-color: #994d52;
   color: white;
   border: none;
-  padding: 18px 30px;
-  border-radius: 25px;
-  font-size: 18px;
+  padding: 1.25vw 2.0833vw;
+  border-radius: 1.7361vw;
+  font-size: 1.25vw;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0.2778vw 0.5556vw rgba(0, 0, 0, 0.3);
 }
 
 .createButton:hover {
   background-color: #994d52;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-0.1389vw);
+  box-shadow: 0 0.4167vw 0.8333vw rgba(0, 0, 0, 0.4);
 }
 
 .joinButton {
@@ -116,19 +116,19 @@
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
   border: none;
-  padding: 18px 30px;
-  border-radius: 25px;
-  font-size: 18px;
+  padding: 1.25vw 2.0833vw;
+  border-radius: 1.7361vw;
+  font-size: 1.25vw;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0.2778vw 0.5556vw rgba(0, 0, 0, 0.3);
 }
 
 .joinButton:hover {
   background-color: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-0.1389vw);
+  box-shadow: 0 0.4167vw 0.8333vw rgba(0, 0, 0, 0.4);
 }
 
 .modalOverlay {
@@ -170,7 +170,7 @@
 .modalTitle {
   font-size: 2.4vh;
   font-weight: bold;
-  margin-bottom: 2vh;
+  margin: 0 0 2vh 0;
   color: #333;
   text-align: center;
 }
@@ -216,11 +216,11 @@
 
 .inputGroup {
   width: 100%;
-  margin-bottom: 2vh;
+  margin: 0 0 2vh 0;
 }
 
 .modeSelection {
-  margin-bottom: 0vh !important;
+  margin: 0 0 0 0 !important;
 }
 
 .modeSelection1  {
@@ -237,12 +237,12 @@
   font-size: 1.6vh;
   font-weight: 600;
   color: #333;
-  margin-bottom: 0.8vh;
+  margin: 0 0 0.8vh 0;
 }
 
 .optionGroup {
   width: 100%;
-  margin-bottom: 2vh;
+  margin: 0 0 2vh 0;
   padding: 0.5vh 2vh;
   border: 0.1vh solid #e0e0e0;
   border-radius: 0.8vh;
@@ -250,19 +250,19 @@
 }
 
 .optionGroup:first-of-type {
-  margin-bottom: 0vh !important;
+  margin: 0 0 0 0 !important;
 }
 
 .checkboxGroup {
   display: flex;
   align-items: center;
-  margin-bottom: 1vh;
+  margin: 0 0 1vh 0;
 }
 
 .checkbox {
   width: 1.8vh;
   height: 1.8vh;
-  margin-right: 1vh;
+  margin: 0 1vh 0 0;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -305,7 +305,7 @@
 .radio {
   width: 1.8vh;
   height: 1.8vh;
-  margin-right: 1vh;
+  margin: 0 1vh 0 0;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -369,7 +369,7 @@
   display: flex;
   gap: 1vh;
   width: 100%;
-  margin-top: 3vh;
+  margin: 3vh 0 0 0;
 }
 
 .modalButton {
@@ -401,7 +401,7 @@
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .title {
-    font-size: 36px;
+    font-size: 2.5vw;
   }
   
   .buttonContainer {
@@ -409,7 +409,7 @@
   }
   
   .content {
-    padding: 0 20px;
+    padding: 0 1.3889vw;
   }
   
   .modalContent {
@@ -427,13 +427,13 @@
 
 @media (max-width: 480px) {
   .title {
-    font-size: 28px;
+    font-size: 1.9444vw;
   }
   
   .createButton,
   .joinButton {
-    padding: 15px 20px;
-    font-size: 16px;
+    padding: 1.0417vw 1.3889vw;
+    font-size: 1.1111vw;
   }
   
   .createModalContent {
@@ -441,7 +441,7 @@
   }
   
   .modalTitle {
-    font-size: 18px;
+    font-size: 1.25vw;
   }
 
 } 

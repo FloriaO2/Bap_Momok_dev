@@ -13,13 +13,13 @@
 
 .modalContent {
   background: white;
-  border-radius: 20px;
+  border-radius: 1.3889vw;
   width: 90vw;
-  max-width: 800px;
+  max-width: 55.5556vw;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1.3889vw 2.7778vw rgba(0, 0, 0, 0.3);
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
@@ -32,15 +32,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 25px;
-  border-bottom: 2px solid #f0f0f0;
+  padding: 1.3889vw;
+  border-bottom: 0.1389vw solid #f0f0f0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 20px 20px 0 0;
+  border-radius: 1.3889vw 1.3889vw 0 0;
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 3.125vh;
   margin: 0;
   font-weight: bold;
 }
@@ -49,12 +49,12 @@
   background: none;
   border: none;
   color: white;
-  font-size: 24px;
+  font-size: 1.6667vw;
   cursor: pointer;
-  padding: 5px;
+  padding: 0.3472vw;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 2.4306vw;
+  height: 2.4306vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,16 +68,16 @@
 
 .tabContainer {
   display: flex;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.0694vw solid #e0e0e0;
   background: #f8f9fa;
 }
 
 .tabButton {
   flex: 1;
-  padding: 15px 20px;
+  padding: 1.0417vw;
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 2vh;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -91,17 +91,17 @@
 .tabButton.active {
   color: #667eea;
   background: white;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 0.2083vw solid #667eea;
 }
 
 .content {
-  padding: 30px;
+  padding: 2.0833vw;
 }
 
 .guideSection h3 {
   color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 25px;
+  font-size: 3.125vh;
+  margin: 0 0 1.7361vw 0;
   text-align: center;
   font-weight: 700;
 }
@@ -109,23 +109,30 @@
 .stepContainer {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 1.7361vw;
 }
 
 .step {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  padding: 20px;
+  flex-direction: column !important;
+  gap: 0.6944vw;
+  padding: 1.3889vw;
+  margin: 0;
   background: #f8f9fa;
-  border-radius: 15px;
-  border-left: 4px solid #667eea;
+  border-radius: 1.0417vw;
+  border-left: 0.2778vw solid #667eea;
   transition: transform 0.2s ease;
   cursor: pointer;
 }
 
 .step:hover {
-  transform: translateX(5px);
+  transform: translateX(0.3472vw);
+}
+
+.stepHeader {
+  display: flex;
+  gap: 1.3889vw;
+  align-items: flex-start;
 }
 
 .stepContent {
@@ -135,38 +142,39 @@
 .stepNumber {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  width: 40px;
-  height: 40px;
+  width: 3.5vh;
+  height: 3.5vh;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 2.083vh;
   flex-shrink: 0;
 }
 
 .detailText {
-  margin-top: 15px;
-  margin-right: 60px;
-  padding: 15px;
+  margin-left: 1.3889vw;
+  margin-right: 1.3889vw;
+  margin-top: 0.3472vw;
+  padding: 1vw 3vw;
   background: #ffffff;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.6944vw;
+  border: 0.0694vw solid #e0e0e0;
+  box-shadow: 0 0.0694vw 0.2778vw rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-out;
 }
 
 .detailContent {
   display: flex;
-  gap: 20px;
+  gap: 1.3889vw;
   align-items: center;
 }
 
 .detailMedia {
   flex: 0 0 auto;
   display: flex;
-  gap: 10px;
+  gap: 0.6944vw;
   flex-wrap: wrap;
 }
 
@@ -176,8 +184,8 @@
 
 .detailTextContent h5 {
   color: #667eea;
-  font-size: 1.1rem;
-  margin: 0 0 10px 0;
+  font-size: 2.292vh;
+  margin: 0 0 0.6944vw 0;
   font-weight: bold;
 }
 
@@ -185,12 +193,13 @@
   color: #666;
   line-height: 1.6;
   margin: 0;
+  font-size: 1.667vh;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-0.6944vw);
   }
   to {
     opacity: 1;
@@ -200,8 +209,8 @@
 
 .detailText h5 {
   color: #667eea;
-  font-size: 1.1rem;
-  margin: 0 0 10px 0;
+  font-size: 2.292vh;
+  margin: 0 0 0.6944vw 0;
   font-weight: bold;
 }
 
@@ -209,32 +218,34 @@
   color: #666;
   line-height: 1.6;
   margin: 0;
+  font-size: 1.667vh;
 }
 
 .stepContent h4 {
   color: #333;
-  font-size: 1.2rem;
-  margin: 0 0 10px 0;
+  font-size: 2.5vh;
+  margin: 0 0 0.6944vw 0;
   font-weight: bold;
 }
 
 .stepContent p {
   color: #666;
   line-height: 1.6;
-  margin: 0 0 10px 0;
+  margin: 0 0 0.6944vw 0;
+  font-size: 1.667vh;
 }
 
 .stepContent ul {
-  margin: 10px 0;
-  padding-left: 20px;
+  margin: 0.6944vw 0;
+  padding: 0 0 0 1.3889vw;
 }
 
 .stepContent li {
   color: #666;
   line-height: 1.6;
-  margin-bottom: 5px;
+  margin: 0 0 0.3472vw 0.6944vw;
   list-style-type: disc;
-  margin-left: 10px;
+  font-size: 1.667vh;
 }
 
 .stepContent strong {
@@ -242,20 +253,56 @@
   font-weight: bold;
 }
 
+/* 데스크톱과 모바일 설명 구분 */
+.descriptionDesktop {
+  display: block;
+}
+
+.descriptionMobile {
+  display: none;
+}
+
+.descriptionMobile p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 0.6944vw 0;
+  font-size: 1.667vh;
+  text-align: center;
+}
+
+.descriptionMobile ul {
+  margin: 0.6944vw 0;
+  padding: 0 0 0 1.3889vw;
+  text-align: left;
+}
+
+.descriptionMobile li {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 0.3472vw 0.6944vw;
+  list-style-type: disc;
+  font-size: 1.667vh;
+}
+
+.descriptionMobile strong {
+  color: #667eea;
+  font-weight: bold;
+}
+
 /* 미디어 파일 스타일 */
 .mediaContainer {
-  margin-top: 15px;
+  margin: 1.0417vw 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.6944vw;
 }
 
 .mediaItem {
-  border-radius: 10px;
+  border-radius: 0.6944vw;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0.2778vw 0.8333vw rgba(0, 0, 0, 0.15);
   background: #fff;
-  width: 130px;
+  width: 9.0278vw;
   flex-shrink: 0;
 }
 
@@ -263,23 +310,23 @@
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 10px;
+  border-radius: 0.6944vw;
 }
 
 .mediaCaption {
-  padding: 8px 12px;
+  padding: 0.5556vw;
   background: #f8f9fa;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 1.875vh;
   text-align: center;
-  border-top: 1px solid #e0e0e0;
+  border-top: 0.0694vw solid #e0e0e0;
 }
 
 .mediaGrid {
   display: flex;
-  gap: 10px;
+  gap: 0.6944vw;
   flex-wrap: wrap;
-  margin-top: 15px;
+  margin: 1.0417vw 0 0 0;
 }
 
 .mediaGrid .mediaItem {
@@ -288,42 +335,71 @@
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
+  
   .modalContent {
     width: 95vw;
     max-height: 95vh;
   }
   
   .header {
-    padding: 15px 20px;
+    padding: 1.0417vw;
   }
   
   .title {
-    font-size: 1.3rem;
+    font-size: 2.708vh;
   }
   
   .content {
-    padding: 20px;
+    padding: 1.3889vw;
   }
   
   .step {
     flex-direction: column;
-    gap: 15px;
+    gap: 1.0417vw;
     text-align: center;
+    align-items: center;
+  }
+
+  .stepHeader {
+    width: fit-content;
+    justify-content: center;
   }
   
   .stepNumber {
     align-self: center;
   }
+
+  .stepContent {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  .stepContent h4 {
+    width: fit-content;
+    display: inline-block;
+  }
+
+  /* 데스크톱 설명 숨기고 모바일 설명 표시 */
+  .descriptionDesktop {
+    display: none;
+  }
+
+  .descriptionMobile {
+    display: block;
+    margin-top: 0.6944vw;
+  }
   
   .tabButton {
-    padding: 12px 15px;
-    font-size: 14px;
+    padding: 0.8333vw;
+    font-size: 1.458vh;
   }
   
   .mediaGrid {
     flex-direction: column;
   }
   
+  /*
   .detailContent {
     flex-direction: column;
   }
@@ -336,8 +412,35 @@
   .mediaItem {
     width: 100%;
   }
+    */
+  
+  .stepContent p {
+    font-size: 1.667vh;
+  }
+  
+  .stepContent li {
+    font-size: 1.667vh;
+  }
+  
+  .detailTextContent p {
+    font-size: 1.667vh;
+  }
+  
+  .detailText p {
+    font-size: 1.667vh;
+  }
+  
+  .detailTextContent h5 {
+    font-size: 2.292vh;
+  }
+  
+  .detailText h5 {
+    font-size: 2.292vh;
+  }
+    
 }
 
+/*
 @media (max-width: 480px) {
   .modalContent {
     width: 98vw;
@@ -345,22 +448,54 @@
   }
   
   .header {
-    padding: 12px 15px;
+    padding: 0.8333vw;
   }
   
   .title {
-    font-size: 1.2rem;
+    font-size: 2.5vh;
   }
   
   .content {
-    padding: 15px;
+    padding: 1.0417vw;
   }
   
   .guideSection h3 {
-    font-size: 1.5rem;
+    font-size: 3.125vh;
   }
   
   .stepContent h4 {
-    font-size: 1.1rem;
+    font-size: 2.292vh;
   }
-} 
+  
+  .stepContent p {
+    font-size: 1.458vh;
+  }
+  
+  .stepContent li {
+    font-size: 1.458vh;
+  }
+  
+  .detailTextContent p {
+    font-size: 1.458vh;
+  }
+  
+  .detailText p {
+    font-size: 1.458vh;
+  }
+  
+  .detailTextContent h5 {
+    font-size: 2.083vh;
+  }
+  
+  .detailText h5 {
+    font-size: 2.083vh;
+  }
+
+  .descriptionMobile p {
+    font-size: 1.458vh;
+  }
+
+  .descriptionMobile li {
+    font-size: 1.458vh;
+  }
+}*/
