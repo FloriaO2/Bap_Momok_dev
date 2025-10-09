@@ -349,7 +349,7 @@
   
   .step {
     flex-direction: column;
-    gap: 1.56vh;
+    gap: 0;
     text-align: center;
     align-items: center;
   }
@@ -372,6 +372,7 @@
   .stepContent h4 {
     width: fit-content;
     display: inline-block;
+    margin: 0;
   }
 
   /* 데스크톱 설명 숨기고 모바일 설명 표시 */
@@ -384,112 +385,55 @@
     margin-top: 1.04vh;
   }
   
-  .tabButton {
-    padding: 1.25vh;
-    font-size: 1.458vh;
-  }
-  
   .mediaGrid {
     flex-direction: column;
   }
-  
-  /*
+
+  .detailText {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.52vh;
+    padding: 1.5vh 1.5vh;
+    background: #ffffff;
+    border-radius: 1.04vh;
+    border: 0.1vh solid #e0e0e0;
+    box-shadow: 0 0.1vh 0.42vh rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease-out;
+  }
+
   .detailContent {
     flex-direction: column;
   }
   
   .detailMedia {
-    flex: none;
-    width: 100%;
+    flex: 0 0 auto;
+    display: flex;
+    gap: 1.04vh;
+    flex-wrap: wrap;
+  }
+  /*
+  .stepContent p {
+    font-size: 1.667vh;
   }
   
-  .mediaItem {
-    width: 100%;
+  .stepContent li {
+    font-size: 1.667vh;
+  }
+  
+  .detailTextContent p {
+    font-size: 1.667vh;
+  }
+  
+  .detailText p {
+    font-size: 1.667vh;
+  }
+  
+  .detailTextContent h5 {
+    font-size: 2.292vh;
+  }
+  
+  .detailText h5 {
+    font-size: 2.292vh;
   }
     */
-  
-  .stepContent p {
-    font-size: 1.667vh;
-  }
-  
-  .stepContent li {
-    font-size: 1.667vh;
-  }
-  
-  .detailTextContent p {
-    font-size: 1.667vh;
-  }
-  
-  .detailText p {
-    font-size: 1.667vh;
-  }
-  
-  .detailTextContent h5 {
-    font-size: 2.292vh;
-  }
-  
-  .detailText h5 {
-    font-size: 2.292vh;
-  }
-    
 }
-
-/*
-@media (max-width: 480px) {
-  .modalContent {
-    width: 98vw;
-    max-height: 98vh;
-  }
-  
-  .header {
-    padding: 0.8333vw;
-  }
-  
-  .title {
-    font-size: 2.5vh;
-  }
-  
-  .content {
-    padding: 1.0417vw;
-  }
-  
-  .guideSection h3 {
-    font-size: 3.125vh;
-  }
-  
-  .stepContent h4 {
-    font-size: 2.292vh;
-  }
-  
-  .stepContent p {
-    font-size: 1.458vh;
-  }
-  
-  .stepContent li {
-    font-size: 1.458vh;
-  }
-  
-  .detailTextContent p {
-    font-size: 1.458vh;
-  }
-  
-  .detailText p {
-    font-size: 1.458vh;
-  }
-  
-  .detailTextContent h5 {
-    font-size: 2.083vh;
-  }
-  
-  .detailText h5 {
-    font-size: 2.083vh;
-  }
-
-  .descriptionMobile p {
-    font-size: 1.458vh;
-  }
-
-  .descriptionMobile li {
-    font-size: 1.458vh;
-  }
-}*/

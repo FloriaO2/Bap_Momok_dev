@@ -33,8 +33,8 @@
 
 .guideButton {
   position: absolute;
-  top: 2.08vh;
-  right: 2.08vh;
+  top: 4.08vh;
+  right: 3.08vh;
   left: auto;
   background: rgba(255, 255, 255, 0.95);
   border: 0.21vh solid rgba(102, 126, 234, 0.8);
