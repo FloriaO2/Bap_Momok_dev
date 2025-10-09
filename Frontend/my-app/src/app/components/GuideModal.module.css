@@ -13,13 +13,13 @@
 
 .modalContent {
   background: white;
-  border-radius: 1.3889vw;
-  width: 90vw;
-  max-width: 55.5556vw;
+  border-radius: 2.08vh;
+  width: 80vw;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 1.3889vw 2.7778vw rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2.08vh 4.17vh rgba(0, 0, 0, 0.3);
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
@@ -32,11 +32,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.3889vw;
-  border-bottom: 0.1389vw solid #f0f0f0;
+  padding: 2.08vh;
+  border-bottom: 0.21vh solid #f0f0f0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 1.3889vw 1.3889vw 0 0;
+  border-radius: 2.08vh 2.08vh 0 0;
 }
 
 .title {
@@ -49,12 +49,12 @@
   background: none;
   border: none;
   color: white;
-  font-size: 1.6667vw;
+  font-size: 2.5vh;
   cursor: pointer;
-  padding: 0.3472vw;
+  padding: 0.52vh;
   border-radius: 50%;
-  width: 2.4306vw;
-  height: 2.4306vw;
+  width: 3.65vh;
+  height: 3.65vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,13 +68,13 @@
 
 .tabContainer {
   display: flex;
-  border-bottom: 0.0694vw solid #e0e0e0;
+  border-bottom: 0.1vh solid #e0e0e0;
   background: #f8f9fa;
 }
 
 .tabButton {
   flex: 1;
-  padding: 1.0417vw;
+  padding: 1.56vh;
   background: none;
   border: none;
   font-size: 2vh;
@@ -91,17 +91,17 @@
 .tabButton.active {
   color: #667eea;
   background: white;
-  border-bottom: 0.2083vw solid #667eea;
+  border-bottom: 0.31vh solid #667eea;
 }
 
 .content {
-  padding: 2.0833vw;
+  padding: 3.13vh;
 }
 
 .guideSection h3 {
   color: #333;
   font-size: 3.125vh;
-  margin: 0 0 1.7361vw 0;
+  margin: 0 0 2.6vh 0;
   text-align: center;
   font-weight: 700;
 }
@@ -109,29 +109,29 @@
 .stepContainer {
   display: flex;
   flex-direction: column;
-  gap: 1.7361vw;
+  gap: 2.6vh;
 }
 
 .step {
   display: flex;
   flex-direction: column !important;
-  gap: 0.6944vw;
-  padding: 1.3889vw;
+  gap: 1.04vh;
+  padding: 2.08vh;
   margin: 0;
   background: #f8f9fa;
-  border-radius: 1.0417vw;
-  border-left: 0.2778vw solid #667eea;
+  border-radius: 1.56vh;
+  border-left: 0.42vh solid #667eea;
   transition: transform 0.2s ease;
   cursor: pointer;
 }
 
 .step:hover {
-  transform: translateX(0.3472vw);
+  transform: translateX(0.52vh);
 }
 
 .stepHeader {
   display: flex;
-  gap: 1.3889vw;
+  gap: 2.08vh;
   align-items: flex-start;
 }
 
@@ -154,27 +154,27 @@
 }
 
 .detailText {
-  margin-left: 1.3889vw;
-  margin-right: 1.3889vw;
-  margin-top: 0.3472vw;
-  padding: 1vw 3vw;
+  margin-left: 2.08vh;
+  margin-right: 2.08vh;
+  margin-top: 0.52vh;
+  padding: 1.5vh 4.5vh;
   background: #ffffff;
-  border-radius: 0.6944vw;
-  border: 0.0694vw solid #e0e0e0;
-  box-shadow: 0 0.0694vw 0.2778vw rgba(0, 0, 0, 0.1);
+  border-radius: 1.04vh;
+  border: 0.1vh solid #e0e0e0;
+  box-shadow: 0 0.1vh 0.42vh rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-out;
 }
 
 .detailContent {
   display: flex;
-  gap: 1.3889vw;
+  gap: 2.08vh;
   align-items: center;
 }
 
 .detailMedia {
   flex: 0 0 auto;
   display: flex;
-  gap: 0.6944vw;
+  gap: 1.04vh;
   flex-wrap: wrap;
 }
 
@@ -185,7 +185,7 @@
 .detailTextContent h5 {
   color: #667eea;
   font-size: 2.292vh;
-  margin: 0 0 0.6944vw 0;
+  margin: 0 0 1.04vh 0;
   font-weight: bold;
 }
 
@@ -199,7 +199,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-0.6944vw);
+    transform: translateY(-1.04vh);
   }
   to {
     opacity: 1;
@@ -210,7 +210,7 @@
 .detailText h5 {
   color: #667eea;
   font-size: 2.292vh;
-  margin: 0 0 0.6944vw 0;
+  margin: 0 0 1.04vh 0;
   font-weight: bold;
 }
 
@@ -224,26 +224,26 @@
 .stepContent h4 {
   color: #333;
   font-size: 2.5vh;
-  margin: 0 0 0.6944vw 0;
+  margin: 0 0 1.04vh 0;
   font-weight: bold;
 }
 
 .stepContent p {
   color: #666;
   line-height: 1.6;
-  margin: 0 0 0.6944vw 0;
+  margin: 0 0 1.04vh 0;
   font-size: 1.667vh;
 }
 
 .stepContent ul {
-  margin: 0.6944vw 0;
-  padding: 0 0 0 1.3889vw;
+  margin: 1.04vh 0;
+  padding: 0 0 0 2.08vh;
 }
 
 .stepContent li {
   color: #666;
   line-height: 1.6;
-  margin: 0 0 0.3472vw 0.6944vw;
+  margin: 0 0 0.52vh 1.04vh;
   list-style-type: disc;
   font-size: 1.667vh;
 }
@@ -265,21 +265,21 @@
 .descriptionMobile p {
   color: #666;
   line-height: 1.6;
-  margin: 0 0 0.6944vw 0;
+  margin: 0 0 1.04vh 0;
   font-size: 1.667vh;
   text-align: center;
 }
 
 .descriptionMobile ul {
-  margin: 0.6944vw 0;
-  padding: 0 0 0 1.3889vw;
+  margin: 1.04vh 0;
+  padding: 0 0 0 2.08vh;
   text-align: left;
 }
 
 .descriptionMobile li {
   color: #666;
   line-height: 1.6;
-  margin: 0 0 0.3472vw 0.6944vw;
+  margin: 0 0 0.52vh 1.04vh;
   list-style-type: disc;
   font-size: 1.667vh;
 }
@@ -291,18 +291,18 @@
 
 /* 미디어 파일 스타일 */
 .mediaContainer {
-  margin: 1.0417vw 0 0 0;
+  margin: 1.56vh 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6944vw;
+  gap: 1.04vh;
 }
 
 .mediaItem {
-  border-radius: 0.6944vw;
+  border-radius: 1.04vh;
   overflow: hidden;
-  box-shadow: 0 0.2778vw 0.8333vw rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0.42vh 1.25vh rgba(0, 0, 0, 0.15);
   background: #fff;
-  width: 9.0278vw;
+  width: 13.54vh;
   flex-shrink: 0;
 }
 
@@ -310,23 +310,23 @@
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 0.6944vw;
+  border-radius: 1.04vh;
 }
 
 .mediaCaption {
-  padding: 0.5556vw;
+  padding: 0.83vh;
   background: #f8f9fa;
   color: #666;
   font-size: 1.875vh;
   text-align: center;
-  border-top: 0.0694vw solid #e0e0e0;
+  border-top: 0.1vh solid #e0e0e0;
 }
 
 .mediaGrid {
   display: flex;
-  gap: 0.6944vw;
+  gap: 1.04vh;
   flex-wrap: wrap;
-  margin: 1.0417vw 0 0 0;
+  margin: 1.56vh 0 0 0;
 }
 
 .mediaGrid .mediaItem {
@@ -335,14 +335,8 @@
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-  
-  .modalContent {
-    width: 95vw;
-    max-height: 95vh;
-  }
-  
   .header {
-    padding: 1.0417vw;
+    padding: 1.56vh;
   }
   
   .title {
@@ -350,12 +344,12 @@
   }
   
   .content {
-    padding: 1.3889vw;
+    padding: 2.08vh;
   }
   
   .step {
     flex-direction: column;
-    gap: 1.0417vw;
+    gap: 1.56vh;
     text-align: center;
     align-items: center;
   }
@@ -387,11 +381,11 @@
 
   .descriptionMobile {
     display: block;
-    margin-top: 0.6944vw;
+    margin-top: 1.04vh;
   }
   
   .tabButton {
-    padding: 0.8333vw;
+    padding: 1.25vh;
     font-size: 1.458vh;
   }
   
