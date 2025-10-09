@@ -424,7 +424,7 @@ export default function HomePage() {
           {/* 메인 콘텐츠 */}
           <div className={styles.content}>
             {/* 타이틀 */}
-            <h1 className={styles.title}>B a p ! M o m o k ?</h1>
+            <h1 className={styles.title}>Bap! Momok?</h1>
             
             {/* 버튼 컨테이너 */}
             <div className={styles.buttonContainer}>
