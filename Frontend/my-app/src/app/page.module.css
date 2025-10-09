@@ -1,3 +1,9 @@
+.alfa-slab-one-regular {
+  font-family: "Alfa Slab One", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 .container {
   width: 100%;
   height: 100vh;
@@ -41,7 +47,7 @@
   border-radius: 2.6vh;
   width: auto;
   height: 4.17vh;
-  font-size: 1.46vh;
+  font-size: 1.8vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -72,12 +78,12 @@
   align-items: center;
   padding: 0 4.17vh;
   width: 100%;
-  max-width: 62.5vh;
 }
 
 .title {
+  font-family: "Alfa Slab One", serif;
   font-size: 5vh;
-  font-weight: bold;
+  font-weight: 100;
   color: white;
   text-align: center;
   margin: 0 0 6.25vh 0;
@@ -88,7 +94,7 @@
   display: flex;
   gap: 2.08vh;
   width: 100%;
-  max-width: 41.67vh;
+  max-width: 600px;
 }
 
 .createButton {
@@ -98,7 +104,7 @@
   border: none;
   padding: 1.88vh 3.13vh;
   border-radius: 2.6vh;
-  font-size: 1.88vh;
+  font-size: 2.6vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -118,7 +124,7 @@
   border: none;
   padding: 1.88vh 3.13vh;
   border-radius: 2.6vh;
-  font-size: 1.88vh;
+  font-size: 2.6vh;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -401,7 +407,7 @@
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .title {
-    font-size: 3.75vh;
+    font-size: 4vh;
   }
   
   .buttonContainer {
@@ -409,7 +415,15 @@
   }
   
   .content {
-    padding: 0 2.08vh;
+    padding: 0 4vh;
+  }
+
+  .createButton {
+    font-size: 2.3vh;
+  }
+
+  .joinButton {
+    font-size: 2.3vh;
   }
   
   .modalContent {
@@ -425,6 +439,7 @@
   }
 }
 
+/*
 @media (max-width: 480px) {
   .title {
     font-size: 2.92vh;
@@ -443,5 +458,5 @@
   .modalTitle {
     font-size: 1.88vh;
   }
-
 } 
+  */
