@@ -97,9 +97,9 @@
   max-width: 600px;
 }
 
-.createButton {
+.voteButton {
   flex: 1;
-  background-color: #994d52;
+  background-color: rgba(153, 77, 82, 0.95);
   color: white;
   border: none;
   padding: 1.88vh 3.13vh;
@@ -111,13 +111,13 @@
   box-shadow: 0 0.42vh 0.83vh rgba(0, 0, 0, 0.3);
 }
 
-.createButton:hover {
+.voteButton:hover {
   background-color: #994d52;
   transform: translateY(-0.21vh);
   box-shadow: 0 0.63vh 1.25vh rgba(0, 0, 0, 0.4);
 }
 
-.joinButton {
+.randomButton {
   flex: 1;
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
@@ -131,7 +131,7 @@
   box-shadow: 0 0.42vh 0.83vh rgba(0, 0, 0, 0.3);
 }
 
-.joinButton:hover {
+.randomButton:hover {
   background-color: rgba(255, 255, 255, 1);
   transform: translateY(-0.21vh);
   box-shadow: 0 0.63vh 1.25vh rgba(0, 0, 0, 0.4);
@@ -246,10 +246,14 @@
   margin: 0 0 0.8vh 0;
 }
 
+.modeSelectionLabel {
+  margin-left: 1vh;
+}
+
 .optionGroup {
   width: 100%;
   margin: 0 0 2vh 0;
-  padding: 0.5vh 2vh;
+  padding: 1vh 2vh;
   border: 0.1vh solid #e0e0e0;
   border-radius: 0.8vh;
   background-color: #f9f9f9;
@@ -268,7 +272,6 @@
 .checkbox {
   width: 1.8vh;
   height: 1.8vh;
-  margin: 0 1vh 0 0;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -298,8 +301,8 @@
 }
 
 .checkboxLabel {
-  font-size: 1.6vh;
-  font-weight: 600;
+  font-size: 1.8vh;
+  font-weight: 650;
   color: #333;
   cursor: pointer;
   height: 4vh;
@@ -418,11 +421,11 @@
     padding: 0 4vh;
   }
 
-  .createButton {
+  .voteButton {
     font-size: 2.3vh;
   }
 
-  .joinButton {
+  .randomButton {
     font-size: 2.3vh;
   }
   
@@ -445,8 +448,8 @@
     font-size: 2.92vh;
   }
   
-  .createButton,
-  .joinButton {
+  .voteButton,
+  .randomButton {
     padding: 1.56vh 2.08vh;
     font-size: 1.67vh;
   }

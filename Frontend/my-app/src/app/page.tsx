@@ -430,7 +430,7 @@ export default function HomePage() {
             <div className={styles.buttonContainer}>
               {/* Create Room 버튼 */}
               <button 
-                className={styles.createButton}
+                className={styles.voteButton}
                 onClick={openCreateModal}
               >
                 Vote Room
@@ -439,7 +439,7 @@ export default function HomePage() {
               
               {/* Random Room 버튼 */}
               <button 
-                className={styles.joinButton}
+                className={styles.randomButton}
                 onClick={openRandomModal}
               >
                 Random Room
@@ -533,7 +533,7 @@ export default function HomePage() {
 
             {/* 모드 선택 */}
             <div className={`${styles.inputGroup} ${styles.modeSelection}`}>
-              <label className={styles.inputLabel}>⏱️🕵️ 모드 선택</label>
+              <label className={`${styles.inputLabel} ${styles.modeSelectionLabel}`}>⏱️👤 모드 선택 👥🕵️</label>
               <div className={`${styles.optionGroup} ${styles.modeSelection1}`}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4vh'}}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vh'}}>
