@@ -59,10 +59,9 @@
 
 ## [Fun 1] 투표로 결정하는 Vote Room
 
----
-
 ### 친구들과 함께 취향에 맞춰 식당을 고르세요!
 
+<br />
 <table align="center">
   <tr>
     <td align="center" valign="middle"><img src="https://github.com/user-attachments/assets/b61fb5f4-63cd-40f0-bb9d-e03d005b24e9" alt="vote room 생성"/></td>
@@ -71,7 +70,7 @@
     <td align="center" valign="middle"><img src="https://github.com/user-attachments/assets/30f54b02-9031-46e3-a225-c5201a1585a8" alt="vote room 순위 변동"/></td>
   </tr>
 </table>
-
+<br />
 
 **✅ 조건 입력 → 후보 추가 → 투표 → 결과 확인!**
 
@@ -80,6 +79,7 @@
 3. 투표 시간에 각 식당의 상세정보를 보고 good/soso/bad/hate로 평가해요
 4. 실시간으로 투표 결과를 집계해 상위권 식당을 추천해줘요
 
+<br />
 <table align="center" table-layout="fixed">
   <tr>
     <td width="230" align="center" valign="middle">
@@ -93,7 +93,9 @@
 
 https://github.com/user-attachments/assets/e1d7470e-660c-4ad7-9dab-08bb388664f3
 
-https://github.com/user-attachments/assets/1212dcc1-f007-4872-90f7-7fafe3ea51eb
+https://github.com/user-attachments/assets/c47a6c22-5831-431f-94a2-3dea877014bb
+
+<br />
 
 **💡 간단한 참여는 물론, 위치 정보 및 메뉴 확인까지!**
 
@@ -101,15 +103,18 @@ https://github.com/user-attachments/assets/1212dcc1-f007-4872-90f7-7fafe3ea51eb
 2. 직접가기 카테고리에서는 식당의 위치 정보 및 상세 정보를 확인할 수 있어요
 3. 배달 카테고리에서는 각 식당의 메뉴를 한눈에 확인할 수 있어요
 
+<br />
+
 ---
 
 ## [Fun 2] 룰렛으로 랜덤하게 고르는 Random Room
 
----
-
 ### 카테고리별 추천 식당으로 재미있는 룰렛 게임!
 
+<br />
 <img width="300" alt="random room" src="https://github.com/user-attachments/assets/292c86f3-408b-4ed1-aba2-f1f35840226e"/>
+<br />
+<br />
 
 **✅ 새로고침 가능한 룰렛 + 상세 정보 확인까지!**
 
@@ -122,11 +127,12 @@ https://github.com/user-attachments/assets/1212dcc1-f007-4872-90f7-7fafe3ea51eb
 
 ## [Fun 3] 베스트 커플 기능
 
----
-
 ### 당신과 가장 비슷한 취향의 친구는 누구일까요?
 
+<br />
 <img width="300" alt="오늘의 커플" src="https://github.com/user-attachments/assets/29a0bd8b-8d6f-49dd-87b8-c294556525a4"/>
+<br />
+<br />
 
 **✅ 취향 분석으로 알아보는 오늘의 커플 매칭!**
 
